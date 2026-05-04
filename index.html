@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.2</title>
+<title>Ximpler.App | Team Chat V1.3</title>
 
 <style>
 :root{
@@ -19,15 +19,23 @@
   --panel:390px;
   --rail:58px;
 }
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:#eef2f5;
   color:var(--text);
 }
+
 button,input{font-family:inherit}
-.app{min-height:100vh;display:flex}
+
+.app{
+  min-height:100vh;
+  display:flex;
+}
+
 .sidebar{
   width:58px;
   background:var(--navy);
@@ -36,6 +44,7 @@ button,input{font-family:inherit}
   inset:0 auto 0 0;
   z-index:20;
 }
+
 .logo{
   height:58px;
   display:flex;
@@ -46,6 +55,7 @@ button,input{font-family:inherit}
   font-weight:800;
   border-bottom:1px solid rgba(255,255,255,.08);
 }
+
 .nav{
   display:flex;
   flex-direction:column;
@@ -53,6 +63,7 @@ button,input{font-family:inherit}
   gap:8px;
   padding-top:14px;
 }
+
 .nav div{
   width:42px;
   height:42px;
@@ -63,13 +74,20 @@ button,input{font-family:inherit}
   color:#cbd5e1;
   position:relative;
 }
-.nav div.active,.nav div:hover{background:rgba(255,255,255,.08);color:white}
+
+.nav div.active,
+.nav div:hover{
+  background:rgba(255,255,255,.08);
+  color:white;
+}
+
 .content{
   margin-left:58px;
   width:calc(100% - 58px);
   min-height:100vh;
   background:white;
 }
+
 .topbar{
   height:58px;
   display:flex;
@@ -78,8 +96,19 @@ button,input{font-family:inherit}
   padding:0 24px;
   border-bottom:1px solid var(--border);
 }
-.top-left,.top-right{display:flex;align-items:center;gap:14px}
-.top-center{font-weight:800;color:#9ca3af}
+
+.top-left,
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.top-center{
+  font-weight:800;
+  color:#9ca3af;
+}
+
 .avatar{
   width:30px;
   height:30px;
@@ -93,8 +122,19 @@ button,input{font-family:inherit}
   font-weight:800;
   flex:0 0 auto;
 }
-.avatar.sm{width:24px;height:24px;font-size:10px}
-.avatar.xs{width:19px;height:19px;font-size:8px}
+
+.avatar.sm{
+  width:24px;
+  height:24px;
+  font-size:10px;
+}
+
+.avatar.xs{
+  width:19px;
+  height:19px;
+  font-size:8px;
+}
+
 .avatar.blue{background:#1f8fe5}
 .avatar.green{background:#16a34a}
 .avatar.gold{background:#f59e0b}
@@ -102,14 +142,24 @@ button,input{font-family:inherit}
 .avatar.red{background:#e3262f}
 .avatar.teal{background:#0f766e}
 .avatar.pink{background:#db2777}
-.board{padding:30px 26px 80px}
+
+.board{
+  padding:30px 26px 80px;
+}
+
 .board-header{
   display:flex;
   align-items:center;
   justify-content:space-between;
   margin-bottom:24px;
 }
-.board-title{font-size:24px;font-weight:800;margin:0}
+
+.board-title{
+  font-size:24px;
+  font-weight:800;
+  margin:0;
+}
+
 .round-add{
   width:58px;
   height:58px;
@@ -120,25 +170,34 @@ button,input{font-family:inherit}
   font-size:32px;
   cursor:pointer;
 }
+
 .tabs{
   display:flex;
   gap:34px;
   border-bottom:1px solid var(--border);
   margin-bottom:18px;
 }
+
 .tab{
   padding:12px 0;
   font-size:14px;
   position:relative;
 }
-.tab.active{font-weight:800}
+
+.tab.active{
+  font-weight:800;
+}
+
 .tab.active:after{
   content:"";
   position:absolute;
-  left:0;right:0;bottom:-1px;
+  left:0;
+  right:0;
+  bottom:-1px;
   height:3px;
   background:#111827;
 }
+
 .filter{
   width:100%;
   height:38px;
@@ -146,18 +205,39 @@ button,input{font-family:inherit}
   padding:0 12px;
   margin-bottom:18px;
 }
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:14px 10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+
 tr.danger{background:#f6a7a7}
 tr.warning{background:#fff3bf}
+
 .status{
   padding:5px 8px;
   border-radius:6px;
   font-size:11px;
   font-weight:800;
 }
-.status.open{background:#dbeafe;color:#1d4ed8}
-.status.done{background:#dcfce7;color:#15803d}
+
+.status.open{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.status.done{
+  background:#dcfce7;
+  color:#15803d;
+}
+
 .detail{
   border:1px solid var(--border);
   background:white;
@@ -166,6 +246,7 @@ tr.warning{background:#fff3bf}
   cursor:pointer;
   font-size:11px;
 }
+
 .launcher{
   position:fixed;
   right:22px;
@@ -181,6 +262,7 @@ tr.warning{background:#fff3bf}
   box-shadow:var(--shadow);
   cursor:pointer;
 }
+
 .badge{
   position:absolute;
   top:-7px;
@@ -197,6 +279,7 @@ tr.warning{background:#fff3bf}
   align-items:center;
   justify-content:center;
 }
+
 .panel{
   position:fixed;
   top:88px;
@@ -210,12 +293,17 @@ tr.warning{background:#fff3bf}
   display:flex;
   transition:.25s;
 }
-.panel.open{right:18px}
+
+.panel.open{
+  right:18px;
+}
+
 .rail{
   width:var(--rail);
   background:var(--soft);
   border-right:1px solid var(--border);
 }
+
 .rail-item{
   height:72px;
   display:flex;
@@ -228,17 +316,22 @@ tr.warning{background:#fff3bf}
   border-bottom:1px solid var(--border);
   position:relative;
 }
+
 .rail-item.active{
   background:white;
   font-weight:800;
 }
+
 .rail-item.active:before{
   content:"";
   position:absolute;
-  left:0;top:0;bottom:0;
+  left:0;
+  top:0;
+  bottom:0;
   width:4px;
   background:var(--red);
 }
+
 .rail-badge{
   position:absolute;
   top:7px;
@@ -254,12 +347,14 @@ tr.warning{background:#fff3bf}
   align-items:center;
   justify-content:center;
 }
+
 .chat-main{
   width:calc(100% - var(--rail));
   display:flex;
   flex-direction:column;
   min-width:0;
 }
+
 .chat-header{
   height:52px;
   background:var(--navy);
@@ -269,12 +364,14 @@ tr.warning{background:#fff3bf}
   justify-content:space-between;
   padding:0 12px;
 }
+
 .title-wrap{
   display:flex;
   align-items:center;
   gap:8px;
   min-width:0;
 }
+
 .chat-title{
   font-size:17px;
   font-weight:800;
@@ -282,6 +379,7 @@ tr.warning{background:#fff3bf}
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 .icon-btn{
   border:0;
   background:transparent;
@@ -289,6 +387,7 @@ tr.warning{background:#fff3bf}
   font-size:18px;
   cursor:pointer;
 }
+
 .search{
   height:48px;
   display:flex;
@@ -297,12 +396,14 @@ tr.warning{background:#fff3bf}
   padding:0 12px;
   border-bottom:1px solid var(--border);
 }
+
 .search input{
   border:0;
   outline:0;
   flex:1;
   height:34px;
 }
+
 .toolbar{
   display:flex;
   flex-wrap:wrap;
@@ -311,7 +412,9 @@ tr.warning{background:#fff3bf}
   border-bottom:1px solid var(--border);
   background:var(--soft);
 }
-.toolbar button,.mini{
+
+.toolbar button,
+.mini{
   border:1px solid var(--border);
   background:white;
   color:#334155;
@@ -320,20 +423,25 @@ tr.warning{background:#fff3bf}
   cursor:pointer;
   font-size:11px;
 }
+
 .toolbar button.primary{
   background:var(--navy);
   color:white;
   border-color:var(--navy);
 }
-.toolbar button.danger,.mini.danger{
+
+.toolbar button.danger,
+.mini.danger{
   color:#b91c1c;
   border-color:#fecaca;
 }
+
 .body{
   flex:1;
   overflow:auto;
   background:white;
 }
+
 .item{
   min-height:66px;
   display:flex;
@@ -343,11 +451,16 @@ tr.warning{background:#fff3bf}
   border-bottom:1px solid var(--border);
   cursor:pointer;
 }
-.item:hover{background:#f8fafc}
+
+.item:hover{
+  background:#f8fafc;
+}
+
 .item-main{
   min-width:0;
   flex:1;
 }
+
 .item-title{
   font-size:13px;
   font-weight:800;
@@ -355,6 +468,7 @@ tr.warning{background:#fff3bf}
   align-items:center;
   gap:6px;
 }
+
 .item-sub{
   margin-top:4px;
   font-size:11px;
@@ -363,17 +477,13 @@ tr.warning{background:#fff3bf}
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 .item-time{
   margin-top:3px;
   font-size:10px;
   color:var(--muted);
 }
-.item-actions{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:4px;
-}
+
 .counter{
   min-width:20px;
   height:20px;
@@ -387,9 +497,21 @@ tr.warning{background:#fff3bf}
   justify-content:center;
   font-weight:800;
 }
-.team-avatars{display:flex;min-width:54px}
-.team-avatars .avatar{margin-left:-7px;border:2px solid white}
-.team-avatars .avatar:first-child{margin-left:0}
+
+.team-avatars{
+  display:flex;
+  min-width:54px;
+}
+
+.team-avatars .avatar{
+  margin-left:-7px;
+  border:2px solid white;
+}
+
+.team-avatars .avatar:first-child{
+  margin-left:0;
+}
+
 .note{
   background:var(--soft);
   border-bottom:1px solid var(--border);
@@ -398,29 +520,37 @@ tr.warning{background:#fff3bf}
   color:#475569;
   line-height:1.35;
 }
+
 .conversation{
   display:flex;
   flex-direction:column;
   height:100%;
 }
+
 .messages{
   flex:1;
   overflow:auto;
   padding:14px 12px 10px;
 }
+
 .date{
   text-align:center;
   font-size:10px;
   color:var(--muted);
   margin:10px 0;
 }
+
 .msg-row{
   display:flex;
   gap:7px;
   align-items:flex-end;
   margin-bottom:10px;
 }
-.msg-row.me{justify-content:flex-end}
+
+.msg-row.me{
+  justify-content:flex-end;
+}
+
 .bubble{
   max-width:82%;
   background:#f1f5f9;
@@ -431,17 +561,23 @@ tr.warning{background:#fff3bf}
   word-break:break-word;
   position:relative;
 }
-.msg-row.me .bubble{background:#dbeafe}
+
+.msg-row.me .bubble{
+  background:#dbeafe;
+}
+
 .sender{
   font-weight:800;
   font-size:10px;
   color:#334155;
   margin-bottom:3px;
 }
+
 .deleted{
   color:#64748b;
   font-style:italic;
 }
+
 .reply{
   border-left:3px solid var(--blue);
   background:rgba(255,255,255,.7);
@@ -451,6 +587,7 @@ tr.warning{background:#fff3bf}
   font-size:10px;
   color:#475569;
 }
+
 .meta{
   display:flex;
   justify-content:space-between;
@@ -459,34 +596,48 @@ tr.warning{background:#fff3bf}
   font-size:9px;
   color:var(--muted);
 }
+
 .read{
   color:#2563eb;
   cursor:pointer;
 }
+
 .msg-actions{
   display:none;
-  position:absolute;
-  top:-30px;
-  right:0;
-  background:white;
-  border:1px solid var(--border);
-  box-shadow:0 6px 16px rgba(0,0,0,.12);
-  border-radius:6px;
-  overflow:hidden;
-  z-index:2;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-bottom:7px;
+  padding:5px;
+  background:rgba(255,255,255,.85);
+  border:1px solid #dbe3ea;
+  border-radius:7px;
+  width:100%;
 }
-.bubble:hover .msg-actions{display:flex}
+
+.bubble:hover .msg-actions,
+.bubble:focus-within .msg-actions{
+  display:flex;
+}
+
 .msg-actions button{
-  border:0;
+  border:1px solid var(--border);
   background:white;
-  padding:6px 8px;
+  padding:5px 7px;
   font-size:10px;
   cursor:pointer;
-  border-right:1px solid var(--border);
+  border-radius:5px;
   white-space:nowrap;
 }
-.msg-actions button:last-child{border-right:0}
-.msg-actions button.danger{color:#b91c1c}
+
+.msg-actions button:hover{
+  background:#f8fafc;
+}
+
+.msg-actions button.danger{
+  color:#b91c1c;
+  border-color:#fecaca;
+}
+
 .attachment{
   margin-top:7px;
   border:1px solid #cbd5e1;
@@ -497,7 +648,12 @@ tr.warning{background:#fff3bf}
   align-items:center;
   gap:8px;
 }
-.att-info{min-width:0;flex:1}
+
+.att-info{
+  min-width:0;
+  flex:1;
+}
+
 .att-name{
   font-weight:800;
   font-size:11px;
@@ -505,13 +661,19 @@ tr.warning{background:#fff3bf}
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.att-size{font-size:10px;color:var(--muted)}
+
+.att-size{
+  font-size:10px;
+  color:var(--muted);
+}
+
 .download{
   font-size:10px;
   font-weight:800;
   color:#1d4ed8;
   text-decoration:none;
 }
+
 .chat-img{
   margin-top:7px;
   max-width:210px;
@@ -521,10 +683,13 @@ tr.warning{background:#fff3bf}
   display:block;
   cursor:pointer;
 }
+
 .composer-wrap{
   border-top:1px solid var(--border);
 }
-.replying,.pending{
+
+.replying,
+.pending{
   display:none;
   align-items:center;
   justify-content:space-between;
@@ -535,7 +700,12 @@ tr.warning{background:#fff3bf}
   font-size:11px;
   color:#475569;
 }
-.replying.show,.pending.show{display:flex}
+
+.replying.show,
+.pending.show{
+  display:flex;
+}
+
 .composer{
   display:flex;
   align-items:center;
@@ -543,6 +713,7 @@ tr.warning{background:#fff3bf}
   padding:10px;
   position:relative;
 }
+
 .composer input[type=text]{
   height:36px;
   border:1px solid var(--border);
@@ -552,21 +723,26 @@ tr.warning{background:#fff3bf}
   outline:0;
   min-width:0;
 }
-.attach,.send{
+
+.attach,
+.send{
   width:36px;
   height:36px;
   border-radius:999px;
   cursor:pointer;
 }
+
 .attach{
   border:1px solid var(--border);
   background:white;
 }
+
 .send{
   border:0;
   background:var(--blue);
   color:white;
 }
+
 .attach-menu{
   display:none;
   position:absolute;
@@ -579,7 +755,11 @@ tr.warning{background:#fff3bf}
   overflow:hidden;
   z-index:4;
 }
-.attach-menu.show{display:block}
+
+.attach-menu.show{
+  display:block;
+}
+
 .attach-menu div{
   padding:9px 12px;
   font-size:12px;
@@ -587,14 +767,22 @@ tr.warning{background:#fff3bf}
   cursor:pointer;
   white-space:nowrap;
 }
-.attach-menu div:hover{background:var(--soft)}
-.form{padding:14px 14px 80px}
+
+.attach-menu div:hover{
+  background:var(--soft);
+}
+
+.form{
+  padding:14px 14px 80px;
+}
+
 label.lbl{
   font-size:12px;
   font-weight:800;
   margin:12px 0 6px;
   display:block;
 }
+
 .form input[type=text]{
   width:100%;
   height:36px;
@@ -602,6 +790,7 @@ label.lbl{
   border-radius:6px;
   padding:0 10px;
 }
+
 .picker{
   margin-top:8px;
   border:1px solid var(--border);
@@ -609,6 +798,7 @@ label.lbl{
   overflow:auto;
   max-height:230px;
 }
+
 .pick{
   display:flex;
   align-items:center;
@@ -617,8 +807,13 @@ label.lbl{
   border-bottom:1px solid var(--border);
   font-size:12px;
 }
-.pick input{margin-left:auto}
-.primary-btn,.secondary-btn{
+
+.pick input{
+  margin-left:auto;
+}
+
+.primary-btn,
+.secondary-btn{
   width:100%;
   min-height:38px;
   border-radius:8px;
@@ -626,35 +821,26 @@ label.lbl{
   cursor:pointer;
   font-weight:800;
 }
-.primary-btn{border:0;background:var(--navy);color:white}
-.secondary-btn{border:1px solid var(--border);background:white;color:#334155}
-.float-add{
-  position:absolute;
-  right:14px;
-  bottom:14px;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-size:11px;
-  color:#475569;
-}
-.plus{
-  width:42px;
-  height:42px;
-  border-radius:999px;
+
+.primary-btn{
   border:0;
-  background:#4f46e5;
+  background:var(--navy);
   color:white;
-  font-size:22px;
-  cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.22);
 }
+
+.secondary-btn{
+  border:1px solid var(--border);
+  background:white;
+  color:#334155;
+}
+
 .empty{
   padding:26px 18px;
   text-align:center;
   color:var(--muted);
   font-size:13px;
 }
+
 .toast{
   position:fixed;
   right:24px;
@@ -671,7 +857,12 @@ label.lbl{
   transform:translateY(10px);
   transition:.2s;
 }
-.toast.show{opacity:1;transform:translateY(0)}
+
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
 .modal-bg{
   position:fixed;
   inset:0;
@@ -682,7 +873,11 @@ label.lbl{
   z-index:100;
   padding:20px;
 }
-.modal-bg.show{display:flex}
+
+.modal-bg.show{
+  display:flex;
+}
+
 .modal{
   width:min(530px,96vw);
   max-height:86vh;
@@ -691,6 +886,7 @@ label.lbl{
   border-radius:14px;
   box-shadow:var(--shadow);
 }
+
 .modal-h{
   background:var(--navy);
   color:white;
@@ -700,7 +896,12 @@ label.lbl{
   align-items:center;
   border-radius:14px 14px 0 0;
 }
-.modal-b{padding:16px;font-size:13px}
+
+.modal-b{
+  padding:16px;
+  font-size:13px;
+}
+
 .receipt{
   display:flex;
   align-items:center;
@@ -708,12 +909,38 @@ label.lbl{
   padding:9px 0;
   border-bottom:1px solid var(--border);
 }
-.receipt:last-child{border-bottom:0}
-.receipt-main{flex:1}
-.receipt-name{font-weight:800;font-size:12px}
-.receipt-status{font-size:11px;color:var(--muted);margin-top:2px}
-.seen{color:#15803d;font-weight:800;font-size:11px}
-.pending-read{color:#b91c1c;font-weight:800;font-size:11px}
+
+.receipt:last-child{
+  border-bottom:0;
+}
+
+.receipt-main{
+  flex:1;
+}
+
+.receipt-name{
+  font-weight:800;
+  font-size:12px;
+}
+
+.receipt-status{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.seen{
+  color:#15803d;
+  font-weight:800;
+  font-size:11px;
+}
+
+.pending-read{
+  color:#b91c1c;
+  font-weight:800;
+  font-size:11px;
+}
+
 .modal-img{
   width:100%;
   max-height:70vh;
@@ -722,12 +949,30 @@ label.lbl{
   border-radius:10px;
   background:#f8fafc;
 }
+
 @media(max-width:760px){
-  .panel{top:0;right:-100vw;width:100vw;height:100vh}
-  .panel.open{right:0}
-  .board{padding:18px 14px 90px}
-  table{min-width:880px}
-  .table-wrap{overflow:auto}
+  .panel{
+    top:0;
+    right:-100vw;
+    width:100vw;
+    height:100vh;
+  }
+
+  .panel.open{
+    right:0;
+  }
+
+  .board{
+    padding:18px 14px 90px;
+  }
+
+  table{
+    min-width:880px;
+  }
+
+  .table-wrap{
+    overflow:auto;
+  }
 }
 </style>
 </head>
@@ -748,7 +993,9 @@ label.lbl{
 
   <main class="content">
     <header class="topbar">
-      <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
+      <div class="top-left">
+        <span>☰</span><span>▦</span><span>⌕</span><span>⌂</span>
+      </div>
       <div class="top-center">XIMPLER.APP</div>
       <div class="top-right">
         <span>✉</span><span>🔔</span><span>💬</span>
@@ -776,37 +1023,55 @@ label.lbl{
         <table>
           <thead>
             <tr>
-              <th>ID</th><th>Título</th><th>Creador</th><th>Responsable</th>
-              <th>Estatus</th><th>Último movimiento</th><th>Fecha planeada</th><th>Acciones</th>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Creador</th>
+              <th>Responsable</th>
+              <th>Estatus</th>
+              <th>Último movimiento</th>
+              <th>Fecha planeada</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr class="danger">
-              <td>206731</td><td>⚠ Liberar manual de cliente de MP Limpio</td>
+              <td>206731</td>
+              <td>⚠ Liberar manual de cliente de MP Limpio</td>
               <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
               <td><span class="avatar sm">AC</span> Anel Castro</td>
-              <td><span class="status open">Recibido</span></td><td>en una hora</td><td>Sin fecha</td>
+              <td><span class="status open">Recibido</span></td>
+              <td>en una hora</td>
+              <td>Sin fecha</td>
               <td><button class="detail">Ver detalle</button></td>
             </tr>
             <tr>
-              <td>202523</td><td>Consulta - Sean Industries</td>
+              <td>202523</td>
+              <td>Consulta - Sean Industries</td>
               <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
               <td><span class="avatar sm">AC</span> Anel Castro</td>
-              <td><span class="status done">Finalizada</span></td><td>hace 14 horas</td><td>Sin fecha</td>
+              <td><span class="status done">Finalizada</span></td>
+              <td>hace 14 horas</td>
+              <td>Sin fecha</td>
               <td><button class="detail">Ver detalle</button></td>
             </tr>
             <tr class="warning">
-              <td>206666</td><td>Diseño Ximpler Corporativo Ágil</td>
+              <td>206666</td>
+              <td>Diseño Ximpler Corporativo Ágil</td>
               <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
               <td><span class="avatar sm">AC</span> Anel Castro</td>
-              <td><span class="status open">Recibido</span></td><td>hace 12 horas</td><td>Sin fecha</td>
+              <td><span class="status open">Recibido</span></td>
+              <td>hace 12 horas</td>
+              <td>Sin fecha</td>
               <td><button class="detail">Ver detalle</button></td>
             </tr>
             <tr class="danger">
-              <td>205109</td><td>Alta de Ferrari</td>
+              <td>205109</td>
+              <td>Alta de Ferrari</td>
               <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
               <td><span class="avatar sm">AC</span> Anel Castro</td>
-              <td><span class="status open">Recibido</span></td><td>hace 4 horas</td><td>Sin fecha</td>
+              <td><span class="status open">Recibido</span></td>
+              <td>hace 4 horas</td>
+              <td>Sin fecha</td>
               <td><button class="detail">Ver detalle</button></td>
             </tr>
           </tbody>
@@ -820,9 +1085,21 @@ label.lbl{
 
 <section class="panel" id="panel">
   <aside class="rail">
-    <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
-    <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
-    <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
+    <div class="rail-item active" data-section="chat">
+      <span class="rail-badge" id="chatBadge">0</span>
+      <span>💬</span>
+      <span>Chat</span>
+    </div>
+    <div class="rail-item" data-section="teams">
+      <span class="rail-badge" id="teamsBadge">0</span>
+      <span>👥</span>
+      <span>Teams</span>
+    </div>
+    <div class="rail-item" data-section="forum">
+      <span class="rail-badge" id="forumBadge">0</span>
+      <span>⚙</span>
+      <span>Forum</span>
+    </div>
   </aside>
 
   <div class="chat-main">
@@ -850,8 +1127,22 @@ label.lbl{
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_2_fixed";
+const KEY="ximpler_team_chat_v1_3_fixed";
 const ME="u1";
+
+function msg(id,senderId,text,createdAt,readBy){
+  return {
+    id,
+    senderId,
+    text,
+    createdAt,
+    readBy:readBy||{[senderId]:createdAt},
+    replyTo:null,
+    attachment:null,
+    deletedForAll:false,
+    hiddenFor:[]
+  };
+}
 
 const demo={
   users:[
@@ -928,17 +1219,6 @@ const demo={
   }
 };
 
-function msg(id,senderId,text,createdAt,readBy){
-  return {
-    id,senderId,text,createdAt,
-    readBy:readBy||{[senderId]:createdAt},
-    replyTo:null,
-    attachment:null,
-    deletedForAll:false,
-    hiddenFor:[]
-  };
-}
-
 let state=load();
 let section="chat";
 let viewMode="list";
@@ -949,9 +1229,23 @@ let pendingFile=null;
 
 const $=id=>document.getElementById(id);
 
-$("launcher").onclick=()=>{$("panel").classList.add("open");render()};
-$("close").onclick=()=>{$("panel").classList.remove("open")};
-$("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
+$("launcher").onclick=()=>{
+  $("panel").classList.add("open");
+  render();
+};
+
+$("close").onclick=()=>{
+  $("panel").classList.remove("open");
+};
+
+$("back").onclick=()=>{
+  viewMode="list";
+  selectedChat=null;
+  selectedTeam=null;
+  replying=null;
+  pendingFile=null;
+  render();
+};
 
 document.querySelectorAll(".rail-item").forEach(el=>{
   el.onclick=()=>{
@@ -973,62 +1267,122 @@ function load(){
   localStorage.setItem(KEY,JSON.stringify(demo));
   return normalize(JSON.parse(JSON.stringify(demo)));
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(state));badges()}
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  badges();
+}
+
 function normalize(s){
   s.chats=s.chats||[];
   s.teams=s.teams||[];
   s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+
   [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
     (box.messages||[]).forEach(m=>{
       m.readBy=m.readBy||{[m.senderId]:m.createdAt};
       m.hiddenFor=m.hiddenFor||[];
       m.deletedForAll=!!m.deletedForAll;
-      if(m.attachment===undefined)m.attachment=null;
+      if(m.attachment===undefined) m.attachment=null;
+      if(m.replyTo===undefined) m.replyTo=null;
     });
+
     box.lastActivityAt=box.lastActivityAt||lastDate(box.messages||[]);
     box.unread=Number(box.unread||0);
   });
+
   return s;
 }
+
 function resetDemo(){
-  if(!confirm("¿Reiniciar datos demo y limpiar almacenamiento de esta versión?"))return;
+  if(!confirm("¿Reiniciar datos demo y limpiar almacenamiento de esta versión?")) return;
+
   localStorage.removeItem(KEY);
   state=load();
-  section="chat";viewMode="list";selectedChat=null;selectedTeam=null;
-  render();toast("Demo reiniciado");
+  section="chat";
+  viewMode="list";
+  selectedChat=null;
+  selectedTeam=null;
+  replying=null;
+  pendingFile=null;
+  render();
+  toast("Demo reiniciado");
 }
-function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
+
+function user(id){
+  return state.users.find(u=>u.id===id)||state.users[0];
+}
+
 function av(id,size="sm"){
   const u=user(id);
   return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`;
 }
+
 function esc(v){
-  return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  return String(v||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
-function now(){return new Date().toISOString()}
-function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
+
+function now(){
+  return new Date().toISOString();
+}
+
+function uid(p="id"){
+  return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
 function fmt(iso){
-  return new Date(iso).toLocaleString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",","")+" hrs.";
+  return new Date(iso).toLocaleString("es-MX",{
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit",
+    hour:"2-digit",
+    minute:"2-digit"
+  }).replace(",","")+" hrs.";
 }
+
 function dateOnly(iso){
-  return new Date(iso).toLocaleDateString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit"});
+  return new Date(iso).toLocaleDateString("es-MX",{
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit"
+  });
 }
+
 function lastDate(messages){
   return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00";
 }
-function activity(x){return x.lastActivityAt||lastDate(x.messages)}
-function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
+
+function activity(x){
+  return x.lastActivityAt||lastDate(x.messages);
+}
+
+function visibleMessages(messages){
+  return messages.filter(m=>!m.hiddenFor.includes(ME));
+}
+
 function badges(){
   const chatUnread=state.chats.reduce((a,c)=>a+Number(c.unread||0),0);
-  const teamUnread=state.teams.filter(t=>t.members.includes(ME)).reduce((a,t)=>a+Number(t.unread||0),0);
+  const teamUnread=state.teams
+    .filter(t=>t.members.includes(ME))
+    .reduce((a,t)=>a+Number(t.unread||0),0);
   const forumUnread=Number(state.forum.unread||0);
+
   $("chatBadge").textContent=chatUnread;
   $("teamsBadge").textContent=teamUnread;
   $("forumBadge").textContent=forumUnread;
   $("totalBadge").textContent=chatUnread+teamUnread+forumUnread;
 }
+
 function render(){
-  document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section));
+  document.querySelectorAll(".rail-item").forEach(el=>{
+    el.classList.toggle("active",el.dataset.section===section);
+  });
+
   badges();
 
   if(section==="chat"){
@@ -1036,21 +1390,28 @@ function render(){
     else if(viewMode==="newChat") renderNewChat();
     else renderChatList();
   }
+
   if(section==="teams"){
     if(viewMode==="teamConversation") renderTeamConversation();
     else if(viewMode==="teamForm") renderTeamForm();
     else renderTeamsList();
   }
-  if(section==="forum") renderForum();
+
+  if(section==="forum"){
+    renderForum();
+  }
 }
+
 function searchHTML(value=""){
   return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:" value="${esc(value)}"></div>`;
 }
 
 /* CHAT INDIVIDUAL */
+
 function renderChatList(filter=""){
   $("title").textContent="Chat";
   $("back").style.visibility="hidden";
+
   const f=filter.toLowerCase();
 
   const rows=state.chats
@@ -1070,13 +1431,12 @@ function renderChatList(filter=""){
         <div class="item chat-open" data-id="${r.chat.id}">
           ${av(r.u.id)}
           <div class="item-main">
-            <div class="item-title">${esc(r.u.name)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
+            <div class="item-title">
+              ${esc(r.u.name)}
+              ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}
+            </div>
             <div class="item-sub">${preview(r.last)}</div>
             <div class="item-time">Último movimiento: ${fmt(activity(r.chat))}</div>
-          </div>
-          <div class="item-actions">
-            <button class="mini empty-chat" data-id="${r.chat.id}">Vaciar</button>
-            <button class="mini danger delete-chat" data-id="${r.chat.id}">Eliminar</button>
           </div>
         </div>
       `).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
@@ -1084,22 +1444,24 @@ function renderChatList(filter=""){
   `;
 
   $("searchInput").oninput=e=>renderChatList(e.target.value);
-  $("newChatBtn").onclick=()=>{viewMode="newChat";render()};
+  $("newChatBtn").onclick=()=>{
+    viewMode="newChat";
+    render();
+  };
   $("markAllBtn").onclick=markAllRead;
   $("resetBtn").onclick=resetDemo;
 
   document.querySelectorAll(".chat-open").forEach(el=>{
-    el.onclick=e=>{
-      if(e.target.closest("button"))return;
+    el.onclick=()=>{
       openChat(el.dataset.id);
     };
   });
-  document.querySelectorAll(".empty-chat").forEach(b=>b.onclick=e=>{e.stopPropagation();emptyChat(b.dataset.id)});
-  document.querySelectorAll(".delete-chat").forEach(b=>b.onclick=e=>{e.stopPropagation();deleteChat(b.dataset.id)});
 }
+
 function renderNewChat(filter=""){
   $("title").textContent="Nuevo Chat";
   $("back").style.visibility="visible";
+
   const f=filter.toLowerCase();
   const users=state.users.filter(u=>u.id!==ME&&u.name.toLowerCase().includes(f));
 
@@ -1122,21 +1484,40 @@ function renderNewChat(filter=""){
       }).join("")}
     </div>
   `;
+
   $("searchInput").oninput=e=>renderNewChat(e.target.value);
-  document.querySelectorAll(".start-chat").forEach(el=>el.onclick=()=>startChat(el.dataset.user));
+
+  document.querySelectorAll(".start-chat").forEach(el=>{
+    el.onclick=()=>startChat(el.dataset.user);
+  });
 }
+
 function startChat(userId){
   let c=state.chats.find(x=>x.userId===userId);
+
   if(!c){
-    c={id:`c_${userId}_${Date.now()}`,userId,unread:0,lastActivityAt:now(),messages:[]};
+    c={
+      id:`c_${userId}_${Date.now()}`,
+      userId,
+      unread:0,
+      lastActivityAt:now(),
+      messages:[]
+    };
     state.chats.push(c);
     save();
   }
+
   openChat(c.id);
 }
+
 function openChat(id){
   const c=state.chats.find(x=>x.id===id);
-  if(!c){toast("No encontré ese chat");return}
+
+  if(!c){
+    toast("No encontré ese chat");
+    return;
+  }
+
   selectedChat=id;
   viewMode="conversation";
   c.unread=0;
@@ -1144,11 +1525,19 @@ function openChat(id){
   save();
   render();
 }
+
 function renderChatConversation(){
   const c=state.chats.find(x=>x.id===selectedChat);
-  if(!c){viewMode="list";renderChatList();return}
+
+  if(!c){
+    viewMode="list";
+    renderChatList();
+    return;
+  }
+
   $("title").textContent=user(c.userId).name;
   $("back").style.visibility="visible";
+
   $("view").innerHTML=`
     <div class="toolbar">
       <button id="emptyThis">Vaciar chat</button>
@@ -1156,28 +1545,37 @@ function renderChatConversation(){
     </div>
     <div class="conversation">
       <div class="messages" id="messages">${renderMessages(c.messages)}</div>
-      ${composerHTML("sendChat")}
+      ${composerHTML()}
     </div>
   `;
+
   $("emptyThis").onclick=()=>emptyChat(c.id);
   $("deleteThis").onclick=()=>deleteChat(c.id);
+
   bindComposer();
   bindMessageButtons();
   scrollBottom();
 }
+
 function emptyChat(id){
   const c=state.chats.find(x=>x.id===id);
-  if(!c||!confirm("¿Vaciar este chat solo para ti?"))return;
-  c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});
+
+  if(!c||!confirm("¿Vaciar este chat solo para ti?")) return;
+
+  c.messages.forEach(m=>{
+    if(!m.hiddenFor.includes(ME)) m.hiddenFor.push(ME);
+  });
+
   c.unread=0;
   c.lastActivityAt=now();
   save();
-  viewMode=selectedChat===id?"conversation":"list";
   render();
   toast("Chat vaciado para ti");
 }
+
 function deleteChat(id){
-  if(!confirm("¿Eliminar este chat de tu lista?"))return;
+  if(!confirm("¿Eliminar este chat de tu lista? Esta acción quitará el historial de tu vista.")) return;
+
   state.chats=state.chats.filter(c=>c.id!==id);
   selectedChat=null;
   viewMode="list";
@@ -1187,10 +1585,13 @@ function deleteChat(id){
 }
 
 /* TEAMS */
+
 function renderTeamsList(filter=""){
   $("title").textContent="Teams";
   $("back").style.visibility="hidden";
+
   const f=filter.toLowerCase();
+
   const teams=state.teams
     .filter(t=>t.members.includes(ME))
     .filter(t=>t.name.toLowerCase().includes(f))
@@ -1198,27 +1599,47 @@ function renderTeamsList(filter=""){
 
   $("view").innerHTML=`
     ${searchHTML(filter)}
-    <div class="body" style="position:relative">
+    <div class="toolbar">
+      <button class="primary" id="addTeamTop">+ Nuevo Chat</button>
+      <button id="markAllTeams">Marcar todo leído</button>
+    </div>
+    <div class="body">
       ${teams.length?teams.map(t=>`
         <div class="item team-open" data-id="${t.id}">
           <div class="team-avatars">${t.members.slice(0,4).map(id=>av(id,"xs")).join("")}</div>
           <div class="item-main">
-            <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
+            <div class="item-title">
+              ${esc(t.name)}
+              ${t.unread?`<span class="counter">${t.unread}</span>`:""}
+            </div>
             <div class="item-sub">${t.members.length} integrantes · ${preview(visibleMessages(t.messages).at(-1))}</div>
             <div class="item-time">Último movimiento: ${fmt(activity(t))}</div>
           </div>
         </div>
       `).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
-      <div class="float-add"><button class="plus" id="addTeam">+</button><span>Agregar Team</span></div>
     </div>
   `;
+
   $("searchInput").oninput=e=>renderTeamsList(e.target.value);
-  $("addTeam").onclick=()=>{viewMode="teamForm";render()};
-  document.querySelectorAll(".team-open").forEach(el=>el.onclick=()=>openTeam(el.dataset.id));
+  $("addTeamTop").onclick=()=>{
+    viewMode="teamForm";
+    render();
+  };
+  $("markAllTeams").onclick=markAllRead;
+
+  document.querySelectorAll(".team-open").forEach(el=>{
+    el.onclick=()=>openTeam(el.dataset.id);
+  });
 }
+
 function openTeam(id){
   const t=state.teams.find(x=>x.id===id);
-  if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}
+
+  if(!t||!t.members.includes(ME)){
+    toast("Ya no perteneces a este Team");
+    return;
+  }
+
   selectedTeam=id;
   viewMode="teamConversation";
   t.unread=0;
@@ -1226,80 +1647,126 @@ function openTeam(id){
   save();
   render();
 }
+
 function renderTeamConversation(){
   const t=state.teams.find(x=>x.id===selectedTeam);
-  if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
+
+  if(!t||!t.members.includes(ME)){
+    viewMode="list";
+    renderTeamsList();
+    return;
+  }
+
   $("title").textContent=t.name;
   $("back").style.visibility="visible";
+
   $("view").innerHTML=`
-    <div class="note"><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes: ${t.members.map(id=>esc(user(id).name)).join(", ")}</div>
-    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button></div>
+    <div class="note">
+      <strong>${esc(t.name)}</strong> · ${t.members.length} integrantes:
+      ${t.members.map(id=>esc(user(id).name)).join(", ")}
+    </div>
+    <div class="toolbar">
+      <button class="danger" id="leaveTeam">Salir del chat grupal</button>
+      <button class="danger" id="deleteTeam">Eliminar chat</button>
+    </div>
     <div class="conversation">
       <div class="messages" id="messages">${renderMessages(t.messages)}</div>
-      ${composerHTML("sendTeam")}
+      ${composerHTML()}
     </div>
   `;
+
   $("leaveTeam").onclick=()=>leaveTeam(t.id);
+  $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
+
   bindComposer();
   bindMessageButtons();
   scrollBottom();
 }
+
 function renderTeamForm(){
-  $("title").textContent="Agregar Team";
+  $("title").textContent="Agregar Chat Grupal";
   $("back").style.visibility="visible";
+
   $("view").innerHTML=`
     <div class="body">
       <div class="form">
-        <label class="lbl">Nombre del equipo:</label>
+        <label class="lbl">Nombre del chat grupal:</label>
         <input type="text" id="teamName" placeholder="Ej. Dirección Comercial">
+
         <label class="lbl">INVITADOS:</label>
         <input type="text" id="memberSearch" placeholder="Buscar internos...">
+
         <div class="picker" id="memberPicker">${pickerRows("")}</div>
-        <button class="primary-btn" id="createTeam">Crear Team</button>
+
+        <button class="primary-btn" id="createTeam">Crear Chat Grupal</button>
         <button class="secondary-btn" id="cancelTeam">Cancelar</button>
       </div>
     </div>
   `;
-  $("memberSearch").oninput=e=>$("memberPicker").innerHTML=pickerRows(e.target.value);
+
+  $("memberSearch").oninput=e=>{
+    $("memberPicker").innerHTML=pickerRows(e.target.value);
+  };
+
   $("createTeam").onclick=createTeam;
-  $("cancelTeam").onclick=()=>{viewMode="list";render()};
+  $("cancelTeam").onclick=()=>{
+    viewMode="list";
+    render();
+  };
 }
+
 function pickerRows(filter){
   const f=filter.toLowerCase();
-  return state.users.filter(u=>u.id!==ME&&u.name.toLowerCase().includes(f)).map(u=>`
-    <label class="pick">
-      ${av(u.id)}
-      <span>${esc(u.name)}</span>
-      <input type="checkbox" class="memberCheck" value="${u.id}">
-    </label>
-  `).join("");
+
+  return state.users
+    .filter(u=>u.id!==ME&&u.name.toLowerCase().includes(f))
+    .map(u=>`
+      <label class="pick">
+        ${av(u.id)}
+        <span>${esc(u.name)}</span>
+        <input type="checkbox" class="memberCheck" value="${u.id}">
+      </label>
+    `).join("");
 }
+
 function createTeam(){
   const name=$("teamName").value.trim();
   const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);
-  if(!name){toast("Escribe el nombre del equipo");return}
+
+  if(!name){
+    toast("Escribe el nombre del chat grupal");
+    return;
+  }
+
   const t={
     id:uid("team"),
     name,
     members:[...new Set([ME,...selected])],
     unread:0,
     lastActivityAt:now(),
-    messages:[newMessage(`Team creado: ${name}`)]
+    messages:[newMessage(`Chat grupal creado: ${name}`)]
   };
+
   state.teams.push(t);
   save();
+
   selectedTeam=t.id;
   viewMode="teamConversation";
   render();
-  toast("Team creado");
+  toast("Chat grupal creado");
 }
+
 function leaveTeam(id){
   const t=state.teams.find(x=>x.id===id);
-  if(!t||!confirm(`¿Salir del chat grupal "${t.name}"?`))return;
+
+  if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`)) return;
+
   t.members=t.members.filter(x=>x!==ME);
-  const m=newMessage(`${user(ME).name} salió del Team.`);
+
+  const m=newMessage(`${user(ME).name} salió del chat grupal.`);
   t.messages.push(m);
   t.lastActivityAt=m.createdAt;
+
   selectedTeam=null;
   viewMode="list";
   save();
@@ -1307,37 +1774,64 @@ function leaveTeam(id){
   toast("Saliste del chat grupal");
 }
 
+function deleteTeamChat(id){
+  const t=state.teams.find(x=>x.id===id);
+
+  if(!t) return;
+
+  if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`)) return;
+
+  state.teams=state.teams.filter(x=>x.id!==id);
+  selectedTeam=null;
+  viewMode="list";
+  save();
+  render();
+  toast("Chat grupal eliminado");
+}
+
 /* FORUM */
+
 function renderForum(){
   $("title").textContent="Forum";
   $("back").style.visibility="hidden";
+
   state.forum.unread=0;
   markRead(state.forum.messages);
   save();
+
   $("view").innerHTML=`
     <div class="note">Foro general para anuncios, conversación abierta, documentos, fotos y acuerdos compartidos.</div>
     <div class="conversation">
       <div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>
-      ${composerHTML("sendForum")}
+      ${composerHTML()}
     </div>
   `;
+
   bindComposer();
   bindMessageButtons();
   scrollBottom();
 }
 
 /* MENSAJES */
+
 function preview(m){
-  if(!m)return "Sin mensajes";
-  if(m.deletedForAll)return "Mensaje eliminado";
-  if(m.attachment)return `${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;
+  if(!m) return "Sin mensajes";
+  if(m.deletedForAll) return "Mensaje eliminado";
+
+  if(m.attachment){
+    return `${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;
+  }
+
   return esc(m.text);
 }
+
 function renderMessages(messages){
   const msgs=visibleMessages(messages);
-  if(!msgs.length)return `<div class="empty">No hay mensajes todavía.</div>`;
+
+  if(!msgs.length) return `<div class="empty">No hay mensajes todavía.</div>`;
 
   let d="";
+
   return msgs.map(m=>{
     const mine=m.senderId===ME;
     const day=dateOnly(m.createdAt);
@@ -1345,7 +1839,11 @@ function renderMessages(messages){
     d=day;
 
     const deleted=m.deletedForAll;
-    const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
+
+    const reply=!deleted&&m.replyTo
+      ? `<div class="reply">↪ ${esc(m.replyTo.text)}</div>`
+      : "";
+
     const content=deleted
       ? `<div class="deleted">Mensaje eliminado para todos</div>`
       : `${reply}${m.text?`<div>${esc(m.text)}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
@@ -1379,16 +1877,21 @@ function renderMessages(messages){
     `;
   }).join("");
 }
+
 function attachmentHTML(m){
   const a=m.attachment;
   const href=esc(a.dataUrl);
   const name=esc(a.name);
+
   if(a.type==="image"){
     return `
       <img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}">
-      <div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a></div>
+      <div style="margin-top:5px">
+        <a class="download" href="${href}" download="${name}">Descargar imagen</a>
+      </div>
     `;
   }
+
   return `
     <div class="attachment">
       <div>📎</div>
@@ -1400,18 +1903,29 @@ function attachmentHTML(m){
     </div>
   `;
 }
-function composerHTML(fn){
+
+function composerHTML(){
   return `
     <div class="composer-wrap">
-      <div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div>
-      <div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div>
+      <div class="replying" id="replyingBox">
+        <span id="replyText"></span>
+        <button class="icon-btn" id="clearReply">x</button>
+      </div>
+
+      <div class="pending" id="pendingBox">
+        <span id="pendingText"></span>
+        <button class="icon-btn" id="clearFile">x</button>
+      </div>
+
       <div class="composer">
         <button class="attach" id="attachBtn">+</button>
+
         <div class="attach-menu" id="attachMenu">
           <div data-file="image">🖼️ Imagen / Foto</div>
           <div data-file="file">📄 Archivo</div>
           <div data-file="camera">📸 Cámara</div>
         </div>
+
         <input type="file" id="fileInput" style="display:none">
         <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
         <button class="send" id="sendBtn">➤</button>
@@ -1419,57 +1933,92 @@ function composerHTML(fn){
     </div>
   `;
 }
+
 function bindComposer(){
   updateReply();
   updatePending();
 
-  $("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");
-  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));
+  $("attachBtn").onclick=()=>{
+    $("attachMenu").classList.toggle("show");
+  };
+
+  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>{
+    x.onclick=()=>chooseFile(x.dataset.file);
+  });
+
   $("fileInput").onchange=handleFile;
-  $("clearReply").onclick=()=>{replying=null;updateReply()};
-  $("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};
+
+  $("clearReply").onclick=()=>{
+    replying=null;
+    updateReply();
+  };
+
+  $("clearFile").onclick=()=>{
+    pendingFile=null;
+    updatePending();
+    toast("Adjunto removido");
+  };
+
   $("sendBtn").onclick=sendCurrent;
-  $("messageInput").onkeydown=e=>{if(e.key==="Enter")sendCurrent()};
+
+  $("messageInput").onkeydown=e=>{
+    if(e.key==="Enter") sendCurrent();
+  };
 }
+
 function bindMessageButtons(){
   document.querySelectorAll("[data-action]").forEach(el=>{
     el.onclick=e=>{
+      e.stopPropagation();
+
       const action=el.dataset.action;
       const id=el.dataset.id;
-      if(action==="reply")replyMsg(id);
-      if(action==="copy")copyMsg(id);
-      if(action==="reads")showReads(id);
-      if(action==="deleteMe")deleteMsgForMe(id);
-      if(action==="deleteAll")deleteMsgForAll(id);
-      if(action==="image")openImage(id);
+
+      if(action==="reply") replyMsg(id);
+      if(action==="copy") copyMsg(id);
+      if(action==="reads") showReads(id);
+      if(action==="deleteMe") deleteMsgForMe(id);
+      if(action==="deleteAll") deleteMsgForAll(id);
+      if(action==="image") openImage(id);
     };
   });
 }
+
 function currentMessages(){
   if(section==="chat"){
     const c=state.chats.find(x=>x.id===selectedChat);
     return c?c.messages:[];
   }
+
   if(section==="teams"){
     const t=state.teams.find(x=>x.id===selectedTeam);
     return t?t.messages:[];
   }
+
   return state.forum.messages;
 }
+
 function currentParticipants(){
   if(section==="chat"){
     const c=state.chats.find(x=>x.id===selectedChat);
     return c?[ME,c.userId]:[ME];
   }
+
   if(section==="teams"){
     const t=state.teams.find(x=>x.id===selectedTeam);
     return t?t.members:[ME];
   }
+
   return state.users.map(u=>u.id);
 }
-function findMsg(id){return currentMessages().find(m=>m.id===id)}
+
+function findMsg(id){
+  return currentMessages().find(m=>m.id===id);
+}
+
 function newMessage(text){
   const createdAt=now();
+
   return {
     id:uid("msg"),
     senderId:ME,
@@ -1482,77 +2031,125 @@ function newMessage(text){
     hiddenFor:[]
   };
 }
+
 function sendCurrent(){
   const input=$("messageInput");
   const text=input.value.trim();
-  if(!text&&!pendingFile)return;
+
+  if(!text&&!pendingFile) return;
 
   const m=newMessage(text);
+
   if(section==="chat"){
     const c=state.chats.find(x=>x.id===selectedChat);
-    c.messages.push(m);c.lastActivityAt=m.createdAt;
+    if(!c) return;
+    c.messages.push(m);
+    c.lastActivityAt=m.createdAt;
   }else if(section==="teams"){
     const t=state.teams.find(x=>x.id===selectedTeam);
-    t.messages.push(m);t.lastActivityAt=m.createdAt;
+    if(!t) return;
+    t.messages.push(m);
+    t.lastActivityAt=m.createdAt;
   }else{
-    state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt;
+    state.forum.messages.push(m);
+    state.forum.lastActivityAt=m.createdAt;
   }
+
   input.value="";
   replying=null;
   pendingFile=null;
   save();
   render();
 }
+
 function replyMsg(id){
   const m=findMsg(id);
-  if(!m||m.deletedForAll)return;
-  replying={id:m.id,text:m.text||m.attachment?.name||"Archivo adjunto",senderId:m.senderId};
+
+  if(!m||m.deletedForAll) return;
+
+  replying={
+    id:m.id,
+    text:m.text||m.attachment?.name||"Archivo adjunto",
+    senderId:m.senderId
+  };
+
   updateReply();
   $("messageInput").focus();
 }
+
 function copyMsg(id){
   const m=findMsg(id);
-  if(!m||m.deletedForAll)return;
-  navigator.clipboard?.writeText(m.text||m.attachment?.name||"").then(()=>toast("Mensaje copiado"));
+
+  if(!m||m.deletedForAll) return;
+
+  navigator.clipboard?.writeText(m.text||m.attachment?.name||"")
+    .then(()=>toast("Mensaje copiado"));
 }
+
 function deleteMsgForMe(id){
   const m=findMsg(id);
-  if(!m||m.senderId!==ME)return;
-  if(!confirm("¿Eliminar este mensaje solo para ti?"))return;
-  if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);
+
+  if(!m||m.senderId!==ME) return;
+
+  if(!confirm("¿Eliminar este mensaje solo para ti?")) return;
+
+  if(!m.hiddenFor.includes(ME)) m.hiddenFor.push(ME);
+
   touch();
   save();
   render();
   toast("Eliminado solo para ti");
 }
+
 function deleteMsgForAll(id){
   const m=findMsg(id);
-  if(!m||m.senderId!==ME)return;
-  if(!confirm("¿Eliminar este mensaje para todos?"))return;
+
+  if(!m||m.senderId!==ME) return;
+
+  if(!confirm("¿Eliminar este mensaje para todos?")) return;
+
   m.deletedForAll=true;
   m.text="";
   m.attachment=null;
   m.replyTo=null;
+
   touch();
   save();
   render();
   toast("Eliminado para todos");
 }
+
 function chooseFile(mode){
   const input=$("fileInput");
+
   input.value="";
   input.removeAttribute("capture");
-  if(mode==="image"){input.accept="image/*"}
-  else if(mode==="camera"){input.accept="image/*";input.setAttribute("capture","environment")}
-  else{input.accept="*/*"}
+
+  if(mode==="image"){
+    input.accept="image/*";
+  }else if(mode==="camera"){
+    input.accept="image/*";
+    input.setAttribute("capture","environment");
+  }else{
+    input.accept="*/*";
+  }
+
   $("attachMenu").classList.remove("show");
   input.click();
 }
+
 function handleFile(e){
   const f=e.target.files&&e.target.files[0];
-  if(!f)return;
-  if(f.size>4*1024*1024){toast("Máximo 4 MB en este prototipo");return}
+
+  if(!f) return;
+
+  if(f.size>4*1024*1024){
+    toast("Máximo 4 MB en este prototipo");
+    return;
+  }
+
   const reader=new FileReader();
+
   reader.onload=ev=>{
     pendingFile={
       id:uid("att"),
@@ -1563,20 +2160,35 @@ function handleFile(e){
       dataUrl:ev.target.result,
       createdAt:now()
     };
+
     updatePending();
     toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo");
   };
+
   reader.readAsDataURL(f);
 }
+
 function updateReply(){
-  const box=$("replyingBox"),text=$("replyText");
-  if(!box||!text)return;
-  if(replying){box.classList.add("show");text.textContent=`Respondiendo a: ${replying.text}`}
-  else{box.classList.remove("show");text.textContent=""}
+  const box=$("replyingBox");
+  const text=$("replyText");
+
+  if(!box||!text) return;
+
+  if(replying){
+    box.classList.add("show");
+    text.textContent=`Respondiendo a: ${replying.text}`;
+  }else{
+    box.classList.remove("show");
+    text.textContent="";
+  }
 }
+
 function updatePending(){
-  const box=$("pendingBox"),text=$("pendingText");
-  if(!box||!text)return;
+  const box=$("pendingBox");
+  const text=$("pendingText");
+
+  if(!box||!text) return;
+
   if(pendingFile){
     box.classList.add("show");
     text.textContent=`${pendingFile.type==="image"?"Imagen":"Archivo"} listo: ${pendingFile.name} (${fileSize(pendingFile.size)})`;
@@ -1585,40 +2197,65 @@ function updatePending(){
     text.textContent="";
   }
 }
+
 function fileSize(bytes){
   const n=Number(bytes||0);
-  if(n<1024)return `${n} B`;
-  if(n<1024*1024)return `${(n/1024).toFixed(1)} KB`;
+
+  if(n<1024) return `${n} B`;
+  if(n<1024*1024) return `${(n/1024).toFixed(1)} KB`;
   return `${(n/(1024*1024)).toFixed(1)} MB`;
 }
+
 function markRead(messages){
   const t=now();
+
   messages.forEach(m=>{
-    if(!m.readBy)m.readBy={};
-    if(!m.readBy[ME])m.readBy[ME]=t;
+    if(!m.readBy) m.readBy={};
+    if(!m.readBy[ME]) m.readBy[ME]=t;
   });
 }
+
 function markAllRead(){
-  state.chats.forEach(c=>{c.unread=0;markRead(c.messages)});
-  state.teams.forEach(t=>{if(t.members.includes(ME)){t.unread=0;markRead(t.messages)}});
-  state.forum.unread=0;markRead(state.forum.messages);
-  save();render();toast("Todo marcado como leído");
+  state.chats.forEach(c=>{
+    c.unread=0;
+    markRead(c.messages);
+  });
+
+  state.teams.forEach(t=>{
+    if(t.members.includes(ME)){
+      t.unread=0;
+      markRead(t.messages);
+    }
+  });
+
+  state.forum.unread=0;
+  markRead(state.forum.messages);
+
+  save();
+  render();
+  toast("Todo marcado como leído");
 }
+
 function readStatus(m){
   const participants=currentParticipants();
   const others=participants.filter(id=>id!==m.senderId);
   const seen=others.filter(id=>m.readBy&&m.readBy[id]);
-  if(!others.length)return "✓";
-  if(seen.length===others.length)return "✓✓";
-  if(seen.length)return `✓ ${seen.length}/${others.length}`;
+
+  if(!others.length) return "✓";
+  if(seen.length===others.length) return "✓✓";
+  if(seen.length) return `✓ ${seen.length}/${others.length}`;
   return "✓";
 }
+
 function showReads(id){
   const m=findMsg(id);
-  if(!m)return;
+
+  if(!m) return;
+
   const rows=currentParticipants().map(id=>{
     const u=user(id);
     const seen=m.readBy&&m.readBy[id];
+
     return `
       <div class="receipt">
         ${av(id)}
@@ -1630,6 +2267,7 @@ function showReads(id){
       </div>
     `;
   }).join("");
+
   showModal("Confirmación de lectura",`
     <div style="margin-bottom:10px;color:#475569;font-size:12px">
       Enviado el ${fmt(m.createdAt)}.
@@ -1637,43 +2275,62 @@ function showReads(id){
     ${rows}
   `);
 }
+
 function openImage(id){
   const m=findMsg(id);
-  if(!m||!m.attachment||m.attachment.type!=="image")return;
+
+  if(!m||!m.attachment||m.attachment.type!=="image") return;
+
   const a=m.attachment;
+
   showModal(a.name,`
     <img class="modal-img" src="${esc(a.dataUrl)}" alt="${esc(a.name)}">
-    <div style="margin-top:12px"><a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a></div>
+    <div style="margin-top:12px">
+      <a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a>
+    </div>
   `);
 }
+
 function touch(){
   const t=now();
+
   if(section==="chat"){
     const c=state.chats.find(x=>x.id===selectedChat);
-    if(c)c.lastActivityAt=t;
+    if(c) c.lastActivityAt=t;
   }else if(section==="teams"){
     const tm=state.teams.find(x=>x.id===selectedTeam);
-    if(tm)tm.lastActivityAt=t;
+    if(tm) tm.lastActivityAt=t;
   }else{
     state.forum.lastActivityAt=t;
   }
 }
+
 function showModal(title,body){
   $("modalTitle").textContent=title;
   $("modalBody").innerHTML=body;
   $("modal").classList.add("show");
 }
+
 function closeModal(){
   $("modal").classList.remove("show");
   $("modalBody").innerHTML="";
 }
-$("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
+
+$("modal").onclick=e=>{
+  if(e.target===$("modal")) closeModal();
+};
+
 function scrollBottom(){
-  setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},0);
+  setTimeout(()=>{
+    const m=$("messages");
+    if(m) m.scrollTop=m.scrollHeight;
+  },0);
 }
+
 function toast(t){
   $("toast").textContent=t;
   $("toast").classList.add("show");
+
   setTimeout(()=>$("toast").classList.remove("show"),1800);
 }
 
