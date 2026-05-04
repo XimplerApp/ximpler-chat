@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.2 Info Usuario</title>
+<title>Ximpler.App | Team Chat V1.6.3 Tareas y Adjuntos</title>
 
 <style>
 :root{
@@ -207,6 +207,29 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 .seen{color:#15803d;font-weight:800;font-size:11px}.pending-read{color:#b91c1c;font-weight:800;font-size:11px}
 .modal-img{width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);border-radius:10px;background:#f8fafc}
 
+.task-link{
+  border:0;
+  background:#e0f2fe;
+  color:#0369a1;
+  font-weight:800;
+  font-size:inherit;
+  padding:2px 6px;
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  line-height:1.2;
+}
+.task-link:hover{background:#bae6fd;color:#075985}
+.modal.wide{width:min(980px,96vw)}
+.task-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-size:12px;color:#64748b}
+.task-toolbar a{color:#1d4ed8;font-weight:800;text-decoration:none}
+.task-frame{width:100%;height:68vh;border:1px solid var(--border);border-radius:10px;background:white}
+.task-help{font-size:11px;color:#64748b;margin-top:8px;line-height:1.35}
+.attachment.missing{opacity:.82;background:#f8fafc}
+.attachment-note{font-size:10px;color:#64748b;margin-top:2px}
+
 @media(max-width:760px){
   .panel{top:0;right:-100vw;width:100vw;height:100vh}
   .panel.open{right:0}
@@ -271,18 +294,20 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 <div class="toast" id="toast"></div>
 
 <div class="modal-bg" id="modal">
-  <div class="modal">
+  <div class="modal" id="modalBox">
     <div class="modal-h"><strong id="modalTitle">Detalle</strong><button class="icon-btn" onclick="closeModal()">x</button></div>
     <div class="modal-b" id="modalBody"></div>
   </div>
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_2_user_info";
+const KEY="ximpler_team_chat_v1_6_3_tasks_files";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
 const SESSION_DURATION_HOURS=8;
+const TASK_URL_BASE="https://www.ximpler.app/tasks?taskId=";
+const DEMO_MAX_FILE_BYTES=8*1024*1024;
 
 /*
   PRESENCIA XIMPLER — MODO ECONÓMICO BASADO EN SESIÓN
@@ -320,7 +345,7 @@ const demo={
   ],
   chats:[
     {id:"c_u2",userId:"u2",unread:2,lastActivityAt:"2026-05-02T15:25:00",messages:[
-      msg("m1","u2","Revisar avance del tablero antes de la reunión.","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
+      msg("m1","u2","Revisar avance del tablero antes de la reunión. Ver #206731","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
       msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"})
     ]},
     {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-02T15:30:00",messages:[
@@ -335,7 +360,7 @@ const demo={
       msg("tm2","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"})
     ]},
     {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-01T13:10:00",messages:[
-      msg("tm3","u5","Hay que validar permisos del nuevo módulo.","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
+      msg("tm3","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
       msg("tm4","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"})
     ]}
   ],
@@ -353,8 +378,37 @@ $("close").onclick=()=>{$("panel").classList.remove("open")};
 $("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
 document.querySelectorAll(".rail-item").forEach(el=>el.onclick=()=>{section=el.dataset.section;viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()});
 
-function load(){try{const saved=localStorage.getItem(KEY);if(saved)return normalize(JSON.parse(saved))}catch(e){} const fresh=normalize(JSON.parse(JSON.stringify(demo))); localStorage.setItem(KEY,JSON.stringify(fresh)); return fresh}
-function save(){syncCurrentUserPresenceInState(state);localStorage.setItem(KEY,JSON.stringify(state));badges()}
+function load(){
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(saved)return normalize(JSON.parse(saved));
+  }catch(e){console.warn("No se pudo leer el demo local:",e)}
+  const fresh=normalize(JSON.parse(JSON.stringify(demo)));
+  persistStateObject(fresh);
+  return fresh;
+}
+function stateForStorage(obj){
+  return JSON.parse(JSON.stringify(obj,(key,value)=>{
+    // En demo localStorage no guardamos base64 pesado. En producción, guardar aquí solo ID/URL del archivo devuelto por backend.
+    if(key==="dataUrl" && typeof value==="string" && value.length>2000)return "";
+    return value;
+  }));
+}
+function persistStateObject(obj){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(stateForStorage(obj)));
+    return true;
+  }catch(e){
+    console.error("No se pudo guardar en localStorage:",e);
+    return false;
+  }
+}
+function save(){
+  syncCurrentUserPresenceInState(state);
+  const ok=persistStateObject(state);
+  badges();
+  if(!ok)toast("No se pudo guardar el demo local. El archivo puede ser muy pesado.");
+}
 function normalize(s){
   s.users=s.users||[];
   s.users.forEach(u=>{
@@ -432,7 +486,7 @@ function registerUserActivity(source="actividad"){
   currentSession.expiresAt=addHours(new Date(),SESSION_DURATION_HOURS).toISOString();
   persistSession(currentSession);
   syncCurrentUserPresenceInState(state);
-  localStorage.setItem(KEY,JSON.stringify(state));
+  persistStateObject(state);
   updateSessionUI();
   // PRODUCCIÓN: aquí NO haría polling. Solo enviaría este dato junto con una acción real ya existente del backend.
 }
@@ -608,18 +662,51 @@ function renderForum(){
 }
 
 /* MENSAJES */
+function taskUrl(folio){return `${TASK_URL_BASE}${encodeURIComponent(folio)}`}
+function renderTextWithTaskLinks(text){
+  return String(text||"").split(/(#[A-Za-z0-9_-]{2,})/g).map(part=>{
+    const m=part.match(/^#([A-Za-z0-9_-]{2,})$/);
+    if(m){
+      const folio=m[1];
+      return `<button class="task-link" data-action="task" data-task-id="${esc(folio)}" title="Abrir tarjeta #${esc(folio)}">#${esc(folio)}</button>`;
+    }
+    return esc(part).replaceAll("\n","<br>");
+  }).join("");
+}
+function openTaskModal(folio){
+  const clean=String(folio||"").replace(/[^A-Za-z0-9_-]/g,"");
+  if(!clean){toast("Folio no válido");return}
+  const url=taskUrl(clean);
+  showModal(`Tarjeta #${esc(clean)}`,`
+    <div class="task-toolbar">
+      <span>Referencia detectada automáticamente desde el chat.</span>
+      <a href="${esc(url)}" target="_blank" rel="noopener">Abrir en Ximpler.App</a>
+    </div>
+    <iframe class="task-frame" src="${esc(url)}" title="Tarjeta #${esc(clean)}"></iframe>
+    <div class="task-help">Si el navegador no permite cargar la tarjeta dentro del modal por políticas de seguridad, usa “Abrir en Ximpler.App”. En producción, al estar dentro del mismo dominio/app, este modal puede conectarse directo al componente interno de tarjetas.</div>
+  `,{wide:true});
+}
 function preview(m){if(!m)return"Sin mensajes";if(m.deletedForAll)return"Mensaje eliminado";if(m.attachment)return`${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;return esc(m.text)}
 function messageSearchText(m){return `${user(m.senderId).name} ${m.text||""} ${m.attachment?.name||""}`.toLowerCase()}
 function renderMessages(messages){
   const msgs=visibleMessages(messages); if(!msgs.length)return`<div class="empty">No hay mensajes todavía.</div>`; let d="";
   return msgs.map(m=>{const mine=m.senderId===ME,day=dateOnly(m.createdAt),showDate=day!==d;d=day;const deleted=m.deletedForAll;
     const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
-    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${esc(m.text).replaceAll("\n","<br>")}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
+    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${renderTextWithTaskLinks(m.text)}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
     const actions=deleted?`<button data-action="reads" data-id="${m.id}">Lecturas</button>`:`<button data-action="reply" data-id="${m.id}">Responder</button><button data-action="copy" data-id="${m.id}">Copiar</button><button data-action="reads" data-id="${m.id}">Lecturas</button>${mine?`<button class="danger" data-action="deleteMe" data-id="${m.id}">Eliminar para mí</button><button class="danger" data-action="deleteAll" data-id="${m.id}">Eliminar para todos</button>`:""}`;
     return `${showDate?`<div class="date">${day}</div>`:""}<div class="msg-row ${mine?"me":""}" data-search="${esc(messageSearchText(m))}">${mine?"":av(m.senderId,"xs")}<div class="bubble"><div class="msg-actions">${actions}</div>${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}${content}<div class="meta"><span>${fmt(m.createdAt)}</span><span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span></div></div></div>`;
   }).join("");
 }
-function attachmentHTML(m){const a=m.attachment,href=esc(a.dataUrl),name=esc(a.name); if(a.type==="image")return`<img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}"><div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a></div>`; return`<div class="attachment"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div></div><a class="download" href="${href}" download="${name}">Descargar</a></div>`}
+function attachmentURL(a){return a?.objectUrl||a?.dataUrl||""}
+function attachmentHTML(m){
+  const a=m.attachment,name=esc(a.name),rawHref=attachmentURL(a),href=esc(rawHref);
+  const localNote=a.localOnly?`<div class="attachment-note">Demo local: disponible mientras esta pestaña siga abierta. En producción se guardaría como URL/ID del backend.</div>`:"";
+  if(!rawHref){
+    return `<div class="attachment missing"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div><div class="attachment-note">Adjunto no disponible en este demo local después de recargar.</div></div></div>`;
+  }
+  if(a.type==="image")return`<img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}"><div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a>${localNote}</div>`;
+  return`<div class="attachment"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div>${localNote}</div><a class="download" href="${href}" download="${name}">Descargar</a></div>`
+}
 function composerHTML(){return`<div class="composer-wrap"><div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div><div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div><div class="composer"><button class="attach" id="attachBtn">+</button><div class="attach-menu" id="attachMenu"><div data-file="image">🖼️ Imagen / Foto</div><div data-file="file">📄 Archivo</div><div data-file="camera">📸 Cámara</div></div><input type="file" id="fileInput" style="display:none"><textarea id="messageInput" placeholder="Escribe un mensaje..."></textarea><button class="expand-write" id="expandWrite" title="Ampliar redacción">⤢</button><button class="send" id="sendBtn">➤</button></div></div>`}
 function bindComposer(){
   updateReply();updatePending();
@@ -687,7 +774,21 @@ function sendExpandedText(){
     sendCurrent();
   }
 }
-function bindMessageButtons(){document.querySelectorAll("[data-action]").forEach(el=>{el.onclick=e=>{e.stopPropagation();const a=el.dataset.action,id=el.dataset.id;if(a==="reply")replyMsg(id);if(a==="copy")copyMsg(id);if(a==="reads")showReads(id);if(a==="deleteMe")deleteMsgForMe(id);if(a==="deleteAll")deleteMsgForAll(id);if(a==="image")openImage(id)}})}
+function bindMessageButtons(){
+  document.querySelectorAll("[data-action]").forEach(el=>{
+    el.onclick=e=>{
+      e.stopPropagation();
+      const a=el.dataset.action,id=el.dataset.id;
+      if(a==="reply")replyMsg(id);
+      if(a==="copy")copyMsg(id);
+      if(a==="reads")showReads(id);
+      if(a==="deleteMe")deleteMsgForMe(id);
+      if(a==="deleteAll")deleteMsgForAll(id);
+      if(a==="image")openImage(id);
+      if(a==="task")openTaskModal(el.dataset.taskId);
+    };
+  });
+}
 function currentMessages(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?c.messages:[]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.messages:[]}return state.forum.messages}
 function currentParticipants(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?[ME,c.userId]:[ME]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.members:[ME]}return state.users.map(u=>u.id)}
 function findMsg(id){return currentMessages().find(m=>m.id===id)}
@@ -708,7 +809,37 @@ function copyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;navigator
 function deleteMsgForMe(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje solo para ti?"))return;if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);touch();save();render();toast("Eliminado solo para ti")}
 function deleteMsgForAll(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje para todos?"))return;m.deletedForAll=true;m.text="";m.attachment=null;m.replyTo=null;touch();save();render();toast("Eliminado para todos")}
 function chooseFile(mode){const input=$("fileInput");input.value="";input.removeAttribute("capture");if(mode==="image"){input.accept="image/*"}else if(mode==="camera"){input.accept="image/*";input.setAttribute("capture","environment")}else{input.accept="*/*"}$("attachMenu").classList.remove("show");input.click()}
-function handleFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>4*1024*1024){toast("Máximo 4 MB en este prototipo");return}const reader=new FileReader();reader.onload=ev=>{pendingFile={id:uid("att"),name:f.name||"archivo",mime:f.type||"application/octet-stream",size:f.size,type:f.type.startsWith("image/")?"image":"file",dataUrl:ev.target.result,createdAt:now()};updatePending();toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo")};reader.readAsDataURL(f)}
+function handleFile(e){
+  try{
+    const f=e.target.files&&e.target.files[0];
+    if(!f)return;
+    if(f.size>DEMO_MAX_FILE_BYTES){toast(`Máximo ${fileSize(DEMO_MAX_FILE_BYTES)} en este demo`);return}
+    if(pendingFile?.objectUrl)URL.revokeObjectURL(pendingFile.objectUrl);
+
+    // Demo localStorage: usamos objectURL para no convertir a base64 y no saturar localStorage.
+    // Producción Ximpler.App: reemplazar esto por uploadAttachmentToXimpler(f) y guardar fileId/url segura.
+    const objectUrl=URL.createObjectURL(f);
+    pendingFile={
+      id:uid("att"),
+      name:f.name||"archivo",
+      mime:f.type||"application/octet-stream",
+      size:f.size,
+      type:f.type.startsWith("image/")?"image":"file",
+      objectUrl,
+      dataUrl:"",
+      localOnly:true,
+      storageMode:"objectURL-demo",
+      createdAt:now()
+    };
+    updatePending();
+    toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo");
+  }catch(err){
+    console.error("Error preparando archivo:",err);
+    toast("No se pudo preparar el archivo");
+  }finally{
+    if(e&&e.target)e.target.value="";
+  }
+}
 function updateReply(){const box=$("replyingBox"),text=$("replyText");if(!box||!text)return;if(replying){box.classList.add("show");text.textContent=`Respondiendo a: ${replying.text}`}else{box.classList.remove("show");text.textContent=""}}
 function updatePending(){const box=$("pendingBox"),text=$("pendingText");if(!box||!text)return;if(pendingFile){box.classList.add("show");text.textContent=`${pendingFile.type==="image"?"Imagen":"Archivo"} listo: ${pendingFile.name} (${fileSize(pendingFile.size)})`}else{box.classList.remove("show");text.textContent=""}}
 function fileSize(bytes){const n=Number(bytes||0);if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toFixed(1)} KB`;return`${(n/(1024*1024)).toFixed(1)} MB`}
@@ -716,10 +847,27 @@ function markRead(messages){const t=now();messages.forEach(m=>{if(!m.readBy)m.re
 function markAllRead(){state.chats.forEach(c=>{c.unread=0;markRead(c.messages)});state.teams.forEach(t=>{if(t.members.includes(ME)){t.unread=0;markRead(t.messages)}});state.forum.unread=0;markRead(state.forum.messages);save();render();toast("Todo marcado como leído")}
 function readStatus(m){const p=currentParticipants(),others=p.filter(id=>id!==m.senderId),seen=others.filter(id=>m.readBy&&m.readBy[id]);if(!others.length)return"✓";if(seen.length===others.length)return"✓✓";if(seen.length)return`✓ ${seen.length}/${others.length}`;return"✓"}
 function showReads(id){const m=findMsg(id);if(!m)return;const rows=currentParticipants().map(id=>{const u=user(id),seen=m.readBy&&m.readBy[id];return`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(u.name)} ${id===m.senderId?"(envió)":""}</div><div class="receipt-status">${seen?`Visto: ${fmt(seen)}`:"Pendiente de lectura"}</div></div><div class="${seen?"seen":"pending-read"}">${seen?"Visto":"Pendiente"}</div></div>`}).join("");showModal("Confirmación de lectura",`<div style="margin-bottom:10px;color:#475569;font-size:12px">Enviado el ${fmt(m.createdAt)}.</div>${rows}`)}
-function openImage(id){const m=findMsg(id);if(!m||!m.attachment||m.attachment.type!=="image")return;const a=m.attachment;showModal(a.name,`<img class="modal-img" src="${esc(a.dataUrl)}" alt="${esc(a.name)}"><div style="margin-top:12px"><a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a></div>`)}
+function openImage(id){
+  const m=findMsg(id);
+  if(!m||!m.attachment||m.attachment.type!=="image")return;
+  const a=m.attachment,rawHref=attachmentURL(a);
+  if(!rawHref){toast("Imagen no disponible en este demo local");return}
+  showModal(a.name,`<img class="modal-img" src="${esc(rawHref)}" alt="${esc(a.name)}"><div style="margin-top:12px"><a class="download" href="${esc(rawHref)}" download="${esc(a.name)}">Descargar imagen</a></div>`);
+}
 function touch(){registerUserActivity("actualizar_conversacion");const t=now();if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(c)c.lastActivityAt=t}else if(section==="teams"){const tm=state.teams.find(x=>x.id===selectedTeam);if(tm)tm.lastActivityAt=t}else{state.forum.lastActivityAt=t}}
-function showModal(title,body){$("modalTitle").textContent=title;$("modalBody").innerHTML=body;$("modal").classList.add("show")}
-function closeModal(){$("modal").classList.remove("show");$("modalBody").innerHTML=""}
+function showModal(title,body,options={}){
+  $("modalTitle").textContent=title;
+  $("modalBody").innerHTML=body;
+  const box=$("modalBox");
+  if(box)box.className=`modal${options.wide?" wide":""}`;
+  $("modal").classList.add("show");
+}
+function closeModal(){
+  $("modal").classList.remove("show");
+  $("modalBody").innerHTML="";
+  const box=$("modalBox");
+  if(box)box.className="modal";
+}
 $("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
 function scrollBottom(){setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},0)}
 function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
