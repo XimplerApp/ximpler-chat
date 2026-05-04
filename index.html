@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.4</title>
+<title>Ximpler.App | Team Chat V1.5</title>
 
 <style>
 :root{
@@ -14,7 +14,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f5;color:var(--text)}
-button,input{font-family:inherit}
+button,input,textarea{font-family:inherit}
 .app{min-height:100vh;display:flex}
 .sidebar{width:58px;background:var(--navy);color:white;position:fixed;inset:0 auto 0 0;z-index:20}
 .logo{height:58px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:24px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -112,15 +112,60 @@ tr.danger{background:#f6a7a7} tr.warning{background:#fff3bf}
 .composer-wrap{border-top:1px solid var(--border);flex:0 0 auto;background:white}
 .replying,.pending{display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--soft);border-bottom:1px solid var(--border);font-size:11px;color:#475569}
 .replying.show,.pending.show{display:flex}
-.composer{display:flex;align-items:center;gap:8px;padding:10px;position:relative;background:white}
-.composer input[type=text]{height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;flex:1;outline:0;min-width:0}
-.attach,.send{width:36px;height:36px;border-radius:999px;cursor:pointer}
-.attach{border:1px solid var(--border);background:white}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:10px;position:relative;background:white}
+.composer textarea{
+  min-height:36px;
+  max-height:96px;
+  resize:none;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px 10px;
+  flex:1;
+  outline:0;
+  min-width:0;
+  font-size:12px;
+  line-height:1.35;
+  overflow-y:auto;
+}
+.attach,.send,.expand-write{width:36px;height:36px;border-radius:999px;cursor:pointer;flex:0 0 auto}
+.attach,.expand-write{border:1px solid var(--border);background:white;color:#334155}
 .send{border:0;background:var(--blue);color:white}
 .attach-menu{display:none;position:absolute;left:10px;bottom:52px;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.16);overflow:hidden;z-index:4}
 .attach-menu.show{display:block}
 .attach-menu div{padding:9px 12px;font-size:12px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
 .attach-menu div:hover{background:var(--soft)}
+
+.expanded-compose{
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  font-size:14px;
+  line-height:1.45;
+  outline:0;
+}
+.expanded-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+.expanded-actions button{
+  border:1px solid var(--border);
+  background:white;
+  color:#334155;
+  padding:9px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:800;
+}
+.expanded-actions button.primary{
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
 
 .form{padding:14px 14px 80px}
 label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
@@ -215,7 +260,7 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_4_fixed";
+const KEY="ximpler_team_chat_v1_5_fixed";
 const ME="u1";
 
 function msg(id,senderId,text,createdAt,readBy){
@@ -232,9 +277,6 @@ const demo={
     {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red"},
     {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal"},
     {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink"}
-    {id:"u8",name:"Luis Davalos",initials:"LD",color:"brown"}
-    {id:"u8",name:"Marcos Payan",initials:"MP",color:"yellow"}
-    {id:"u8",name:"Jose Luis Rentería",initials:"JR",color:"gold"}
   ],
   chats:[
     {id:"c_u2",userId:"u2",unread:2,lastActivityAt:"2026-05-02T15:25:00",messages:[
@@ -295,6 +337,7 @@ function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includ
 function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
 function filterRows(inputSelector,rowSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(rowSelector).forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
+function filterMessages(inputSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(".msg-row").forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
 
 function render(){
   document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section)); badges();
@@ -409,30 +452,109 @@ function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;s
 /* FORUM */
 function renderForum(){
   $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
-  $("view").innerHTML=`<div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos.</span></div><div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos.</span></div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
+  filterMessages("searchInput");
   bindComposer(); bindMessageButtons(); scrollBottom();
 }
 
 /* MENSAJES */
 function preview(m){if(!m)return"Sin mensajes";if(m.deletedForAll)return"Mensaje eliminado";if(m.attachment)return`${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;return esc(m.text)}
+function messageSearchText(m){return `${user(m.senderId).name} ${m.text||""} ${m.attachment?.name||""}`.toLowerCase()}
 function renderMessages(messages){
   const msgs=visibleMessages(messages); if(!msgs.length)return`<div class="empty">No hay mensajes todavía.</div>`; let d="";
   return msgs.map(m=>{const mine=m.senderId===ME,day=dateOnly(m.createdAt),showDate=day!==d;d=day;const deleted=m.deletedForAll;
     const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
-    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${esc(m.text)}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
+    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${esc(m.text).replaceAll("\n","<br>")}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
     const actions=deleted?`<button data-action="reads" data-id="${m.id}">Lecturas</button>`:`<button data-action="reply" data-id="${m.id}">Responder</button><button data-action="copy" data-id="${m.id}">Copiar</button><button data-action="reads" data-id="${m.id}">Lecturas</button>${mine?`<button class="danger" data-action="deleteMe" data-id="${m.id}">Eliminar para mí</button><button class="danger" data-action="deleteAll" data-id="${m.id}">Eliminar para todos</button>`:""}`;
-    return `${showDate?`<div class="date">${day}</div>`:""}<div class="msg-row ${mine?"me":""}">${mine?"":av(m.senderId,"xs")}<div class="bubble"><div class="msg-actions">${actions}</div>${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}${content}<div class="meta"><span>${fmt(m.createdAt)}</span><span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span></div></div></div>`;
+    return `${showDate?`<div class="date">${day}</div>`:""}<div class="msg-row ${mine?"me":""}" data-search="${esc(messageSearchText(m))}">${mine?"":av(m.senderId,"xs")}<div class="bubble"><div class="msg-actions">${actions}</div>${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}${content}<div class="meta"><span>${fmt(m.createdAt)}</span><span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span></div></div></div>`;
   }).join("");
 }
 function attachmentHTML(m){const a=m.attachment,href=esc(a.dataUrl),name=esc(a.name); if(a.type==="image")return`<img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}"><div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a></div>`; return`<div class="attachment"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div></div><a class="download" href="${href}" download="${name}">Descargar</a></div>`}
-function composerHTML(){return`<div class="composer-wrap"><div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div><div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div><div class="composer"><button class="attach" id="attachBtn">+</button><div class="attach-menu" id="attachMenu"><div data-file="image">🖼️ Imagen / Foto</div><div data-file="file">📄 Archivo</div><div data-file="camera">📸 Cámara</div></div><input type="file" id="fileInput" style="display:none"><input type="text" id="messageInput" placeholder="Escribe un mensaje..."><button class="send" id="sendBtn">➤</button></div></div>`}
-function bindComposer(){updateReply();updatePending();$("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");$("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));$("fileInput").onchange=handleFile;$("clearReply").onclick=()=>{replying=null;updateReply()};$("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};$("sendBtn").onclick=sendCurrent;$("messageInput").onkeydown=e=>{if(e.key==="Enter")sendCurrent()}}
+function composerHTML(){return`<div class="composer-wrap"><div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div><div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div><div class="composer"><button class="attach" id="attachBtn">+</button><div class="attach-menu" id="attachMenu"><div data-file="image">🖼️ Imagen / Foto</div><div data-file="file">📄 Archivo</div><div data-file="camera">📸 Cámara</div></div><input type="file" id="fileInput" style="display:none"><textarea id="messageInput" placeholder="Escribe un mensaje..."></textarea><button class="expand-write" id="expandWrite" title="Ampliar redacción">⤢</button><button class="send" id="sendBtn">➤</button></div></div>`}
+function bindComposer(){
+  updateReply();updatePending();
+  $("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");
+  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));
+  $("fileInput").onchange=handleFile;
+  $("clearReply").onclick=()=>{replying=null;updateReply()};
+  $("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};
+  $("sendBtn").onclick=sendCurrent;
+  $("expandWrite").onclick=openExpandedComposer;
+
+  const ta=$("messageInput");
+  ta.oninput=autoGrowTextarea;
+  ta.onkeydown=e=>{
+    if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      sendCurrent();
+    }
+  };
+  autoGrowTextarea.call(ta);
+}
+function autoGrowTextarea(){
+  this.style.height="36px";
+  this.style.height=Math.min(this.scrollHeight,96)+"px";
+}
+function openExpandedComposer(){
+  const current=$("messageInput") ? $("messageInput").value : "";
+  showModal("Redacción ampliada",`
+    <textarea class="expanded-compose" id="expandedText" placeholder="Escribe aquí tu mensaje completo...">${esc(current)}</textarea>
+    <div style="font-size:11px;color:#64748b;margin-top:8px;">Enter agrega salto de línea. Ctrl/Cmd + Enter envía.</div>
+    <div class="expanded-actions">
+      <button onclick="applyExpandedText()">Aplicar texto</button>
+      <button class="primary" onclick="sendExpandedText()">Enviar mensaje</button>
+    </div>
+  `);
+  setTimeout(()=>$("expandedText")?.focus(),0);
+  setTimeout(()=>{
+    const ex=$("expandedText");
+    if(ex){
+      ex.onkeydown=e=>{
+        if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+          e.preventDefault();
+          sendExpandedText();
+        }
+      };
+    }
+  },0);
+}
+function applyExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    autoGrowTextarea.call(ta);
+    closeModal();
+    setTimeout(()=>ta.focus(),0);
+  }
+}
+function sendExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    closeModal();
+    sendCurrent();
+  }
+}
 function bindMessageButtons(){document.querySelectorAll("[data-action]").forEach(el=>{el.onclick=e=>{e.stopPropagation();const a=el.dataset.action,id=el.dataset.id;if(a==="reply")replyMsg(id);if(a==="copy")copyMsg(id);if(a==="reads")showReads(id);if(a==="deleteMe")deleteMsgForMe(id);if(a==="deleteAll")deleteMsgForAll(id);if(a==="image")openImage(id)}})}
 function currentMessages(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?c.messages:[]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.messages:[]}return state.forum.messages}
 function currentParticipants(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?[ME,c.userId]:[ME]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.members:[ME]}return state.users.map(u=>u.id)}
 function findMsg(id){return currentMessages().find(m=>m.id===id)}
 function newMessage(text){const createdAt=now();return{id:uid("msg"),senderId:ME,text:text||"",createdAt,readBy:{[ME]:createdAt},replyTo:replying?{...replying}:null,attachment:pendingFile?{...pendingFile}:null,deletedForAll:false,hiddenFor:[]}}
-function sendCurrent(){const input=$("messageInput"),text=input.value.trim();if(!text&&!pendingFile)return;const m=newMessage(text);if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(!c)return;c.messages.push(m);c.lastActivityAt=m.createdAt}else if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);if(!t)return;t.messages.push(m);t.lastActivityAt=m.createdAt}else{state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt}input.value="";replying=null;pendingFile=null;save();render()}
+function sendCurrent(){
+  const input=$("messageInput"),text=input.value.trim();
+  if(!text&&!pendingFile)return;
+  const m=newMessage(input.value.trim());
+  if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(!c)return;c.messages.push(m);c.lastActivityAt=m.createdAt}
+  else if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);if(!t)return;t.messages.push(m);t.lastActivityAt=m.createdAt}
+  else{state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt}
+  input.value="";replying=null;pendingFile=null;save();render();
+  setTimeout(()=>{const ta=$("messageInput"); if(ta){ta.focus(); autoGrowTextarea.call(ta)}},0);
+}
 function replyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;replying={id:m.id,text:m.text||m.attachment?.name||"Archivo adjunto",senderId:m.senderId};updateReply();$("messageInput").focus()}
 function copyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;navigator.clipboard?.writeText(m.text||m.attachment?.name||"").then(()=>toast("Mensaje copiado"))}
 function deleteMsgForMe(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje solo para ti?"))return;if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);touch();save();render();toast("Eliminado solo para ti")}
