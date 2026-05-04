@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ximpler.App | Team Chat V1.5</title>
+
+<style>
+:root{
+  --navy:#06192f; --red:#e3262f; --blue:#1f8fe5; --border:#dde3ea;
+  --muted:#6b7280; --text:#1f2937; --soft:#f8fafc;
+  --shadow:0 12px 28px rgba(0,0,0,.18);
+  --panel:390px; --rail:58px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f5;color:var(--text)}
+button,input,textarea{font-family:inherit}
+.app{min-height:100vh;display:flex}
+.sidebar{width:58px;background:var(--navy);color:white;position:fixed;inset:0 auto 0 0;z-index:20}
+.logo{height:58px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:24px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:14px}
+.nav div{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#cbd5e1}
+.nav div.active,.nav div:hover{background:rgba(255,255,255,.08);color:white}
+.content{margin-left:58px;width:calc(100% - 58px);min-height:100vh;background:white}
+.topbar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border)}
+.top-left,.top-right{display:flex;align-items:center;gap:14px}
+.top-center{font-weight:800;color:#9ca3af}
+.avatar{width:30px;height:30px;border-radius:999px;background:#111827;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+.avatar.sm{width:24px;height:24px;font-size:10px}
+.avatar.xs{width:19px;height:19px;font-size:8px}
+.avatar.blue{background:#1f8fe5}.avatar.green{background:#16a34a}.avatar.gold{background:#f59e0b}.avatar.purple{background:#7c3aed}.avatar.red{background:#e3262f}.avatar.teal{background:#0f766e}.avatar.pink{background:#db2777}
+.board{padding:30px 26px 80px}
+.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.board-title{font-size:24px;font-weight:800;margin:0}
+.round-add{width:58px;height:58px;border-radius:50%;border:0;background:#222;color:white;font-size:32px;cursor:pointer}
+.tabs{display:flex;gap:34px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{padding:12px 0;font-size:14px;position:relative}
+.tab.active{font-weight:800}
+.tab.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#111827}
+.filter{width:100%;height:38px;border:1px solid var(--border);padding:0 12px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left}
+tr.danger{background:#f6a7a7} tr.warning{background:#fff3bf}
+.status{padding:5px 8px;border-radius:6px;font-size:11px;font-weight:800}
+.status.open{background:#dbeafe;color:#1d4ed8}.status.done{background:#dcfce7;color:#15803d}
+.detail{border:1px solid var(--border);background:white;border-radius:5px;padding:6px 8px;cursor:pointer;font-size:11px}
+
+.launcher{position:fixed;right:22px;bottom:24px;width:64px;height:64px;border-radius:999px;border:0;background:var(--blue);color:white;font-size:30px;z-index:30;box-shadow:var(--shadow);cursor:pointer}
+.badge{position:absolute;top:-7px;right:-1px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:var(--red);color:white;border:2px solid white;font-size:11px;display:flex;align-items:center;justify-content:center}
+
+.panel{position:fixed;top:88px;right:-460px;width:var(--panel);height:calc(100vh - 118px);background:white;border:1px solid #cfd8e3;box-shadow:var(--shadow);z-index:40;display:flex;transition:.25s}
+.panel.open{right:18px}
+.rail{width:var(--rail);background:var(--soft);border-right:1px solid var(--border);flex:0 0 var(--rail)}
+.rail-item{height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;cursor:pointer;border-bottom:1px solid var(--border);position:relative}
+.rail-item.active{background:white;font-weight:800}
+.rail-item.active:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.rail-badge{position:absolute;top:7px;right:7px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--red);color:white;font-size:10px;display:flex;align-items:center;justify-content:center}
+
+.chat-main{width:calc(100% - var(--rail));display:flex;flex-direction:column;min-width:0;height:100%}
+.chat-header{height:52px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex:0 0 auto}
+.title-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.chat-title{font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:0;background:transparent;color:inherit;font-size:18px;cursor:pointer}
+
+#view{flex:1;min-height:0;display:flex;flex-direction:column}
+.search{height:48px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--border);flex:0 0 auto}
+.search input{border:0;outline:0;flex:1;height:34px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--soft);flex:0 0 auto}
+.toolbar button,.mini{border:1px solid var(--border);background:white;color:#334155;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:11px}
+.toolbar button.primary{background:var(--navy);color:white;border-color:var(--navy)}
+.toolbar button.danger,.mini.danger{color:#b91c1c;border-color:#fecaca}
+.body{flex:1;overflow-y:auto;min-height:0;background:white}
+.body::-webkit-scrollbar,.messages::-webkit-scrollbar{width:8px}
+.body::-webkit-scrollbar-thumb,.messages::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+.body::-webkit-scrollbar-track,.messages::-webkit-scrollbar-track{background:#f8fafc}
+
+.item{min-height:66px;display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer}
+.item:hover{background:#f8fafc}
+.item-main{min-width:0;flex:1}
+.item-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+.item-sub{margin-top:4px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-time{margin-top:3px;font-size:10px;color:var(--muted)}
+.counter{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--red);color:white;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.team-avatars{display:flex;min-width:54px}.team-avatars .avatar{margin-left:-7px;border:2px solid white}.team-avatars .avatar:first-child{margin-left:0}
+.note{background:var(--soft);border-bottom:1px solid var(--border);padding:9px 12px;font-size:11px;color:#475569;line-height:1.35;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
+.info-btn{border:1px solid var(--border);background:white;border-radius:7px;font-size:11px;padding:6px 8px;cursor:pointer;color:#334155;white-space:nowrap}
+
+.conversation{display:flex;flex-direction:column;flex:1;min-height:0}
+.messages{flex:1;overflow-y:auto;min-height:0;padding:14px 12px 10px;background:white}
+.date{text-align:center;font-size:10px;color:var(--muted);margin:10px 0}
+.msg-row{display:flex;gap:7px;align-items:flex-end;margin-bottom:10px}
+.msg-row.me{justify-content:flex-end}
+.bubble{max-width:82%;background:#f1f5f9;border-radius:10px;padding:8px 9px;font-size:12px;line-height:1.35;word-break:break-word;position:relative}
+.msg-row.me .bubble{background:#dbeafe}
+.sender{font-weight:800;font-size:10px;color:#334155;margin-bottom:3px}
+.deleted{color:#64748b;font-style:italic}
+.reply{border-left:3px solid var(--blue);background:rgba(255,255,255,.7);padding:5px 7px;border-radius:6px;margin-bottom:5px;font-size:10px;color:#475569}
+.meta{display:flex;justify-content:space-between;gap:10px;margin-top:5px;font-size:9px;color:var(--muted)}
+.read{color:#2563eb;cursor:pointer}
+
+.msg-actions{display:none;flex-wrap:wrap;gap:4px;margin-bottom:7px;padding:5px;background:rgba(255,255,255,.9);border:1px solid #dbe3ea;border-radius:7px;width:100%}
+.bubble:hover .msg-actions,.bubble:focus-within .msg-actions{display:flex}
+.msg-actions button{border:1px solid var(--border);background:white;padding:5px 7px;font-size:10px;cursor:pointer;border-radius:5px;white-space:nowrap}
+.msg-actions button:hover{background:#f8fafc}
+.msg-actions button.danger{color:#b91c1c;border-color:#fecaca}
+
+.attachment{margin-top:7px;border:1px solid #cbd5e1;background:white;border-radius:8px;padding:8px;display:flex;align-items:center;gap:8px}
+.att-info{min-width:0;flex:1}.att-name{font-weight:800;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.att-size{font-size:10px;color:var(--muted)}
+.download{font-size:10px;font-weight:800;color:#1d4ed8;text-decoration:none}
+.chat-img{margin-top:7px;max-width:210px;max-height:180px;border-radius:10px;border:1px solid #cbd5e1;display:block;cursor:pointer}
+
+.composer-wrap{border-top:1px solid var(--border);flex:0 0 auto;background:white}
+.replying,.pending{display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--soft);border-bottom:1px solid var(--border);font-size:11px;color:#475569}
+.replying.show,.pending.show{display:flex}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:10px;position:relative;background:white}
+.composer textarea{
+  min-height:36px;
+  max-height:96px;
+  resize:none;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px 10px;
+  flex:1;
+  outline:0;
+  min-width:0;
+  font-size:12px;
+  line-height:1.35;
+  overflow-y:auto;
+}
+.attach,.send,.expand-write{width:36px;height:36px;border-radius:999px;cursor:pointer;flex:0 0 auto}
+.attach,.expand-write{border:1px solid var(--border);background:white;color:#334155}
+.send{border:0;background:var(--blue);color:white}
+.attach-menu{display:none;position:absolute;left:10px;bottom:52px;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.16);overflow:hidden;z-index:4}
+.attach-menu.show{display:block}
+.attach-menu div{padding:9px 12px;font-size:12px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
+.attach-menu div:hover{background:var(--soft)}
+
+.expanded-compose{
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  font-size:14px;
+  line-height:1.45;
+  outline:0;
+}
+.expanded-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+.expanded-actions button{
+  border:1px solid var(--border);
+  background:white;
+  color:#334155;
+  padding:9px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:800;
+}
+.expanded-actions button.primary{
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
+
+.form{padding:14px 14px 80px}
+label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
+.form input[type=text]{width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px}
+.picker{margin-top:8px;border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:230px}
+.pick{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px}
+.pick input{margin-left:auto}
+.primary-btn,.secondary-btn{width:100%;min-height:38px;border-radius:8px;margin-top:10px;cursor:pointer;font-weight:800}
+.primary-btn{border:0;background:var(--navy);color:white}.secondary-btn{border:1px solid var(--border);background:white;color:#334155}
+.empty{padding:26px 18px;text-align:center;color:var(--muted);font-size:13px}
+
+.toast{position:fixed;right:24px;bottom:102px;background:var(--navy);color:white;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 10px 20px rgba(0,0,0,.2);z-index:90;opacity:0;pointer-events:none;transform:translateY(10px);transition:.2s}
+.toast.show{opacity:1;transform:translateY(0)}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.42);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-bg.show{display:flex}
+.modal{width:min(530px,96vw);max-height:86vh;overflow:auto;background:white;border-radius:14px;box-shadow:var(--shadow)}
+.modal-h{background:var(--navy);color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:14px 14px 0 0}
+.modal-b{padding:16px;font-size:13px}
+.receipt{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)}
+.receipt:last-child{border-bottom:0}.receipt-main{flex:1}.receipt-name{font-weight:800;font-size:12px}.receipt-status{font-size:11px;color:var(--muted);margin-top:2px}
+.seen{color:#15803d;font-weight:800;font-size:11px}.pending-read{color:#b91c1c;font-weight:800;font-size:11px}
+.modal-img{width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);border-radius:10px;background:#f8fafc}
+
+@media(max-width:760px){
+  .panel{top:0;right:-100vw;width:100vw;height:100vh}
+  .panel.open{right:0}
+  .board{padding:18px 14px 90px}
+  table{min-width:880px}
+  .table-wrap{overflow:auto}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Xi</div>
+    <div class="nav"><div class="active">⌂</div><div>☑</div><div>▣</div><div>📁</div><div>📊</div><div>⚙</div></div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
+      <div class="top-center">XIMPLER.APP</div>
+      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="avatar">AC</span><span>Anel Castro</span></div>
+    </header>
+
+    <section class="board">
+      <div class="board-header"><h1 class="board-title">Tablero de Acción</h1><button class="round-add">+</button></div>
+      <div class="tabs"><div class="tab active">(123) Chat</div><div class="tab">(85) Mis Acciones</div><div class="tab">(50) Delegado</div><div class="tab">(4) Apoyando</div><div class="tab">(4) Súper Visor</div></div>
+      <input class="filter" placeholder="Buscar / Filtrar" />
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Título</th><th>Creador</th><th>Responsable</th><th>Estatus</th><th>Último movimiento</th><th>Fecha planeada</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr class="danger"><td>206731</td><td>⚠ Liberar manual de cliente de MP Limpio</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>en una hora</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr><td>202523</td><td>Consulta - Sean Industries</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status done">Finalizada</span></td><td>hace 14 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr class="warning"><td>206666</td><td>Diseño Ximpler Corporativo Ágil</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>hace 12 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr class="danger"><td>205109</td><td>Alta de Ferrari</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>hace 4 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button class="launcher" id="launcher">💬<span class="badge" id="totalBadge">0</span></button>
+
+<section class="panel" id="panel">
+  <aside class="rail">
+    <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
+    <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
+    <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
+  </aside>
+
+  <div class="chat-main">
+    <header class="chat-header">
+      <div class="title-wrap"><button class="icon-btn" id="back">←</button><div class="chat-title" id="title">Chat</div></div>
+      <button class="icon-btn" id="close">x</button>
+    </header>
+    <div id="view"></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-h"><strong id="modalTitle">Detalle</strong><button class="icon-btn" onclick="closeModal()">x</button></div>
+    <div class="modal-b" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const KEY="ximpler_team_chat_v1_5_1_fixed";
+const ME="u1";
+
+function msg(id,senderId,text,createdAt,readBy){
+  return {id,senderId,text,createdAt,readBy:readBy||{[senderId]:createdAt},replyTo:null,attachment:null,deletedForAll:false,hiddenFor:[]};
+}
+
+const demo={
+  users:[
+    {id:"u1",name:"Anel Castro",initials:"AC",color:""},
+  {id:"u2",name:"Melchor Iván Angulo",initials:"MA",color:"blue"},
+  {id:"u3",name:"Victoria Hernández",initials:"VH",color:"gold"},
+  {id:"u4",name:"Saúl Nahúm Cruz",initials:"SC",color:"green"},
+  {id:"u5",name:"Salvador Ahumada",initials:"SA",color:"purple"},
+  {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red"},
+  {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal"},
+  {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink"},
+  {id:"u9",name:"Luis Dávalos",initials:"LD",color:"blue"},
+  {id:"u10",name:"Juan Lopez",initials:"JL",color:"green"},
+  {id:"u11",name:"Jose Luis Rentería",initials:"JR",color:"gold"},
+  {id:"u12",name:"Marcos Payan",initials:"MP",color:"purple"},
+  {id:"u13",name:"Joaquin Rosas",initials:"JR",color:"teal"}
+  ],
+  chats:[
+    {id:"c_u2",userId:"u2",unread:2,lastActivityAt:"2026-05-02T15:25:00",messages:[
+      msg("m1","u2","Revisar avance del tablero antes de la reunión.","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
+      msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"})
+    ]},
+    {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-02T15:30:00",messages:[
+      msg("m3","u3","Ya quedó listo el documento inicial.","2026-05-02T15:30:00",{u3:"2026-05-02T15:30:00",u1:"2026-05-02T15:50:00"})
+    ]}
+  ],
+  teams:[
+    {id:"t1",name:"Administración",members:["u1","u2","u3"],unread:0,lastActivityAt:"2026-05-01T11:10:00",messages:[
+      msg("tm1","u2","Necesitamos cerrar los pendientes administrativos esta semana.","2026-05-01T11:10:00",{u2:"2026-05-01T11:10:00",u1:"2026-05-01T11:15:00",u3:"2026-05-01T11:35:00"})
+    ]},
+    {id:"t2",name:"Proyecto ABC",members:["u1","u4","u5"],unread:1,lastActivityAt:"2026-05-01T12:30:00",messages:[
+      msg("tm2","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"})
+    ]},
+    {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-01T13:10:00",messages:[
+      msg("tm3","u5","Hay que validar permisos del nuevo módulo.","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
+      msg("tm4","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"})
+    ]}
+  ],
+  forum:{unread:1,lastActivityAt:"2026-05-01T11:05:00",messages:[
+    msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
+    msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"})
+  ]}
+};
+
+let state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null;
+const $=id=>document.getElementById(id);
+
+$("launcher").onclick=()=>{$("panel").classList.add("open");render()};
+$("close").onclick=()=>{$("panel").classList.remove("open")};
+$("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
+document.querySelectorAll(".rail-item").forEach(el=>el.onclick=()=>{section=el.dataset.section;viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()});
+
+function load(){try{const saved=localStorage.getItem(KEY);if(saved)return normalize(JSON.parse(saved))}catch(e){} localStorage.setItem(KEY,JSON.stringify(demo)); return normalize(JSON.parse(JSON.stringify(demo)))}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));badges()}
+function normalize(s){
+  s.chats=s.chats||[]; s.teams=s.teams||[]; s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+  [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
+    (box.messages||[]).forEach(m=>{m.readBy=m.readBy||{[m.senderId]:m.createdAt};m.hiddenFor=m.hiddenFor||[];m.deletedForAll=!!m.deletedForAll;if(m.attachment===undefined)m.attachment=null;if(m.replyTo===undefined)m.replyTo=null});
+    box.lastActivityAt=box.lastActivityAt||lastDate(box.messages||[]); box.unread=Number(box.unread||0);
+  });
+  return s;
+}
+function resetDemo(){if(!confirm("¿Reiniciar datos demo y limpiar almacenamiento de esta versión?"))return;localStorage.removeItem(KEY);state=load();section="chat";viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render();toast("Demo reiniciado")}
+function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
+function av(id,size="sm"){const u=user(id);return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`}
+function esc(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function now(){return new Date().toISOString()}
+function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
+function fmt(iso){return new Date(iso).toLocaleString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",","")+" hrs."}
+function dateOnly(iso){return new Date(iso).toLocaleDateString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit"})}
+function lastDate(messages){return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00"}
+function activity(x){return x.lastActivityAt||lastDate(x.messages)}
+function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
+function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f}
+function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
+function filterRows(inputSelector,rowSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(rowSelector).forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
+function filterMessages(inputSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(".msg-row").forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
+
+function render(){
+  document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section)); badges();
+  if(section==="chat"){if(viewMode==="conversation")renderChatConversation();else if(viewMode==="newChat")renderNewChat();else renderChatList()}
+  if(section==="teams"){if(viewMode==="teamConversation")renderTeamConversation();else if(viewMode==="teamForm")renderTeamForm();else renderTeamsList()}
+  if(section==="forum")renderForum();
+}
+
+/* CHAT */
+function renderChatList(){
+  $("title").textContent="Chat"; $("back").style.visibility="hidden";
+  const rows=state.chats.map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)})).sort((a,b)=>new Date(activity(b.chat))-new Date(activity(a.chat)));
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button><button id="resetBtn">Reiniciar demo</button></div>
+    <div class="body">
+      ${rows.length?rows.map(r=>`
+        <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(r.u.name.toLowerCase())}">
+          ${av(r.u.id)}
+          <div class="item-main">
+            <div class="item-title">${esc(r.u.name)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
+            <div class="item-sub">${preview(r.last)}</div>
+            <div class="item-time">Último movimiento: ${fmt(activity(r.chat))}</div>
+          </div>
+        </div>`).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
+    </div>`;
+  $("newChatBtn").onclick=()=>{viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead; $("resetBtn").onclick=resetDemo;
+  document.querySelectorAll(".chat-open").forEach(el=>el.onclick=()=>openChat(el.dataset.id));
+  filterRows("searchInput",".chat-open");
+}
+function renderNewChat(){
+  $("title").textContent="Nuevo Chat"; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="note"><span>Busca usuarios de la empresa para iniciar o abrir una conversación individual.</span></div>
+    <div class="body">
+      ${state.users.filter(u=>u.id!==ME).map(u=>{const exists=state.chats.find(c=>c.userId===u.id);return `
+        <div class="item start-chat" data-user="${u.id}" data-search="${esc(u.name.toLowerCase())}">
+          ${av(u.id)}
+          <div class="item-main"><div class="item-title">${esc(u.name)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div></div>
+          <button class="mini">${exists?"Abrir":"Iniciar"}</button>
+        </div>`}).join("")}
+    </div>`;
+  document.querySelectorAll(".start-chat").forEach(el=>el.onclick=()=>startChat(el.dataset.user));
+  filterRows("searchInput",".start-chat");
+}
+function startChat(userId){let c=state.chats.find(x=>x.userId===userId); if(!c){c={id:`c_${userId}_${Date.now()}`,userId,unread:0,lastActivityAt:now(),messages:[]};state.chats.push(c);save()} openChat(c.id)}
+function openChat(id){const c=state.chats.find(x=>x.id===id);if(!c){toast("No encontré ese chat");return} selectedChat=id;viewMode="conversation";c.unread=0;markRead(c.messages);save();render()}
+function renderChatConversation(){
+  const c=state.chats.find(x=>x.id===selectedChat); if(!c){viewMode="list";renderChatList();return}
+  $("title").textContent=user(c.userId).name; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="toolbar"><button id="emptyThis">Vaciar chat</button><button class="danger" id="deleteThis">Eliminar chat</button></div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
+  $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+function emptyChat(id){const c=state.chats.find(x=>x.id===id); if(!c||!confirm("¿Vaciar este chat solo para ti?"))return; c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});c.unread=0;c.lastActivityAt=now();save();render();toast("Chat vaciado para ti")}
+function deleteChat(id){if(!confirm("¿Eliminar este chat de tu lista? Esta acción quitará el historial de tu vista."))return;state.chats=state.chats.filter(c=>c.id!==id);selectedChat=null;viewMode="list";save();render();toast("Chat eliminado")}
+
+/* TEAMS */
+function renderTeamsList(){
+  $("title").textContent="Teams"; $("back").style.visibility="hidden";
+  const teams=state.teams.filter(t=>t.members.includes(ME)).sort((a,b)=>new Date(activity(b))-new Date(activity(a)));
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="toolbar"><button class="primary" id="addTeamTop">+ Nuevo Chat</button><button id="markAllTeams">Marcar todo leído</button></div>
+    <div class="body">
+      ${teams.length?teams.map(t=>`
+        <div class="item team-open" data-id="${t.id}" data-search="${esc(t.name.toLowerCase())}">
+          <div class="team-avatars">${t.members.slice(0,4).map(id=>av(id,"xs")).join("")}</div>
+          <div class="item-main">
+            <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
+            <div class="item-sub">${t.members.length} integrantes · ${preview(visibleMessages(t.messages).at(-1))}</div>
+            <div class="item-time">Último movimiento: ${fmt(activity(t))}</div>
+          </div>
+        </div>`).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
+    </div>`;
+  $("addTeamTop").onclick=()=>{viewMode="teamForm";render()}; $("markAllTeams").onclick=markAllRead;
+  document.querySelectorAll(".team-open").forEach(el=>el.onclick=()=>openTeam(el.dataset.id));
+  filterRows("searchInput",".team-open");
+}
+function openTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}selectedTeam=id;viewMode="teamConversation";t.unread=0;markRead(t.messages);save();render()}
+function renderTeamConversation(){
+  const t=state.teams.find(x=>x.id===selectedTeam); if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
+  $("title").textContent=t.name; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes</span><button class="info-btn" id="groupInfo">Info</button></div>
+    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button><button class="danger" id="deleteTeam">Eliminar chat</button></div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
+  $("groupInfo").onclick=()=>showGroupInfo(t.id); $("leaveTeam").onclick=()=>leaveTeam(t.id); $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+function renderTeamForm(){
+  $("title").textContent="Agregar Chat Grupal"; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="body"><div class="form">
+      <label class="lbl">Nombre del chat grupal:</label><input type="text" id="teamName" placeholder="Ej. Dirección Comercial">
+      <label class="lbl">INVITADOS:</label><input type="text" id="memberSearch" placeholder="Buscar internos...">
+      <div class="picker" id="memberPicker">${pickerRows()}</div>
+      <button class="primary-btn" id="createTeam">Crear Chat Grupal</button><button class="secondary-btn" id="cancelTeam">Cancelar</button>
+    </div></div>`;
+  $("memberSearch").oninput=()=>{const q=$("memberSearch").value.toLowerCase();document.querySelectorAll(".pick").forEach(r=>r.style.display=(r.dataset.search||"").includes(q)?"flex":"none")};
+  $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
+}
+function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${av(u.id)}<span>${esc(u.name)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
+function createTeam(){const name=$("teamName").value.trim();const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);if(!name){toast("Escribe el nombre del chat grupal");return}const t={id:uid("team"),name,members:[...new Set([ME,...selected])],unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")}
+function leaveTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`))return;t.members=t.members.filter(x=>x!==ME);const m=newMessage(`${user(ME).name} salió del chat grupal.`);t.messages.push(m);t.lastActivityAt=m.createdAt;selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal")}
+function deleteTeamChat(id){const t=state.teams.find(x=>x.id===id);if(!t)return;if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`))return;state.teams=state.teams.filter(x=>x.id!==id);selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado")}
+function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes</div>${t.members.map(id=>`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(user(id).name)}</div><div class="receipt-status">${id===ME?"Tú":"Integrante"}</div></div></div>`).join("")}`)}
+
+/* FORUM */
+function renderForum(){
+  $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos.</span></div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
+  filterMessages("searchInput");
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+
+/* MENSAJES */
+function preview(m){if(!m)return"Sin mensajes";if(m.deletedForAll)return"Mensaje eliminado";if(m.attachment)return`${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;return esc(m.text)}
+function messageSearchText(m){return `${user(m.senderId).name} ${m.text||""} ${m.attachment?.name||""}`.toLowerCase()}
+function renderMessages(messages){
+  const msgs=visibleMessages(messages); if(!msgs.length)return`<div class="empty">No hay mensajes todavía.</div>`; let d="";
+  return msgs.map(m=>{const mine=m.senderId===ME,day=dateOnly(m.createdAt),showDate=day!==d;d=day;const deleted=m.deletedForAll;
+    const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
+    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${esc(m.text).replaceAll("\n","<br>")}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
+    const actions=deleted?`<button data-action="reads" data-id="${m.id}">Lecturas</button>`:`<button data-action="reply" data-id="${m.id}">Responder</button><button data-action="copy" data-id="${m.id}">Copiar</button><button data-action="reads" data-id="${m.id}">Lecturas</button>${mine?`<button class="danger" data-action="deleteMe" data-id="${m.id}">Eliminar para mí</button><button class="danger" data-action="deleteAll" data-id="${m.id}">Eliminar para todos</button>`:""}`;
+    return `${showDate?`<div class="date">${day}</div>`:""}<div class="msg-row ${mine?"me":""}" data-search="${esc(messageSearchText(m))}">${mine?"":av(m.senderId,"xs")}<div class="bubble"><div class="msg-actions">${actions}</div>${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}${content}<div class="meta"><span>${fmt(m.createdAt)}</span><span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span></div></div></div>`;
+  }).join("");
+}
+function attachmentHTML(m){const a=m.attachment,href=esc(a.dataUrl),name=esc(a.name); if(a.type==="image")return`<img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}"><div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a></div>`; return`<div class="attachment"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div></div><a class="download" href="${href}" download="${name}">Descargar</a></div>`}
+function composerHTML(){return`<div class="composer-wrap"><div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div><div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div><div class="composer"><button class="attach" id="attachBtn">+</button><div class="attach-menu" id="attachMenu"><div data-file="image">🖼️ Imagen / Foto</div><div data-file="file">📄 Archivo</div><div data-file="camera">📸 Cámara</div></div><input type="file" id="fileInput" style="display:none"><textarea id="messageInput" placeholder="Escribe un mensaje..."></textarea><button class="expand-write" id="expandWrite" title="Ampliar redacción">⤢</button><button class="send" id="sendBtn">➤</button></div></div>`}
+function bindComposer(){
+  updateReply();updatePending();
+  $("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");
+  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));
+  $("fileInput").onchange=handleFile;
+  $("clearReply").onclick=()=>{replying=null;updateReply()};
+  $("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};
+  $("sendBtn").onclick=sendCurrent;
+  $("expandWrite").onclick=openExpandedComposer;
+
+  const ta=$("messageInput");
+  ta.oninput=autoGrowTextarea;
+  ta.onkeydown=e=>{
+    if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      sendCurrent();
+    }
+  };
+  autoGrowTextarea.call(ta);
+}
+function autoGrowTextarea(){
+  this.style.height="36px";
+  this.style.height=Math.min(this.scrollHeight,96)+"px";
+}
+function openExpandedComposer(){
+  const current=$("messageInput") ? $("messageInput").value : "";
+  showModal("Redacción ampliada",`
+    <textarea class="expanded-compose" id="expandedText" placeholder="Escribe aquí tu mensaje completo...">${esc(current)}</textarea>
+    <div style="font-size:11px;color:#64748b;margin-top:8px;">Enter agrega salto de línea. Ctrl/Cmd + Enter envía.</div>
+    <div class="expanded-actions">
+      <button onclick="applyExpandedText()">Aplicar texto</button>
+      <button class="primary" onclick="sendExpandedText()">Enviar mensaje</button>
+    </div>
+  `);
+  setTimeout(()=>$("expandedText")?.focus(),0);
+  setTimeout(()=>{
+    const ex=$("expandedText");
+    if(ex){
+      ex.onkeydown=e=>{
+        if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+          e.preventDefault();
+          sendExpandedText();
+        }
+      };
+    }
+  },0);
+}
+function applyExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    autoGrowTextarea.call(ta);
+    closeModal();
+    setTimeout(()=>ta.focus(),0);
+  }
+}
+function sendExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    closeModal();
+    sendCurrent();
+  }
+}
+function bindMessageButtons(){document.querySelectorAll("[data-action]").forEach(el=>{el.onclick=e=>{e.stopPropagation();const a=el.dataset.action,id=el.dataset.id;if(a==="reply")replyMsg(id);if(a==="copy")copyMsg(id);if(a==="reads")showReads(id);if(a==="deleteMe")deleteMsgForMe(id);if(a==="deleteAll")deleteMsgForAll(id);if(a==="image")openImage(id)}})}
+function currentMessages(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?c.messages:[]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.messages:[]}return state.forum.messages}
+function currentParticipants(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?[ME,c.userId]:[ME]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.members:[ME]}return state.users.map(u=>u.id)}
+function findMsg(id){return currentMessages().find(m=>m.id===id)}
+function newMessage(text){const createdAt=now();return{id:uid("msg"),senderId:ME,text:text||"",createdAt,readBy:{[ME]:createdAt},replyTo:replying?{...replying}:null,attachment:pendingFile?{...pendingFile}:null,deletedForAll:false,hiddenFor:[]}}
+function sendCurrent(){
+  const input=$("messageInput"),text=input.value.trim();
+  if(!text&&!pendingFile)return;
+  const m=newMessage(input.value.trim());
+  if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(!c)return;c.messages.push(m);c.lastActivityAt=m.createdAt}
+  else if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);if(!t)return;t.messages.push(m);t.lastActivityAt=m.createdAt}
+  else{state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt}
+  input.value="";replying=null;pendingFile=null;save();render();
+  setTimeout(()=>{const ta=$("messageInput"); if(ta){ta.focus(); autoGrowTextarea.call(ta)}},0);
+}
+function replyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;replying={id:m.id,text:m.text||m.attachment?.name||"Archivo adjunto",senderId:m.senderId};updateReply();$("messageInput").focus()}
+function copyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;navigator.clipboard?.writeText(m.text||m.attachment?.name||"").then(()=>toast("Mensaje copiado"))}
+function deleteMsgForMe(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje solo para ti?"))return;if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);touch();save();render();toast("Eliminado solo para ti")}
+function deleteMsgForAll(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje para todos?"))return;m.deletedForAll=true;m.text="";m.attachment=null;m.replyTo=null;touch();save();render();toast("Eliminado para todos")}
+function chooseFile(mode){const input=$("fileInput");input.value="";input.removeAttribute("capture");if(mode==="image"){input.accept="image/*"}else if(mode==="camera"){input.accept="image/*";input.setAttribute("capture","environment")}else{input.accept="*/*"}$("attachMenu").classList.remove("show");input.click()}
+function handleFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>4*1024*1024){toast("Máximo 4 MB en este prototipo");return}const reader=new FileReader();reader.onload=ev=>{pendingFile={id:uid("att"),name:f.name||"archivo",mime:f.type||"application/octet-stream",size:f.size,type:f.type.startsWith("image/")?"image":"file",dataUrl:ev.target.result,createdAt:now()};updatePending();toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo")};reader.readAsDataURL(f)}
+function updateReply(){const box=$("replyingBox"),text=$("replyText");if(!box||!text)return;if(replying){box.classList.add("show");text.textContent=`Respondiendo a: ${replying.text}`}else{box.classList.remove("show");text.textContent=""}}
+function updatePending(){const box=$("pendingBox"),text=$("pendingText");if(!box||!text)return;if(pendingFile){box.classList.add("show");text.textContent=`${pendingFile.type==="image"?"Imagen":"Archivo"} listo: ${pendingFile.name} (${fileSize(pendingFile.size)})`}else{box.classList.remove("show");text.textContent=""}}
+function fileSize(bytes){const n=Number(bytes||0);if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toFixed(1)} KB`;return`${(n/(1024*1024)).toFixed(1)} MB`}
+function markRead(messages){const t=now();messages.forEach(m=>{if(!m.readBy)m.readBy={};if(!m.readBy[ME])m.readBy[ME]=t})}
+function markAllRead(){state.chats.forEach(c=>{c.unread=0;markRead(c.messages)});state.teams.forEach(t=>{if(t.members.includes(ME)){t.unread=0;markRead(t.messages)}});state.forum.unread=0;markRead(state.forum.messages);save();render();toast("Todo marcado como leído")}
+function readStatus(m){const p=currentParticipants(),others=p.filter(id=>id!==m.senderId),seen=others.filter(id=>m.readBy&&m.readBy[id]);if(!others.length)return"✓";if(seen.length===others.length)return"✓✓";if(seen.length)return`✓ ${seen.length}/${others.length}`;return"✓"}
+function showReads(id){const m=findMsg(id);if(!m)return;const rows=currentParticipants().map(id=>{const u=user(id),seen=m.readBy&&m.readBy[id];return`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(u.name)} ${id===m.senderId?"(envió)":""}</div><div class="receipt-status">${seen?`Visto: ${fmt(seen)}`:"Pendiente de lectura"}</div></div><div class="${seen?"seen":"pending-read"}">${seen?"Visto":"Pendiente"}</div></div>`}).join("");showModal("Confirmación de lectura",`<div style="margin-bottom:10px;color:#475569;font-size:12px">Enviado el ${fmt(m.createdAt)}.</div>${rows}`)}
+function openImage(id){const m=findMsg(id);if(!m||!m.attachment||m.attachment.type!=="image")return;const a=m.attachment;showModal(a.name,`<img class="modal-img" src="${esc(a.dataUrl)}" alt="${esc(a.name)}"><div style="margin-top:12px"><a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a></div>`)}
+function touch(){const t=now();if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(c)c.lastActivityAt=t}else if(section==="teams"){const tm=state.teams.find(x=>x.id===selectedTeam);if(tm)tm.lastActivityAt=t}else{state.forum.lastActivityAt=t}}
+function showModal(title,body){$("modalTitle").textContent=title;$("modalBody").innerHTML=body;$("modal").classList.add("show")}
+function closeModal(){$("modal").classList.remove("show");$("modalBody").innerHTML=""}
+$("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
+function scrollBottom(){setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},0)}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
+badges();render();
+</script>
+</body>
+</html>
