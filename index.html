@@ -1,2816 +1,1684 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ximpler.App | Team Chat V1.1</title>
-
-  <style>
-    :root {
-      --navy: #06192f;
-      --navy2: #0b2542;
-      --red: #e3262f;
-      --blue: #1f8fe5;
-      --green: #59c36a;
-      --yellow: #fff3bf;
-      --soft-red: #f6a7a7;
-      --gray: #f4f6f8;
-      --border: #dde3ea;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --white: #ffffff;
-      --shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-      --panel-width: 390px;
-      --rail-width: 58px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #eef2f5;
-      color: var(--text);
-      overflow-x: hidden;
-    }
-
-    button, input {
-      font-family: inherit;
-    }
-
-    .app {
-      display: flex;
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    .main-sidebar {
-      width: 58px;
-      background: var(--navy);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: fixed;
-      inset: 0 auto 0 0;
-      z-index: 20;
-    }
-
-    .logo {
-      width: 58px;
-      height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: var(--red);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .main-nav {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding-top: 14px;
-    }
-
-    .nav-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #cbd5e1;
-      position: relative;
-      cursor: pointer;
-      transition: .2s ease;
-      font-size: 18px;
-    }
-
-    .nav-icon:hover,
-    .nav-icon.active {
-      background: rgba(255,255,255,0.08);
-      color: white;
-    }
-
-    .nav-badge {
-      position: absolute;
-      top: -4px;
-      right: -2px;
-      background: var(--red);
-      color: white;
-      font-size: 10px;
-      min-width: 17px;
-      height: 17px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--navy);
-    }
-
-    .content {
-      margin-left: 58px;
-      width: calc(100% - 58px);
-      min-height: 100vh;
-      background: white;
-    }
-
-    .topbar {
-      height: 58px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      background: white;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .top-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      color: #334155;
-      font-size: 18px;
-    }
-
-    .top-center {
-      font-weight: 700;
-      color: #9ca3af;
-      letter-spacing: .5px;
-    }
-
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .top-icon {
-      font-size: 17px;
-      color: #334155;
-      position: relative;
-    }
-
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-    }
-
-    .avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      background: #111827;
-      color: white;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex: 0 0 auto;
-      overflow: hidden;
-    }
-
-    .avatar.sm {
-      width: 24px;
-      height: 24px;
-      font-size: 10px;
-    }
-
-    .avatar.xs {
-      width: 19px;
-      height: 19px;
-      font-size: 8px;
-    }
-
-    .avatar.red { background: #e3262f; }
-    .avatar.blue { background: #1f8fe5; }
-    .avatar.green { background: #59c36a; }
-    .avatar.gold { background: #f59e0b; }
-    .avatar.purple { background: #7c3aed; }
-    .avatar.dark { background: #111827; }
-    .avatar.teal { background: #0f766e; }
-    .avatar.pink { background: #db2777; }
-
-    .board {
-      padding: 30px 26px 80px;
-    }
-
-    .board-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .board-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0;
-    }
-
-    .board-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .link-btn {
-      border: none;
-      background: transparent;
-      color: #334155;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .round-add {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      border: none;
-      background: #222;
-      color: white;
-      font-size: 32px;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0,0,0,.18);
-    }
-
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 36px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 18px;
-    }
-
-    .tab {
-      padding: 12px 0;
-      font-size: 14px;
-      color: #334155;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .tab.active {
-      color: #111827;
-      font-weight: 700;
-    }
-
-    .tab.active::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -1px;
-      height: 3px;
-      background: #111827;
-      border-radius: 3px 3px 0 0;
-    }
-
-    .filter-box {
-      width: 100%;
-      height: 38px;
-      border: 1px solid var(--border);
-      padding: 0 12px;
-      border-radius: 2px;
-      margin-bottom: 18px;
-      color: #6b7280;
-    }
-
-    .action-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      background: white;
-    }
-
-    .action-table th {
-      text-align: left;
-      color: #4b5563;
-      padding: 14px 10px;
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .action-table td {
-      padding: 14px 10px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
-    .action-table tr.danger { background: var(--soft-red); }
-    .action-table tr.warning { background: var(--yellow); }
-
-    .status {
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      display: inline-block;
-    }
-
-    .status.done {
-      background: #d9fbe2;
-      color: #15803d;
-    }
-
-    .status.open {
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .detail-btn {
-      border: 1px solid var(--border);
-      background: white;
-      font-size: 11px;
-      padding: 6px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .chat-launcher {
-      position: fixed;
-      right: 22px;
-      bottom: 24px;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: var(--blue);
-      border: none;
-      color: white;
-      font-size: 30px;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      z-index: 30;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .chat-launcher .launcher-badge {
-      position: absolute;
-      top: -7px;
-      right: -1px;
-      background: var(--red);
-      color: white;
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid white;
-    }
-
-    .team-chat-panel {
-      position: fixed;
-      top: 88px;
-      right: -450px;
-      width: var(--panel-width);
-      height: calc(100vh - 118px);
-      background: white;
-      border: 1px solid #cfd8e3;
-      box-shadow: var(--shadow);
-      z-index: 40;
-      display: flex;
-      transition: right .25s ease;
-    }
-
-    .team-chat-panel.open {
-      right: 18px;
-    }
-
-    .chat-rail {
-      width: var(--rail-width);
-      border-right: 1px solid var(--border);
-      background: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .rail-item {
-      width: 100%;
-      height: 72px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: #334155;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      gap: 4px;
-    }
-
-    .rail-item .ico {
-      font-size: 22px;
-    }
-
-    .rail-item.active {
-      background: white;
-      color: var(--navy);
-      font-weight: 700;
-    }
-
-    .rail-item.active::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--red);
-    }
-
-    .rail-badge {
-      position: absolute;
-      top: 7px;
-      right: 8px;
-      background: var(--red);
-      color: white;
-      font-size: 10px;
-      width: 17px;
-      height: 17px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .chat-main {
-      width: calc(100% - var(--rail-width));
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .chat-header {
-      height: 52px;
-      background: var(--navy);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
-      flex: 0 0 auto;
-    }
-
-    .chat-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .back-btn,
-    .close-btn,
-    .small-icon-btn {
-      border: none;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 4px;
-    }
-
-    .chat-title {
-      font-weight: 700;
-      font-size: 17px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .search-row {
-      height: 48px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 12px;
-      flex: 0 0 auto;
-    }
-
-    .search-row input {
-      flex: 1;
-      border: none;
-      outline: none;
-      height: 34px;
-      font-size: 13px;
-      min-width: 0;
-    }
-
-    .panel-body {
-      flex: 1;
-      overflow: auto;
-      background: white;
-    }
-
-    .list-item {
-      min-height: 64px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: .15s ease;
-      position: relative;
-    }
-
-    .list-item:hover { background: #f8fafc; }
-    .list-item.active { background: #eef6ff; }
-
-    .list-main {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .list-title {
-      font-weight: 700;
-      font-size: 13px;
-      color: #1f2937;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .list-sub {
-      font-size: 11px;
-      color: var(--muted);
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .list-time {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .list-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      align-items: flex-end;
-    }
-
-    .mini-action-btn {
-      border: 1px solid var(--border);
-      background: white;
-      color: #475569;
-      font-size: 10px;
-      border-radius: 5px;
-      padding: 4px 6px;
-      cursor: pointer;
-    }
-
-    .mini-action-btn:hover {
-      background: #f1f5f9;
-    }
-
-    .mini-action-btn.danger {
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
-    .lock {
-      color: #475569;
-      font-size: 18px;
-    }
-
-    .check {
-      color: var(--green);
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .team-avatars {
-      display: flex;
-      align-items: center;
-      min-width: 52px;
-    }
-
-    .team-avatars .avatar {
-      margin-left: -7px;
-      border: 2px solid white;
-    }
-
-    .team-avatars .avatar:first-child {
-      margin-left: 0;
-    }
-
-    .conversation {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .messages {
-      flex: 1;
-      overflow: auto;
-      padding: 14px 12px 10px;
-      background: #ffffff;
-    }
-
-    .date-separator {
-      text-align: center;
-      font-size: 10px;
-      color: var(--muted);
-      margin: 10px 0;
-    }
-
-    .message-row {
-      display: flex;
-      margin-bottom: 10px;
-      gap: 7px;
-      align-items: flex-end;
-    }
-
-    .message-row.me {
-      justify-content: flex-end;
-    }
-
-    .message-bubble {
-      max-width: 82%;
-      background: #f1f5f9;
-      padding: 8px 9px;
-      border-radius: 10px;
-      font-size: 12px;
-      line-height: 1.35;
-      position: relative;
-      word-break: break-word;
-    }
-
-    .message-row.me .message-bubble {
-      background: #dbeafe;
-    }
-
-    .message-deleted {
-      font-style: italic;
-      color: #64748b;
-    }
-
-    .message-meta {
-      font-size: 9px;
-      color: var(--muted);
-      margin-top: 5px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .read-indicator {
-      color: #2563eb;
-      cursor: pointer;
-    }
-
-    .sender {
-      font-weight: 700;
-      font-size: 10px;
-      color: #334155;
-      margin-bottom: 3px;
-    }
-
-    .reply-preview {
-      border-left: 3px solid var(--blue);
-      background: rgba(255,255,255,.65);
-      padding: 5px 7px;
-      margin-bottom: 5px;
-      border-radius: 6px;
-      font-size: 10px;
-      color: #475569;
-    }
-
-    .attachment-card {
-      margin-top: 7px;
-      border: 1px solid #cbd5e1;
-      background: white;
-      border-radius: 8px;
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      max-width: 100%;
-    }
-
-    .attachment-info {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .attachment-name {
-      font-size: 11px;
-      font-weight: 700;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .attachment-size {
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    .download-link {
-      font-size: 10px;
-      color: #1d4ed8;
-      text-decoration: none;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .chat-image {
-      margin-top: 7px;
-      max-width: 210px;
-      max-height: 180px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      display: block;
-      cursor: pointer;
-      background: white;
-    }
-
-    .image-actions {
-      margin-top: 5px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .message-actions {
-      display: none;
-      position: absolute;
-      top: -28px;
-      right: 0;
-      background: white;
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(0,0,0,.12);
-      border-radius: 6px;
-      overflow: hidden;
-      z-index: 2;
-    }
-
-    .message-bubble:hover .message-actions {
-      display: flex;
-    }
-
-    .message-actions button {
-      border: none;
-      background: white;
-      padding: 6px 8px;
-      font-size: 10px;
-      cursor: pointer;
-      color: #334155;
-      border-right: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    .message-actions button:last-child {
-      border-right: none;
-    }
-
-    .message-actions button:hover {
-      background: #f8fafc;
-    }
-
-    .message-actions button.danger {
-      color: #b91c1c;
-    }
-
-    .composer-wrap {
-      border-top: 1px solid var(--border);
-      background: white;
-      flex: 0 0 auto;
-    }
-
-    .replying-box,
-    .pending-file-box {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 10px;
-      background: #f8fafc;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-      color: #475569;
-    }
-
-    .replying-box.show,
-    .pending-file-box.show {
-      display: flex;
-    }
-
-    .replying-text,
-    .pending-file-text {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .composer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px;
-      position: relative;
-    }
-
-    .composer input[type="text"] {
-      flex: 1;
-      height: 36px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0 10px;
-      outline: none;
-      font-size: 12px;
-      min-width: 0;
-    }
-
-    .send-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      border: none;
-      background: var(--blue);
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .attach-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: white;
-      cursor: pointer;
-      color: #334155;
-      font-size: 17px;
-    }
-
-    .attach-menu {
-      position: absolute;
-      bottom: 52px;
-      left: 10px;
-      background: white;
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 24px rgba(0,0,0,.16);
-      border-radius: 8px;
-      overflow: hidden;
-      display: none;
-      z-index: 5;
-      min-width: 155px;
-    }
-
-    .attach-menu.show {
-      display: block;
-    }
-
-    .attach-option {
-      padding: 9px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .attach-option:last-child {
-      border-bottom: none;
-    }
-
-    .attach-option:hover {
-      background: #f8fafc;
-    }
-
-    .empty-state {
-      padding: 26px 18px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .floating-add-team {
-      position: absolute;
-      right: 14px;
-      bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      color: #475569;
-      font-size: 11px;
-    }
-
-    .mini-plus {
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      border: none;
-      background: #4f46e5;
-      color: white;
-      font-size: 22px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(0,0,0,.22);
-    }
-
-    .team-form {
-      padding: 14px 14px 80px;
-    }
-
-    .form-label {
-      font-size: 12px;
-      color: #334155;
-      font-weight: 700;
-      margin: 12px 0 6px;
-      display: block;
-    }
-
-    .form-input {
-      width: 100%;
-      height: 36px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0 10px;
-      outline: none;
-      font-size: 12px;
-    }
-
-    .user-picker {
-      margin-top: 8px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      max-height: 230px;
-      overflow-y: auto;
-    }
-
-    .picker-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .picker-row:last-child {
-      border-bottom: none;
-    }
-
-    .picker-row:hover {
-      background: #f8fafc;
-    }
-
-    .picker-row input {
-      margin-left: auto;
-    }
-
-    .primary-btn {
-      width: 100%;
-      min-height: 38px;
-      border: none;
-      background: var(--navy);
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 14px;
-      font-weight: 700;
-      padding: 9px 12px;
-    }
-
-    .secondary-btn {
-      width: 100%;
-      min-height: 36px;
-      border: 1px solid var(--border);
-      background: white;
-      color: #334155;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 8px;
-      font-weight: 700;
-      padding: 8px 12px;
-    }
-
-    .danger-btn {
-      background: #b91c1c;
-      color: white;
-      border: none;
-    }
-
-    .toast {
-      position: fixed;
-      right: 24px;
-      bottom: 102px;
-      background: var(--navy);
-      color: white;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.2);
-      z-index: 80;
-      opacity: 0;
-      transform: translateY(10px);
-      pointer-events: none;
-      transition: .2s ease;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      background: #f8fafc;
-      flex-wrap: wrap;
-    }
-
-    .toolbar button {
-      border: 1px solid var(--border);
-      background: white;
-      padding: 7px 9px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 11px;
-      color: #334155;
-    }
-
-    .toolbar button.primary {
-      background: var(--navy);
-      color: white;
-      border-color: var(--navy);
-    }
-
-    .toolbar button.danger {
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
-    .forum-note {
-      background: #f8fafc;
-      border-bottom: 1px solid var(--border);
-      padding: 9px 12px;
-      font-size: 11px;
-      color: #475569;
-      line-height: 1.35;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .42);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-backdrop.show {
-      display: flex;
-    }
-
-    .modal {
-      background: white;
-      width: min(520px, 96vw);
-      max-height: 86vh;
-      overflow: auto;
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .modal-header {
-      padding: 14px 16px;
-      background: var(--navy);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-radius: 14px 14px 0 0;
-    }
-
-    .modal-title {
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .modal-body {
-      padding: 16px;
-      font-size: 13px;
-    }
-
-    .receipt-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .receipt-row:last-child {
-      border-bottom: none;
-    }
-
-    .receipt-main {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .receipt-name {
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    .receipt-status {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .receipt-seen {
-      color: #15803d;
-      font-weight: 700;
-      font-size: 11px;
-    }
-
-    .receipt-pending {
-      color: #b91c1c;
-      font-weight: 700;
-      font-size: 11px;
-    }
-
-    .modal-image {
-      width: 100%;
-      max-height: 70vh;
-      object-fit: contain;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #f8fafc;
-    }
-
-    @media (max-width: 760px) {
-      .team-chat-panel {
-        top: 0;
-        right: -100vw;
-        width: 100vw;
-        height: 100vh;
-      }
-
-      .team-chat-panel.open {
-        right: 0;
-      }
-
-      .board {
-        padding: 18px 14px 90px;
-      }
-
-      .action-table {
-        min-width: 880px;
-      }
-
-      .table-wrap {
-        overflow-x: auto;
-      }
-
-      .tabs {
-        gap: 18px;
-        overflow-x: auto;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ximpler.App | Team Chat V1.2</title>
+
+<style>
+:root{
+  --navy:#06192f;
+  --red:#e3262f;
+  --blue:#1f8fe5;
+  --green:#59c36a;
+  --border:#dde3ea;
+  --muted:#6b7280;
+  --text:#1f2937;
+  --soft:#f8fafc;
+  --shadow:0 12px 28px rgba(0,0,0,.18);
+  --panel:390px;
+  --rail:58px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#eef2f5;
+  color:var(--text);
+}
+button,input{font-family:inherit}
+.app{min-height:100vh;display:flex}
+.sidebar{
+  width:58px;
+  background:var(--navy);
+  color:white;
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:20;
+}
+.logo{
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--red);
+  font-size:24px;
+  font-weight:800;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nav{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding-top:14px;
+}
+.nav div{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#cbd5e1;
+  position:relative;
+}
+.nav div.active,.nav div:hover{background:rgba(255,255,255,.08);color:white}
+.content{
+  margin-left:58px;
+  width:calc(100% - 58px);
+  min-height:100vh;
+  background:white;
+}
+.topbar{
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  border-bottom:1px solid var(--border);
+}
+.top-left,.top-right{display:flex;align-items:center;gap:14px}
+.top-center{font-weight:800;color:#9ca3af}
+.avatar{
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  background:#111827;
+  color:white;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  flex:0 0 auto;
+}
+.avatar.sm{width:24px;height:24px;font-size:10px}
+.avatar.xs{width:19px;height:19px;font-size:8px}
+.avatar.blue{background:#1f8fe5}
+.avatar.green{background:#16a34a}
+.avatar.gold{background:#f59e0b}
+.avatar.purple{background:#7c3aed}
+.avatar.red{background:#e3262f}
+.avatar.teal{background:#0f766e}
+.avatar.pink{background:#db2777}
+.board{padding:30px 26px 80px}
+.board-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:24px;
+}
+.board-title{font-size:24px;font-weight:800;margin:0}
+.round-add{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:0;
+  background:#222;
+  color:white;
+  font-size:32px;
+  cursor:pointer;
+}
+.tabs{
+  display:flex;
+  gap:34px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:18px;
+}
+.tab{
+  padding:12px 0;
+  font-size:14px;
+  position:relative;
+}
+.tab.active{font-weight:800}
+.tab.active:after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:-1px;
+  height:3px;
+  background:#111827;
+}
+.filter{
+  width:100%;
+  height:38px;
+  border:1px solid var(--border);
+  padding:0 12px;
+  margin-bottom:18px;
+}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left}
+tr.danger{background:#f6a7a7}
+tr.warning{background:#fff3bf}
+.status{
+  padding:5px 8px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:800;
+}
+.status.open{background:#dbeafe;color:#1d4ed8}
+.status.done{background:#dcfce7;color:#15803d}
+.detail{
+  border:1px solid var(--border);
+  background:white;
+  border-radius:5px;
+  padding:6px 8px;
+  cursor:pointer;
+  font-size:11px;
+}
+.launcher{
+  position:fixed;
+  right:22px;
+  bottom:24px;
+  width:64px;
+  height:64px;
+  border-radius:999px;
+  border:0;
+  background:var(--blue);
+  color:white;
+  font-size:30px;
+  z-index:30;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+}
+.badge{
+  position:absolute;
+  top:-7px;
+  right:-1px;
+  min-width:22px;
+  height:22px;
+  padding:0 5px;
+  border-radius:999px;
+  background:var(--red);
+  color:white;
+  border:2px solid white;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.panel{
+  position:fixed;
+  top:88px;
+  right:-460px;
+  width:var(--panel);
+  height:calc(100vh - 118px);
+  background:white;
+  border:1px solid #cfd8e3;
+  box-shadow:var(--shadow);
+  z-index:40;
+  display:flex;
+  transition:.25s;
+}
+.panel.open{right:18px}
+.rail{
+  width:var(--rail);
+  background:var(--soft);
+  border-right:1px solid var(--border);
+}
+.rail-item{
+  height:72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  font-size:10px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.rail-item.active{
+  background:white;
+  font-weight:800;
+}
+.rail-item.active:before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:var(--red);
+}
+.rail-badge{
+  position:absolute;
+  top:7px;
+  right:7px;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  border-radius:999px;
+  background:var(--red);
+  color:white;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.chat-main{
+  width:calc(100% - var(--rail));
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.chat-header{
+  height:52px;
+  background:var(--navy);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+}
+.title-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.chat-title{
+  font-size:17px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.icon-btn{
+  border:0;
+  background:transparent;
+  color:inherit;
+  font-size:18px;
+  cursor:pointer;
+}
+.search{
+  height:48px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px;
+  border-bottom:1px solid var(--border);
+}
+.search input{
+  border:0;
+  outline:0;
+  flex:1;
+  height:34px;
+}
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  background:var(--soft);
+}
+.toolbar button,.mini{
+  border:1px solid var(--border);
+  background:white;
+  color:#334155;
+  padding:7px 9px;
+  border-radius:7px;
+  cursor:pointer;
+  font-size:11px;
+}
+.toolbar button.primary{
+  background:var(--navy);
+  color:white;
+  border-color:var(--navy);
+}
+.toolbar button.danger,.mini.danger{
+  color:#b91c1c;
+  border-color:#fecaca;
+}
+.body{
+  flex:1;
+  overflow:auto;
+  background:white;
+}
+.item{
+  min-height:66px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.item:hover{background:#f8fafc}
+.item-main{
+  min-width:0;
+  flex:1;
+}
+.item-title{
+  font-size:13px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.item-sub{
+  margin-top:4px;
+  font-size:11px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.item-time{
+  margin-top:3px;
+  font-size:10px;
+  color:var(--muted);
+}
+.item-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:4px;
+}
+.counter{
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:999px;
+  background:var(--red);
+  color:white;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+}
+.team-avatars{display:flex;min-width:54px}
+.team-avatars .avatar{margin-left:-7px;border:2px solid white}
+.team-avatars .avatar:first-child{margin-left:0}
+.note{
+  background:var(--soft);
+  border-bottom:1px solid var(--border);
+  padding:9px 12px;
+  font-size:11px;
+  color:#475569;
+  line-height:1.35;
+}
+.conversation{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+.messages{
+  flex:1;
+  overflow:auto;
+  padding:14px 12px 10px;
+}
+.date{
+  text-align:center;
+  font-size:10px;
+  color:var(--muted);
+  margin:10px 0;
+}
+.msg-row{
+  display:flex;
+  gap:7px;
+  align-items:flex-end;
+  margin-bottom:10px;
+}
+.msg-row.me{justify-content:flex-end}
+.bubble{
+  max-width:82%;
+  background:#f1f5f9;
+  border-radius:10px;
+  padding:8px 9px;
+  font-size:12px;
+  line-height:1.35;
+  word-break:break-word;
+  position:relative;
+}
+.msg-row.me .bubble{background:#dbeafe}
+.sender{
+  font-weight:800;
+  font-size:10px;
+  color:#334155;
+  margin-bottom:3px;
+}
+.deleted{
+  color:#64748b;
+  font-style:italic;
+}
+.reply{
+  border-left:3px solid var(--blue);
+  background:rgba(255,255,255,.7);
+  padding:5px 7px;
+  border-radius:6px;
+  margin-bottom:5px;
+  font-size:10px;
+  color:#475569;
+}
+.meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:5px;
+  font-size:9px;
+  color:var(--muted);
+}
+.read{
+  color:#2563eb;
+  cursor:pointer;
+}
+.msg-actions{
+  display:none;
+  position:absolute;
+  top:-30px;
+  right:0;
+  background:white;
+  border:1px solid var(--border);
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  border-radius:6px;
+  overflow:hidden;
+  z-index:2;
+}
+.bubble:hover .msg-actions{display:flex}
+.msg-actions button{
+  border:0;
+  background:white;
+  padding:6px 8px;
+  font-size:10px;
+  cursor:pointer;
+  border-right:1px solid var(--border);
+  white-space:nowrap;
+}
+.msg-actions button:last-child{border-right:0}
+.msg-actions button.danger{color:#b91c1c}
+.attachment{
+  margin-top:7px;
+  border:1px solid #cbd5e1;
+  background:white;
+  border-radius:8px;
+  padding:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.att-info{min-width:0;flex:1}
+.att-name{
+  font-weight:800;
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.att-size{font-size:10px;color:var(--muted)}
+.download{
+  font-size:10px;
+  font-weight:800;
+  color:#1d4ed8;
+  text-decoration:none;
+}
+.chat-img{
+  margin-top:7px;
+  max-width:210px;
+  max-height:180px;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  display:block;
+  cursor:pointer;
+}
+.composer-wrap{
+  border-top:1px solid var(--border);
+}
+.replying,.pending{
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 10px;
+  background:var(--soft);
+  border-bottom:1px solid var(--border);
+  font-size:11px;
+  color:#475569;
+}
+.replying.show,.pending.show{display:flex}
+.composer{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  position:relative;
+}
+.composer input[type=text]{
+  height:36px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:0 10px;
+  flex:1;
+  outline:0;
+  min-width:0;
+}
+.attach,.send{
+  width:36px;
+  height:36px;
+  border-radius:999px;
+  cursor:pointer;
+}
+.attach{
+  border:1px solid var(--border);
+  background:white;
+}
+.send{
+  border:0;
+  background:var(--blue);
+  color:white;
+}
+.attach-menu{
+  display:none;
+  position:absolute;
+  left:10px;
+  bottom:52px;
+  background:white;
+  border:1px solid var(--border);
+  border-radius:8px;
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+  overflow:hidden;
+  z-index:4;
+}
+.attach-menu.show{display:block}
+.attach-menu div{
+  padding:9px 12px;
+  font-size:12px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  white-space:nowrap;
+}
+.attach-menu div:hover{background:var(--soft)}
+.form{padding:14px 14px 80px}
+label.lbl{
+  font-size:12px;
+  font-weight:800;
+  margin:12px 0 6px;
+  display:block;
+}
+.form input[type=text]{
+  width:100%;
+  height:36px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:0 10px;
+}
+.picker{
+  margin-top:8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:auto;
+  max-height:230px;
+}
+.pick{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.pick input{margin-left:auto}
+.primary-btn,.secondary-btn{
+  width:100%;
+  min-height:38px;
+  border-radius:8px;
+  margin-top:10px;
+  cursor:pointer;
+  font-weight:800;
+}
+.primary-btn{border:0;background:var(--navy);color:white}
+.secondary-btn{border:1px solid var(--border);background:white;color:#334155}
+.float-add{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11px;
+  color:#475569;
+}
+.plus{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:0;
+  background:#4f46e5;
+  color:white;
+  font-size:22px;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+.empty{
+  padding:26px 18px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+}
+.toast{
+  position:fixed;
+  right:24px;
+  bottom:102px;
+  background:var(--navy);
+  color:white;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:12px;
+  box-shadow:0 10px 20px rgba(0,0,0,.2);
+  z-index:90;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(10px);
+  transition:.2s;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.modal-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.42);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+.modal-bg.show{display:flex}
+.modal{
+  width:min(530px,96vw);
+  max-height:86vh;
+  overflow:auto;
+  background:white;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+}
+.modal-h{
+  background:var(--navy);
+  color:white;
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-radius:14px 14px 0 0;
+}
+.modal-b{padding:16px;font-size:13px}
+.receipt{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.receipt:last-child{border-bottom:0}
+.receipt-main{flex:1}
+.receipt-name{font-weight:800;font-size:12px}
+.receipt-status{font-size:11px;color:var(--muted);margin-top:2px}
+.seen{color:#15803d;font-weight:800;font-size:11px}
+.pending-read{color:#b91c1c;font-weight:800;font-size:11px}
+.modal-img{
+  width:100%;
+  max-height:70vh;
+  object-fit:contain;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#f8fafc;
+}
+@media(max-width:760px){
+  .panel{top:0;right:-100vw;width:100vw;height:100vh}
+  .panel.open{right:0}
+  .board{padding:18px 14px 90px}
+  table{min-width:880px}
+  .table-wrap{overflow:auto}
+}
+</style>
 </head>
 
 <body>
-  <div class="app">
-    <aside class="main-sidebar">
-      <div class="logo">Xi</div>
-
-      <nav class="main-nav">
-        <div class="nav-icon active">⌂</div>
-        <div class="nav-icon">☑ <span class="nav-badge">5</span></div>
-        <div class="nav-icon">▣ <span class="nav-badge">2</span></div>
-        <div class="nav-icon">📁</div>
-        <div class="nav-icon">📊</div>
-        <div class="nav-icon">⚙</div>
-      </nav>
-    </aside>
-
-    <main class="content">
-      <header class="topbar">
-        <div class="top-left">
-          <span>☰</span>
-          <span>▦</span>
-          <span>⌕</span>
-          <span>⌂</span>
-        </div>
-
-        <div class="top-center">XIMPLER.APP</div>
-
-        <div class="top-right">
-          <span class="top-icon">✉</span>
-          <span class="top-icon">🔔</span>
-          <span class="top-icon">💬</span>
-          <div class="user-chip">
-            <span class="avatar dark">AC</span>
-            <span>Anel Castro</span>
-          </div>
-        </div>
-      </header>
-
-      <section class="board">
-        <div class="board-header">
-          <h1 class="board-title">Tablero de Acción</h1>
-
-          <div class="board-actions">
-            <button class="link-btn">Nueva Acción / Solicitud</button>
-            <button class="round-add">+</button>
-          </div>
-        </div>
-
-        <div class="tabs">
-          <div class="tab active">(123) Chat</div>
-          <div class="tab">(85) Mis Acciones</div>
-          <div class="tab">(50) Delegado</div>
-          <div class="tab">(4) Apoyando</div>
-          <div class="tab">(4) Súper Visor</div>
-        </div>
-
-        <input class="filter-box" placeholder="Buscar / Filtrar" />
-
-        <div class="table-wrap">
-          <table class="action-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Creador</th>
-                <th>Responsable</th>
-                <th>Estatus</th>
-                <th>Último movimiento</th>
-                <th>Último comentario</th>
-                <th>Fecha planeada</th>
-                <th>Termina</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr class="danger">
-                <td>206731</td>
-                <td>⚠ Liberar manual de cliente de MP Limpio</td>
-                <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
-                <td><span class="avatar sm dark">AC</span> Anel Castro</td>
-                <td><span class="status open">Recibido</span></td>
-                <td>en una hora</td>
-                <td>en una hora</td>
-                <td>Sin fecha</td>
-                <td>Hace 10 días</td>
-                <td><button class="detail-btn">Ver detalle</button></td>
-              </tr>
-
-              <tr>
-                <td>202523</td>
-                <td>Consulta - Sean Industries</td>
-                <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
-                <td><span class="avatar sm dark">AC</span> Anel Castro</td>
-                <td><span class="status done">Finalizada</span></td>
-                <td>hace 14 horas</td>
-                <td>hace 14 horas</td>
-                <td>Sin fecha</td>
-                <td>Sin fecha</td>
-                <td><button class="detail-btn">Ver detalle</button></td>
-              </tr>
-
-              <tr>
-                <td>192518</td>
-                <td>Agregar tableros Nom 035 y Diagnóstico Colegio Grande</td>
-                <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
-                <td><span class="avatar sm dark">AC</span> Anel Castro</td>
-                <td><span class="status done">Finalizada</span></td>
-                <td>hace 14 horas</td>
-                <td>hace 14 horas</td>
-                <td>Sin fecha</td>
-                <td>Sin fecha</td>
-                <td><button class="detail-btn">Ver detalle</button></td>
-              </tr>
-
-              <tr class="warning">
-                <td>206666</td>
-                <td>Diseño Ximpler Corporativo Ágil</td>
-                <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
-                <td><span class="avatar sm dark">AC</span> Anel Castro</td>
-                <td><span class="status open">Recibido</span></td>
-                <td>hace 12 horas</td>
-                <td>hace 1 día</td>
-                <td>Sin fecha</td>
-                <td>Sin fecha</td>
-                <td><button class="detail-btn">Ver detalle</button></td>
-              </tr>
-
-              <tr class="danger">
-                <td>205109</td>
-                <td>Alta de Ferrari</td>
-                <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
-                <td><span class="avatar sm dark">AC</span> Anel Castro</td>
-                <td><span class="status open">Recibido</span></td>
-                <td>hace 4 horas</td>
-                <td>hace 3 días</td>
-                <td>Sin fecha</td>
-                <td>Hace 2 días</td>
-                <td><button class="detail-btn">Ver detalle</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <button class="chat-launcher" id="chatLauncher" title="Abrir Team Chat">
-    💬
-    <span class="launcher-badge" id="launcherBadge">0</span>
-  </button>
-
-  <section class="team-chat-panel" id="chatPanel">
-    <aside class="chat-rail">
-      <div class="rail-item active" data-section="chat">
-        <span class="rail-badge" id="chatBadge">0</span>
-        <span class="ico">💬</span>
-        <span>Chat</span>
-      </div>
-
-      <div class="rail-item" data-section="teams">
-        <span class="rail-badge" id="teamsBadge">0</span>
-        <span class="ico">👥</span>
-        <span>Teams</span>
-      </div>
-
-      <div class="rail-item" data-section="forum">
-        <span class="rail-badge" id="forumBadge">0</span>
-        <span class="ico">⚙</span>
-        <span>Forum</span>
-      </div>
-    </aside>
-
-    <div class="chat-main">
-      <header class="chat-header">
-        <div class="chat-title-wrap">
-          <button class="back-btn" id="backBtn" title="Regresar">←</button>
-          <div class="chat-title" id="panelTitle">Chat</div>
-        </div>
-
-        <div class="header-actions">
-          <button class="close-btn" id="closePanel" title="Cerrar">x</button>
-        </div>
-      </header>
-
-      <div id="dynamicArea"></div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Xi</div>
+    <div class="nav">
+      <div class="active">⌂</div>
+      <div>☑</div>
+      <div>▣</div>
+      <div>📁</div>
+      <div>📊</div>
+      <div>⚙</div>
     </div>
-  </section>
+  </aside>
 
-  <div class="toast" id="toast">Listo</div>
-
-  <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle">Detalle</div>
-        <button class="close-btn" onclick="closeModal()">x</button>
+  <main class="content">
+    <header class="topbar">
+      <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
+      <div class="top-center">XIMPLER.APP</div>
+      <div class="top-right">
+        <span>✉</span><span>🔔</span><span>💬</span>
+        <span class="avatar">AC</span><span>Anel Castro</span>
       </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
+    </header>
+
+    <section class="board">
+      <div class="board-header">
+        <h1 class="board-title">Tablero de Acción</h1>
+        <button class="round-add">+</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">(123) Chat</div>
+        <div class="tab">(85) Mis Acciones</div>
+        <div class="tab">(50) Delegado</div>
+        <div class="tab">(4) Apoyando</div>
+        <div class="tab">(4) Súper Visor</div>
+      </div>
+
+      <input class="filter" placeholder="Buscar / Filtrar" />
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Título</th><th>Creador</th><th>Responsable</th>
+              <th>Estatus</th><th>Último movimiento</th><th>Fecha planeada</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="danger">
+              <td>206731</td><td>⚠ Liberar manual de cliente de MP Limpio</td>
+              <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
+              <td><span class="avatar sm">AC</span> Anel Castro</td>
+              <td><span class="status open">Recibido</span></td><td>en una hora</td><td>Sin fecha</td>
+              <td><button class="detail">Ver detalle</button></td>
+            </tr>
+            <tr>
+              <td>202523</td><td>Consulta - Sean Industries</td>
+              <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
+              <td><span class="avatar sm">AC</span> Anel Castro</td>
+              <td><span class="status done">Finalizada</span></td><td>hace 14 horas</td><td>Sin fecha</td>
+              <td><button class="detail">Ver detalle</button></td>
+            </tr>
+            <tr class="warning">
+              <td>206666</td><td>Diseño Ximpler Corporativo Ágil</td>
+              <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
+              <td><span class="avatar sm">AC</span> Anel Castro</td>
+              <td><span class="status open">Recibido</span></td><td>hace 12 horas</td><td>Sin fecha</td>
+              <td><button class="detail">Ver detalle</button></td>
+            </tr>
+            <tr class="danger">
+              <td>205109</td><td>Alta de Ferrari</td>
+              <td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td>
+              <td><span class="avatar sm">AC</span> Anel Castro</td>
+              <td><span class="status open">Recibido</span></td><td>hace 4 horas</td><td>Sin fecha</td>
+              <td><button class="detail">Ver detalle</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button class="launcher" id="launcher">💬<span class="badge" id="totalBadge">0</span></button>
+
+<section class="panel" id="panel">
+  <aside class="rail">
+    <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
+    <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
+    <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
+  </aside>
+
+  <div class="chat-main">
+    <header class="chat-header">
+      <div class="title-wrap">
+        <button class="icon-btn" id="back">←</button>
+        <div class="chat-title" id="title">Chat</div>
+      </div>
+      <button class="icon-btn" id="close">x</button>
+    </header>
+    <div id="view"></div>
   </div>
-
-  <script>
-    const STORAGE_KEY = "ximpler_team_chat_v1_1";
-    const CURRENT_USER_ID = "u1";
-
-    const demoState = {
-      users: [
-        { id: "u1", name: "Anel Castro", initials: "AC", color: "dark", online: true },
-        { id: "u2", name: "Melchor Iván Angulo", initials: "MA", color: "blue", online: true },
-        { id: "u3", name: "Victoria Hernández", initials: "VH", color: "gold", online: false },
-        { id: "u4", name: "Saúl Nahúm Cruz", initials: "SC", color: "green", online: true },
-        { id: "u5", name: "Salvador Ahumada", initials: "SA", color: "purple", online: true },
-        { id: "u6", name: "Alejandra Ruiz", initials: "AR", color: "red", online: false },
-        { id: "u7", name: "Carlos Medina", initials: "CM", color: "teal", online: true },
-        { id: "u8", name: "Laura Beltrán", initials: "LB", color: "pink", online: false }
-      ],
-
-      directChats: [
-        {
-          id: "dc_u2",
-          userId: "u2",
-          unread: 2,
-          locked: true,
-          lastActivityAt: "2026-05-02T15:25:00",
-          messages: [
-            {
-              id: "m1",
-              senderId: "u2",
-              text: "Revisar avance del tablero antes de la reunión.",
-              createdAt: "2026-05-02T14:00:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u2: "2026-05-02T14:00:00", u1: "2026-05-02T14:06:00" }
-            },
-            {
-              id: "m2",
-              senderId: "u1",
-              text: "Ok, lo reviso y te comparto comentarios.",
-              createdAt: "2026-05-02T15:25:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u1: "2026-05-02T15:25:00", u2: "2026-05-02T15:28:00" }
-            }
-          ]
-        },
-        {
-          id: "dc_u3",
-          userId: "u3",
-          unread: 0,
-          locked: true,
-          lastActivityAt: "2026-05-02T15:30:00",
-          messages: [
-            {
-              id: "m3",
-              senderId: "u3",
-              text: "Ya quedó listo el documento inicial.",
-              createdAt: "2026-05-02T15:30:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u3: "2026-05-02T15:30:00", u1: "2026-05-02T15:50:00" }
-            }
-          ]
-        },
-        {
-          id: "dc_u4",
-          userId: "u4",
-          unread: 0,
-          locked: false,
-          lastActivityAt: "2026-05-02T16:05:00",
-          messages: [
-            {
-              id: "m4",
-              senderId: "u1",
-              text: "Favor de validar las fechas compromiso.",
-              createdAt: "2026-05-02T16:05:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u1: "2026-05-02T16:05:00" }
-            }
-          ]
-        }
-      ],
-
-      teams: [
-        {
-          id: "t1",
-          name: "Administración",
-          members: ["u1", "u2", "u3"],
-          unread: 0,
-          lastActivityAt: "2026-05-01T11:10:00",
-          messages: [
-            {
-              id: "tm1",
-              senderId: "u2",
-              text: "Necesitamos cerrar los pendientes administrativos esta semana.",
-              createdAt: "2026-05-01T11:10:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u2: "2026-05-01T11:10:00", u1: "2026-05-01T11:15:00", u3: "2026-05-01T11:35:00" }
-            }
-          ]
-        },
-        {
-          id: "t2",
-          name: "Proyecto ABC",
-          members: ["u1", "u4", "u5"],
-          unread: 1,
-          lastActivityAt: "2026-05-01T12:30:00",
-          messages: [
-            {
-              id: "tm2",
-              senderId: "u4",
-              text: "Subí el avance del proyecto ABC para revisión.",
-              createdAt: "2026-05-01T12:30:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u4: "2026-05-01T12:30:00", u5: "2026-05-01T12:44:00" }
-            }
-          ]
-        },
-        {
-          id: "t3",
-          name: "Sistemas",
-          members: ["u1", "u2", "u4", "u5"],
-          unread: 1,
-          lastActivityAt: "2026-05-01T13:10:00",
-          messages: [
-            {
-              id: "tm3",
-              senderId: "u5",
-              text: "Hay que validar permisos del nuevo módulo.",
-              createdAt: "2026-05-01T12:40:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u5: "2026-05-01T12:40:00", u2: "2026-05-01T12:48:00" }
-            },
-            {
-              id: "tm4",
-              senderId: "u1",
-              text: "Estoy revisando la lógica del Team Chat.",
-              createdAt: "2026-05-01T13:10:00",
-              replyTo: null,
-              attachment: null,
-              readBy: { u1: "2026-05-01T13:10:00", u2: "2026-05-01T13:14:00", u5: "2026-05-01T13:20:00" }
-            }
-          ]
-        }
-      ],
-
-      forum: {
-        unread: 1,
-        lastActivityAt: "2026-05-01T11:05:00",
-        messages: [
-          {
-            id: "fm1",
-            senderId: "u2",
-            text: "Este espacio puede usarse para avisos generales, documentos y comunicación abierta.",
-            createdAt: "2026-05-01T10:10:00",
-            replyTo: null,
-            attachment: null,
-            readBy: { u2: "2026-05-01T10:10:00", u1: "2026-05-01T10:22:00" }
-          },
-          {
-            id: "fm2",
-            senderId: "u1",
-            text: "Correcto. El Forum debe servir como tablero general de discusión.",
-            createdAt: "2026-05-01T11:05:00",
-            replyTo: null,
-            attachment: null,
-            readBy: { u1: "2026-05-01T11:05:00", u2: "2026-05-01T11:12:00" }
-          }
-        ]
-      }
-    };
-
-    let state = loadState();
-    let activeSection = "chat";
-    let currentView = "list";
-    let selectedChatId = null;
-    let selectedTeamId = null;
-    let replyingTo = null;
-    let pendingAttachment = null;
-    let fileMode = "file";
-
-    const chatPanel = document.getElementById("chatPanel");
-    const chatLauncher = document.getElementById("chatLauncher");
-    const closePanel = document.getElementById("closePanel");
-    const dynamicArea = document.getElementById("dynamicArea");
-    const panelTitle = document.getElementById("panelTitle");
-    const backBtn = document.getElementById("backBtn");
-    const toast = document.getElementById("toast");
-    const modalBackdrop = document.getElementById("modalBackdrop");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalBody = document.getElementById("modalBody");
-
-    chatLauncher.addEventListener("click", () => {
-      chatPanel.classList.add("open");
-      render();
-    });
-
-    closePanel.addEventListener("click", () => {
-      chatPanel.classList.remove("open");
-    });
-
-    backBtn.addEventListener("click", () => {
-      replyingTo = null;
-      pendingAttachment = null;
-
-      if (["conversation", "teamConversation", "teamForm", "newChat"].includes(currentView)) {
-        currentView = "list";
-        selectedChatId = null;
-        selectedTeamId = null;
-        render();
-      }
-    });
-
-    document.querySelectorAll(".rail-item").forEach(item => {
-      item.addEventListener("click", () => {
-        activeSection = item.dataset.section;
-        currentView = "list";
-        selectedChatId = null;
-        selectedTeamId = null;
-        replyingTo = null;
-        pendingAttachment = null;
-        render();
-      });
-    });
-
-    function clone(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    }
-
-    function loadState() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-
-      if (!saved) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(demoState));
-        return normalizeState(clone(demoState));
-      }
-
-      try {
-        return normalizeState(JSON.parse(saved));
-      } catch (error) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(demoState));
-        return normalizeState(clone(demoState));
-      }
-    }
-
-    function normalizeState(raw) {
-      const s = raw || clone(demoState);
-
-      if (!Array.isArray(s.users)) s.users = clone(demoState.users);
-      if (!Array.isArray(s.directChats)) s.directChats = [];
-      if (!Array.isArray(s.teams)) s.teams = [];
-      if (!s.forum) s.forum = { unread: 0, messages: [], lastActivityAt: nowIso() };
-
-      s.directChats.forEach(chat => {
-        if (!Array.isArray(chat.messages)) chat.messages = [];
-        chat.messages.forEach(normalizeMessage);
-        chat.lastActivityAt = chat.lastActivityAt || getLastMessageDate(chat.messages);
-        chat.unread = Number(chat.unread || 0);
-      });
-
-      s.teams.forEach(team => {
-        if (!Array.isArray(team.members)) team.members = [];
-        if (!Array.isArray(team.messages)) team.messages = [];
-        team.messages.forEach(normalizeMessage);
-        team.lastActivityAt = team.lastActivityAt || getLastMessageDate(team.messages);
-        team.unread = Number(team.unread || 0);
-      });
-
-      if (!Array.isArray(s.forum.messages)) s.forum.messages = [];
-      s.forum.messages.forEach(normalizeMessage);
-      s.forum.lastActivityAt = s.forum.lastActivityAt || getLastMessageDate(s.forum.messages);
-      s.forum.unread = Number(s.forum.unread || 0);
-
-      return s;
-    }
-
-    function normalizeMessage(message) {
-      if (!message.id) message.id = generateId("msg");
-      if (!message.createdAt) message.createdAt = nowIso();
-      if (!message.readBy) message.readBy = {};
-      if (!message.readBy[message.senderId]) message.readBy[message.senderId] = message.createdAt;
-      if (message.deletedAt === undefined) message.deletedAt = null;
-      if (message.deletedBy === undefined) message.deletedBy = null;
-      if (message.attachment === undefined) message.attachment = null;
-      if (message.replyTo === undefined) message.replyTo = null;
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      updateBadges();
-    }
-
-    function resetDemo() {
-      state = normalizeState(clone(demoState));
-      saveState();
-      currentView = "list";
-      selectedChatId = null;
-      selectedTeamId = null;
-      activeSection = "chat";
-      render();
-      showToast("Demo reiniciado");
-    }
-
-    function getUser(userId) {
-      return state.users.find(u => u.id === userId) || state.users[0];
-    }
-
-    function userAvatar(userId, size = "sm") {
-      const user = getUser(userId);
-      return `<span class="avatar ${size} ${user.color}">${escapeHtml(user.initials)}</span>`;
-    }
-
-    function formatDateTime(iso) {
-      const date = new Date(iso);
-
-      return date.toLocaleString("es-MX", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).replace(",", "") + " hrs.";
-    }
-
-    function shortDate(iso) {
-      const date = new Date(iso);
-
-      return date.toLocaleDateString("es-MX", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-      });
-    }
-
-    function nowIso() {
-      return new Date().toISOString();
-    }
-
-    function generateId(prefix = "id") {
-      return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    }
-
-    function escapeHtml(text) {
-      return String(text || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function getLastMessageDate(messages) {
-      if (!messages || !messages.length) return "1970-01-01T00:00:00";
-      return messages[messages.length - 1].createdAt || "1970-01-01T00:00:00";
-    }
-
-    function getLastActivity(item) {
-      return item.lastActivityAt || getLastMessageDate(item.messages);
-    }
-
-    function updateRailActive() {
-      document.querySelectorAll(".rail-item").forEach(item => {
-        item.classList.toggle("active", item.dataset.section === activeSection);
-      });
-    }
-
-    function updateBadges() {
-      const chatUnread = state.directChats.reduce((sum, chat) => sum + Number(chat.unread || 0), 0);
-      const teamsUnread = state.teams
-        .filter(team => team.members.includes(CURRENT_USER_ID))
-        .reduce((sum, team) => sum + Number(team.unread || 0), 0);
-      const forumUnread = Number(state.forum.unread || 0);
-      const total = chatUnread + teamsUnread + forumUnread;
-
-      document.getElementById("chatBadge").textContent = chatUnread;
-      document.getElementById("teamsBadge").textContent = teamsUnread;
-      document.getElementById("forumBadge").textContent = forumUnread;
-      document.getElementById("launcherBadge").textContent = total;
-    }
-
-    function render() {
-      updateRailActive();
-      updateBadges();
-
-      if (activeSection === "chat") {
-        if (currentView === "conversation" && selectedChatId) renderDirectConversation();
-        else if (currentView === "newChat") renderNewChat();
-        else renderChatList();
-      }
-
-      if (activeSection === "teams") {
-        if (currentView === "teamConversation" && selectedTeamId) renderTeamConversation();
-        else if (currentView === "teamForm") renderTeamForm();
-        else renderTeamsList();
-      }
-
-      if (activeSection === "forum") {
-        renderForum();
-      }
-    }
-
-    function renderSearch(value = "") {
-      return `
-        <div class="search-row">
-          <span>⌕</span>
-          <input id="searchInput" placeholder="Buscar:" value="${escapeHtml(value)}" />
-        </div>
-      `;
-    }
-
-    function renderChatList(filter = "") {
-      panelTitle.textContent = "Chat";
-      backBtn.style.visibility = "hidden";
-
-      const lower = filter.toLowerCase();
-
-      const items = state.directChats
-        .map(chat => {
-          const user = getUser(chat.userId);
-          const last = chat.messages[chat.messages.length - 1];
-          return { chat, user, last };
-        })
-        .filter(row => row.user.name.toLowerCase().includes(lower))
-        .sort((a, b) => new Date(getLastActivity(b.chat)) - new Date(getLastActivity(a.chat)));
-
-      dynamicArea.innerHTML = `
-        ${renderSearch(filter)}
-        <div class="toolbar">
-          <button class="primary" onclick="showNewChat()">+ Nuevo Chat</button>
-          <button onclick="markAllRead()">Marcar todo leído</button>
-          <button onclick="resetDemo()">Reiniciar demo</button>
-        </div>
-        <div class="panel-body">
-          ${
-            items.length
-              ? items.map(({ chat, user, last }) => `
-                <div class="list-item" onclick="openDirectChat('${chat.id}')">
-                  ${userAvatar(user.id, "sm")}
-                  <div class="list-main">
-                    <div class="list-title">
-                      ${escapeHtml(user.name)}
-                      ${chat.unread ? `<span class="nav-badge">${chat.unread}</span>` : ""}
-                    </div>
-                    <div class="list-sub">${last ? renderLastPreview(last) : "Sin mensajes"}</div>
-                    <div class="list-time">Último movimiento: ${formatDateTime(getLastActivity(chat))}</div>
-                  </div>
-                  <div class="list-actions">
-                    <span class="${user.online ? "check" : "lock"}">${user.online ? "✓" : "▢"}</span>
-                    <button class="mini-action-btn" onclick="event.stopPropagation(); emptyDirectChat('${chat.id}')">Vaciar</button>
-                    <button class="mini-action-btn danger" onclick="event.stopPropagation(); deleteDirectChat('${chat.id}')">Eliminar</button>
-                  </div>
-                </div>
-              `).join("")
-              : `<div class="empty-state">No se encontraron chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`
-          }
-        </div>
-      `;
-
-      const input = document.getElementById("searchInput");
-      input.addEventListener("input", e => renderChatList(e.target.value));
-    }
-
-    function renderLastPreview(message) {
-      if (!message) return "Sin mensajes";
-      if (message.deletedAt) return "Mensaje eliminado";
-      if (message.attachment) {
-        const icon = message.attachment.type === "image" ? "🖼️" : "📎";
-        const text = message.text ? `${message.text} · ` : "";
-        return `${escapeHtml(text)}${icon} ${escapeHtml(message.attachment.name)}`;
-      }
-      return escapeHtml(message.text);
-    }
-
-    function showNewChat() {
-      currentView = "newChat";
-      render();
-    }
-
-    function renderNewChat(filter = "") {
-      panelTitle.textContent = "Nuevo Chat";
-      backBtn.style.visibility = "visible";
-
-      const lower = filter.toLowerCase();
-
-      const users = state.users
-        .filter(user => user.id !== CURRENT_USER_ID)
-        .filter(user => user.name.toLowerCase().includes(lower));
-
-      dynamicArea.innerHTML = `
-        ${renderSearch(filter)}
-        <div class="forum-note">
-          Busca usuarios de la empresa para iniciar o abrir una conversación individual.
-        </div>
-        <div class="panel-body">
-          ${
-            users.length
-              ? users.map(user => {
-                const existing = state.directChats.find(chat => chat.userId === user.id);
-                return `
-                  <div class="list-item" onclick="startDirectChat('${user.id}')">
-                    ${userAvatar(user.id, "sm")}
-                    <div class="list-main">
-                      <div class="list-title">${escapeHtml(user.name)}</div>
-                      <div class="list-sub">${existing ? "Chat existente" : "Crear nuevo chat"}</div>
-                    </div>
-                    <button class="mini-action-btn">${existing ? "Abrir" : "Iniciar"}</button>
-                  </div>
-                `;
-              }).join("")
-              : `<div class="empty-state">No se encontraron usuarios.</div>`
-          }
-        </div>
-      `;
-
-      const input = document.getElementById("searchInput");
-      input.addEventListener("input", e => renderNewChat(e.target.value));
-    }
-
-    function startDirectChat(userId) {
-      let chat = state.directChats.find(c => c.userId === userId);
-
-      if (!chat) {
-        chat = {
-          id: `dc_${userId}_${Date.now()}`,
-          userId,
-          unread: 0,
-          locked: false,
-          lastActivityAt: nowIso(),
-          messages: []
-        };
-        state.directChats.push(chat);
-        saveState();
-      }
-
-      selectedChatId = chat.id;
-      currentView = "conversation";
-      openDirectChat(chat.id);
-    }
-
-    function openDirectChat(chatId) {
-      selectedChatId = chatId;
-      const chat = state.directChats.find(c => c.id === chatId);
-
-      if (chat) {
-        chat.unread = 0;
-        markMessagesAsRead(chat.messages);
-        saveState();
-      }
-
-      currentView = "conversation";
-      render();
-    }
-
-    function renderDirectConversation() {
-      const chat = state.directChats.find(c => c.id === selectedChatId);
-      if (!chat) return renderChatList();
-
-      const user = getUser(chat.userId);
-      panelTitle.textContent = user.name;
-      backBtn.style.visibility = "visible";
-
-      dynamicArea.innerHTML = `
-        <div class="toolbar">
-          <button onclick="emptyDirectChat('${chat.id}')">Vaciar chat</button>
-          <button class="danger" onclick="deleteDirectChat('${chat.id}')">Eliminar chat</button>
-        </div>
-        <div class="conversation">
-          <div class="messages" id="messagesBox">
-            ${renderMessages(chat.messages)}
-          </div>
-          ${renderComposer("sendDirectMessage")}
-        </div>
-      `;
-
-      bindComposer();
-      scrollMessages();
-    }
-
-    function emptyDirectChat(chatId) {
-      const chat = state.directChats.find(c => c.id === chatId);
-      if (!chat) return;
-
-      if (!confirm("¿Vaciar todos los mensajes de este chat?")) return;
-
-      chat.messages = [];
-      chat.lastActivityAt = nowIso();
-      chat.unread = 0;
-      saveState();
-
-      if (currentView === "conversation" && selectedChatId === chatId) renderDirectConversation();
-      else renderChatList();
-
-      showToast("Chat vaciado");
-    }
-
-    function deleteDirectChat(chatId) {
-      const chat = state.directChats.find(c => c.id === chatId);
-      if (!chat) return;
-
-      if (!confirm("¿Eliminar este chat completo?")) return;
-
-      state.directChats = state.directChats.filter(c => c.id !== chatId);
-      selectedChatId = null;
-      currentView = "list";
-      saveState();
-      renderChatList();
-      showToast("Chat eliminado");
-    }
-
-    function renderTeamsList(filter = "") {
-      panelTitle.textContent = "Teams";
-      backBtn.style.visibility = "hidden";
-
-      const lower = filter.toLowerCase();
-
-      const teams = state.teams
-        .filter(team => team.members.includes(CURRENT_USER_ID))
-        .filter(team => team.name.toLowerCase().includes(lower))
-        .sort((a, b) => new Date(getLastActivity(b)) - new Date(getLastActivity(a)));
-
-      dynamicArea.innerHTML = `
-        ${renderSearch(filter)}
-        <div class="panel-body" style="position:relative;">
-          ${
-            teams.length
-              ? teams.map(team => `
-                <div class="list-item" onclick="openTeam('${team.id}')">
-                  <div class="team-avatars">
-                    ${team.members.slice(0, 4).map(id => userAvatar(id, "xs")).join("")}
-                  </div>
-                  <div class="list-main">
-                    <div class="list-title">
-                      ${escapeHtml(team.name)}
-                      ${team.unread ? `<span class="nav-badge">${team.unread}</span>` : ""}
-                    </div>
-                    <div class="list-sub">${team.members.length} integrantes · ${lastTeamMessage(team)}</div>
-                    <div class="list-time">Último movimiento: ${formatDateTime(getLastActivity(team))}</div>
-                  </div>
-                </div>
-              `).join("")
-              : `<div class="empty-state">No perteneces a ningún Team activo.</div>`
-          }
-
-          <div class="floating-add-team">
-            <button class="mini-plus" onclick="showTeamForm()">+</button>
-            <span>Agregar Team</span>
-          </div>
-        </div>
-      `;
-
-      const input = document.getElementById("searchInput");
-      input.addEventListener("input", e => renderTeamsList(e.target.value));
-    }
-
-    function lastTeamMessage(team) {
-      const last = team.messages[team.messages.length - 1];
-      return last ? renderLastPreview(last) : "Sin mensajes";
-    }
-
-    function openTeam(teamId) {
-      selectedTeamId = teamId;
-      const team = state.teams.find(t => t.id === teamId);
-
-      if (team) {
-        team.unread = 0;
-        markMessagesAsRead(team.messages);
-        saveState();
-      }
-
-      currentView = "teamConversation";
-      render();
-    }
-
-    function showTeamForm() {
-      currentView = "teamForm";
-      render();
-    }
-
-    function renderTeamForm() {
-      panelTitle.textContent = "Agregar Team";
-      backBtn.style.visibility = "visible";
-
-      dynamicArea.innerHTML = `
-        <div class="panel-body">
-          <div class="team-form">
-            <label class="form-label">Nombre del equipo:</label>
-            <input class="form-input" id="teamNameInput" placeholder="Ej. Dirección Comercial" />
-
-            <label class="form-label">INVITADOS:</label>
-            <input class="form-input" id="teamUserSearch" placeholder="Buscar internos..." />
-
-            <div class="user-picker" id="userPicker">
-              ${renderUserPickerRows("")}
-            </div>
-
-            <button class="primary-btn" onclick="createTeam()">Crear Team</button>
-            <button class="secondary-btn" onclick="cancelTeamForm()">Cancelar</button>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("teamUserSearch").addEventListener("input", e => {
-        document.getElementById("userPicker").innerHTML = renderUserPickerRows(e.target.value);
-      });
-    }
-
-    function renderUserPickerRows(filter) {
-      const lower = filter.toLowerCase();
-
-      return state.users
-        .filter(user => user.id !== CURRENT_USER_ID)
-        .filter(user => user.name.toLowerCase().includes(lower))
-        .map(user => `
-          <label class="picker-row">
-            ${userAvatar(user.id, "sm")}
-            <span>${escapeHtml(user.name)}</span>
-            <input type="checkbox" value="${user.id}" class="teamMemberCheck" />
-          </label>
-        `).join("");
-    }
-
-    function createTeam() {
-      const name = document.getElementById("teamNameInput").value.trim();
-      const selected = [...document.querySelectorAll(".teamMemberCheck:checked")].map(input => input.value);
-
-      if (!name) {
-        showToast("Escribe el nombre del equipo");
-        return;
-      }
-
-      const members = Array.from(new Set([CURRENT_USER_ID, ...selected]));
-      const createdAt = nowIso();
-
-      const team = {
-        id: generateId("team"),
-        name,
-        members,
-        unread: 0,
-        lastActivityAt: createdAt,
-        messages: [
-          {
-            id: generateId("tm"),
-            senderId: CURRENT_USER_ID,
-            text: `Team creado: ${name}`,
-            createdAt,
-            replyTo: null,
-            attachment: null,
-            readBy: { [CURRENT_USER_ID]: createdAt },
-            deletedAt: null,
-            deletedBy: null
-          }
-        ]
-      };
-
-      state.teams.push(team);
-      saveState();
-
-      selectedTeamId = team.id;
-      currentView = "teamConversation";
-      render();
-      showToast("Team creado");
-    }
-
-    function cancelTeamForm() {
-      currentView = "list";
-      render();
-    }
-
-    function renderTeamConversation() {
-      const team = state.teams.find(t => t.id === selectedTeamId);
-      if (!team || !team.members.includes(CURRENT_USER_ID)) return renderTeamsList();
-
-      panelTitle.textContent = team.name;
-      backBtn.style.visibility = "visible";
-
-      dynamicArea.innerHTML = `
-        <div class="forum-note">
-          <strong>${escapeHtml(team.name)}</strong> · ${team.members.length} integrantes:
-          ${team.members.map(id => escapeHtml(getUser(id).name)).join(", ")}
-        </div>
-        <div class="toolbar">
-          <button class="danger" onclick="leaveTeam('${team.id}')">Salir del chat grupal</button>
-        </div>
-        <div class="conversation">
-          <div class="messages" id="messagesBox">
-            ${renderMessages(team.messages)}
-          </div>
-          ${renderComposer("sendTeamMessage")}
-        </div>
-      `;
-
-      bindComposer();
-      scrollMessages();
-    }
-
-    function leaveTeam(teamId) {
-      const team = state.teams.find(t => t.id === teamId);
-      if (!team) return;
-
-      if (!confirm(`¿Salir del chat grupal "${team.name}"?`)) return;
-
-      team.members = team.members.filter(id => id !== CURRENT_USER_ID);
-      team.lastActivityAt = nowIso();
-
-      const systemMsg = {
-        id: generateId("sys"),
-        senderId: CURRENT_USER_ID,
-        text: `${getUser(CURRENT_USER_ID).name} salió del Team.`,
-        createdAt: nowIso(),
-        replyTo: null,
-        attachment: null,
-        readBy: { [CURRENT_USER_ID]: nowIso() },
-        deletedAt: null,
-        deletedBy: null
-      };
-
-      team.messages.push(systemMsg);
-      saveState();
-
-      selectedTeamId = null;
-      currentView = "list";
-      renderTeamsList();
-      showToast("Saliste del chat grupal");
-    }
-
-    function renderForum() {
-      panelTitle.textContent = "Forum";
-      backBtn.style.visibility = "hidden";
-      state.forum.unread = 0;
-      markMessagesAsRead(state.forum.messages);
-      saveState();
-
-      dynamicArea.innerHTML = `
-        <div class="forum-note">
-          Foro general para anuncios, conversación abierta, documentos, fotos y acuerdos compartidos.
-        </div>
-        <div class="conversation">
-          <div class="messages" id="messagesBox">
-            ${renderMessages(state.forum.messages)}
-          </div>
-          ${renderComposer("sendForumMessage")}
-        </div>
-      `;
-
-      bindComposer();
-      scrollMessages();
-    }
-
-    function renderMessages(messages) {
-      if (!messages.length) {
-        return `<div class="empty-state">No hay mensajes todavía.</div>`;
-      }
-
-      let lastDate = "";
-
-      return messages.map(message => {
-        const user = getUser(message.senderId);
-        const mine = message.senderId === CURRENT_USER_ID;
-        const currentDate = shortDate(message.createdAt);
-        const showDate = currentDate !== lastDate;
-        lastDate = currentDate;
-
-        const deleted = !!message.deletedAt;
-
-        const reply = !deleted && message.replyTo
-          ? `<div class="reply-preview">↪ ${escapeHtml(message.replyTo.text)}</div>`
-          : "";
-
-        const content = deleted
-          ? `<div class="message-deleted">Mensaje eliminado</div>`
-          : `
-              ${reply}
-              ${message.text ? `<div>${escapeHtml(message.text)}</div>` : ""}
-              ${message.attachment ? renderAttachment(message) : ""}
-            `;
-
-        const actionButtons = deleted
-          ? `<button onclick="showReadReceipts('${message.id}')">Lecturas</button>`
-          : `
-              <button onclick="replyMessage('${message.id}')">Responder</button>
-              <button onclick="copyMessage('${message.id}')">Copiar</button>
-              <button onclick="showReadReceipts('${message.id}')">Lecturas</button>
-              ${mine ? `<button class="danger" onclick="deleteMessage('${message.id}')">Eliminar</button>` : ""}
-            `;
-
-        return `
-          ${showDate ? `<div class="date-separator">${currentDate}</div>` : ""}
-          <div class="message-row ${mine ? "me" : ""}">
-            ${mine ? "" : userAvatar(user.id, "xs")}
-            <div class="message-bubble">
-              <div class="message-actions">
-                ${actionButtons}
-              </div>
-
-              ${mine ? "" : `<div class="sender">${escapeHtml(user.name)}</div>`}
-              ${content}
-
-              <div class="message-meta">
-                <span>${formatDateTime(message.createdAt)}</span>
-                <span class="read-indicator" onclick="showReadReceipts('${message.id}')">${mine ? readMiniStatus(message) : ""}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderAttachment(message) {
-      const attachment = message.attachment;
-      if (!attachment) return "";
-
-      const name = escapeHtml(attachment.name || "Archivo");
-      const size = formatFileSize(attachment.size || 0);
-      const href = escapeHtml(attachment.dataUrl || "#");
-
-      if (attachment.type === "image") {
-        return `
-          <img class="chat-image" src="${href}" alt="${name}" onclick="openImageModal('${message.id}')" />
-          <div class="image-actions">
-            <a class="download-link" href="${href}" download="${name}">Descargar imagen</a>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="attachment-card">
-          <div>📎</div>
-          <div class="attachment-info">
-            <div class="attachment-name">${name}</div>
-            <div class="attachment-size">${size}</div>
-          </div>
-          <a class="download-link" href="${href}" download="${name}">Descargar</a>
-        </div>
-      `;
-    }
-
-    function readMiniStatus(message) {
-      const participants = getCurrentParticipants();
-      const totalOthers = participants.filter(id => id !== message.senderId).length;
-      const seenOthers = participants.filter(id => id !== message.senderId && message.readBy && message.readBy[id]).length;
-
-      if (!totalOthers) return "✓";
-      if (seenOthers === totalOthers) return "✓✓";
-      if (seenOthers > 0) return `✓ ${seenOthers}/${totalOthers}`;
-      return "✓";
-    }
-
-    function renderComposer(sendFunctionName) {
-      return `
-        <div class="composer-wrap">
-          <div class="replying-box" id="replyingBox">
-            <span class="replying-text" id="replyingText"></span>
-            <button class="small-icon-btn" onclick="clearReply()">x</button>
-          </div>
-
-          <div class="pending-file-box" id="pendingFileBox">
-            <span class="pending-file-text" id="pendingFileText"></span>
-            <button class="small-icon-btn" onclick="clearPendingAttachment()">x</button>
-          </div>
-
-          <div class="composer">
-            <button class="attach-btn" id="attachBtn" title="Adjuntar">+</button>
-            <div class="attach-menu" id="attachMenu">
-              <div class="attach-option" onclick="chooseFile('image')">🖼️ Imagen / Foto</div>
-              <div class="attach-option" onclick="chooseFile('file')">📄 Archivo</div>
-              <div class="attach-option" onclick="chooseFile('camera')">📸 Cámara</div>
-            </div>
-
-            <input type="file" id="hiddenFileInput" style="display:none" onchange="handleFileInput(event)" />
-
-            <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeydown="if(event.key === 'Enter') ${sendFunctionName}()" />
-            <button class="send-btn" onclick="${sendFunctionName}()">➤</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function bindComposer() {
-      updateReplyingBox();
-      updatePendingAttachmentBox();
-
-      const attachBtn = document.getElementById("attachBtn");
-      const attachMenu = document.getElementById("attachMenu");
-
-      if (attachBtn && attachMenu) {
-        attachBtn.addEventListener("click", () => {
-          attachMenu.classList.toggle("show");
-        });
-      }
-    }
-
-    function chooseFile(mode) {
-      fileMode = mode;
-      const input = document.getElementById("hiddenFileInput");
-      const menu = document.getElementById("attachMenu");
-
-      if (!input) return;
-
-      input.value = "";
-      input.removeAttribute("capture");
-
-      if (mode === "image") {
-        input.accept = "image/*";
-      } else if (mode === "camera") {
-        input.accept = "image/*";
-        input.setAttribute("capture", "environment");
-      } else {
-        input.accept = "*/*";
-      }
-
-      if (menu) menu.classList.remove("show");
-      input.click();
-    }
-
-    function handleFileInput(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      const maxSizeMb = 4;
-      if (file.size > maxSizeMb * 1024 * 1024) {
-        showToast(`Archivo muy grande. Máximo ${maxSizeMb} MB en este prototipo`);
-        return;
-      }
-
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        const isImage = file.type.startsWith("image/");
-
-        pendingAttachment = {
-          id: generateId("att"),
-          name: file.name || (isImage ? "imagen.jpg" : "archivo"),
-          mime: file.type || "application/octet-stream",
-          size: file.size,
-          type: isImage ? "image" : "file",
-          dataUrl: e.target.result,
-          createdAt: nowIso()
-        };
-
-        updatePendingAttachmentBox();
-        showToast(isImage ? "Imagen lista para enviar" : "Archivo listo para enviar");
-
-        const input = document.getElementById("messageInput");
-        if (input) input.focus();
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    function updateReplyingBox() {
-      const box = document.getElementById("replyingBox");
-      const text = document.getElementById("replyingText");
-
-      if (!box || !text) return;
-
-      if (replyingTo) {
-        box.classList.add("show");
-        text.textContent = `Respondiendo a: ${replyingTo.text}`;
-      } else {
-        box.classList.remove("show");
-        text.textContent = "";
-      }
-    }
-
-    function updatePendingAttachmentBox() {
-      const box = document.getElementById("pendingFileBox");
-      const text = document.getElementById("pendingFileText");
-
-      if (!box || !text) return;
-
-      if (pendingAttachment) {
-        box.classList.add("show");
-        text.textContent = `${pendingAttachment.type === "image" ? "Imagen" : "Archivo"} listo: ${pendingAttachment.name} (${formatFileSize(pendingAttachment.size)})`;
-      } else {
-        box.classList.remove("show");
-        text.textContent = "";
-      }
-    }
-
-    function clearReply() {
-      replyingTo = null;
-      updateReplyingBox();
-    }
-
-    function clearPendingAttachment() {
-      pendingAttachment = null;
-      updatePendingAttachmentBox();
-      showToast("Adjunto removido");
-    }
-
-    function getCurrentMessages() {
-      if (activeSection === "chat" && selectedChatId) {
-        const chat = state.directChats.find(c => c.id === selectedChatId);
-        return chat ? chat.messages : [];
-      }
-
-      if (activeSection === "teams" && selectedTeamId) {
-        const team = state.teams.find(t => t.id === selectedTeamId);
-        return team ? team.messages : [];
-      }
-
-      if (activeSection === "forum") {
-        return state.forum.messages;
-      }
-
-      return [];
-    }
-
-    function getCurrentParticipants() {
-      if (activeSection === "chat" && selectedChatId) {
-        const chat = state.directChats.find(c => c.id === selectedChatId);
-        return chat ? [CURRENT_USER_ID, chat.userId] : [CURRENT_USER_ID];
-      }
-
-      if (activeSection === "teams" && selectedTeamId) {
-        const team = state.teams.find(t => t.id === selectedTeamId);
-        return team ? team.members : [CURRENT_USER_ID];
-      }
-
-      if (activeSection === "forum") {
-        return state.users.map(u => u.id);
-      }
-
-      return [CURRENT_USER_ID];
-    }
-
-    function findMessageById(messageId) {
-      return getCurrentMessages().find(m => m.id === messageId);
-    }
-
-    function replyMessage(messageId) {
-      const message = findMessageById(messageId);
-      if (!message || message.deletedAt) return;
-
-      replyingTo = {
-        id: message.id,
-        text: message.text || (message.attachment ? message.attachment.name : "Archivo adjunto"),
-        senderId: message.senderId
-      };
-
-      updateReplyingBox();
-
-      const input = document.getElementById("messageInput");
-      if (input) input.focus();
-    }
-
-    function copyMessage(messageId) {
-      const message = findMessageById(messageId);
-      if (!message || message.deletedAt) return;
-
-      const text = message.text || (message.attachment ? message.attachment.name : "");
-      navigator.clipboard?.writeText(text)
-        .then(() => showToast("Mensaje copiado"))
-        .catch(() => showToast("No se pudo copiar"));
-    }
-
-    function deleteMessage(messageId) {
-      const message = findMessageById(messageId);
-      if (!message) return;
-
-      if (message.senderId !== CURRENT_USER_ID) {
-        showToast("Solo puedes borrar mensajes enviados por ti");
-        return;
-      }
-
-      if (!confirm("¿Borrar este mensaje enviado?")) return;
-
-      message.deletedAt = nowIso();
-      message.deletedBy = CURRENT_USER_ID;
-      message.text = "";
-      message.attachment = null;
-      message.replyTo = null;
-
-      touchCurrentConversation();
-      saveState();
-      render();
-      showToast("Mensaje eliminado");
-    }
-
-    function buildMessage(text) {
-      const createdAt = nowIso();
-
-      return {
-        id: generateId("msg"),
-        senderId: CURRENT_USER_ID,
-        text,
-        createdAt,
-        replyTo: replyingTo ? { ...replyingTo } : null,
-        attachment: pendingAttachment ? { ...pendingAttachment } : null,
-        readBy: { [CURRENT_USER_ID]: createdAt },
-        deletedAt: null,
-        deletedBy: null
-      };
-    }
-
-    function sendDirectMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-
-      if (!text && !pendingAttachment) return;
-
-      const chat = state.directChats.find(c => c.id === selectedChatId);
-      if (!chat) return;
-
-      const message = buildMessage(text);
-      chat.messages.push(message);
-      chat.lastActivityAt = message.createdAt;
-
-      input.value = "";
-      replyingTo = null;
-      pendingAttachment = null;
-      saveState();
-      renderDirectConversation();
-    }
-
-    function sendTeamMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-
-      if (!text && !pendingAttachment) return;
-
-      const team = state.teams.find(t => t.id === selectedTeamId);
-      if (!team) return;
-
-      const message = buildMessage(text);
-      team.messages.push(message);
-      team.lastActivityAt = message.createdAt;
-
-      input.value = "";
-      replyingTo = null;
-      pendingAttachment = null;
-      saveState();
-      renderTeamConversation();
-    }
-
-    function sendForumMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-
-      if (!text && !pendingAttachment) return;
-
-      const message = buildMessage(text);
-      state.forum.messages.push(message);
-      state.forum.lastActivityAt = message.createdAt;
-
-      input.value = "";
-      replyingTo = null;
-      pendingAttachment = null;
-      saveState();
-      renderForum();
-    }
-
-    function touchCurrentConversation() {
-      const time = nowIso();
-
-      if (activeSection === "chat" && selectedChatId) {
-        const chat = state.directChats.find(c => c.id === selectedChatId);
-        if (chat) chat.lastActivityAt = time;
-      }
-
-      if (activeSection === "teams" && selectedTeamId) {
-        const team = state.teams.find(t => t.id === selectedTeamId);
-        if (team) team.lastActivityAt = time;
-      }
-
-      if (activeSection === "forum") {
-        state.forum.lastActivityAt = time;
-      }
-    }
-
-    function markMessagesAsRead(messages) {
-      const readAt = nowIso();
-
-      messages.forEach(message => {
-        if (!message.readBy) message.readBy = {};
-        if (!message.readBy[CURRENT_USER_ID]) {
-          message.readBy[CURRENT_USER_ID] = readAt;
-        }
-      });
-    }
-
-    function showReadReceipts(messageId) {
-      const message = findMessageById(messageId);
-      if (!message) return;
-
-      const participants = getCurrentParticipants();
-      const sender = getUser(message.senderId);
-
-      const rows = participants.map(userId => {
-        const user = getUser(userId);
-        const seenAt = message.readBy && message.readBy[userId];
-        const isSender = userId === message.senderId;
-
-        return `
-          <div class="receipt-row">
-            ${userAvatar(user.id, "sm")}
-            <div class="receipt-main">
-              <div class="receipt-name">${escapeHtml(user.name)} ${isSender ? "(envió)" : ""}</div>
-              <div class="receipt-status">
-                ${seenAt ? `Visto: ${formatDateTime(seenAt)}` : "Pendiente de lectura"}
-              </div>
-            </div>
-            <div class="${seenAt ? "receipt-seen" : "receipt-pending"}">
-              ${seenAt ? "Visto" : "Pendiente"}
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      showModal(
-        "Confirmación de lectura",
-        `
-          <div style="margin-bottom:10px; color:#475569; font-size:12px;">
-            Mensaje enviado por <strong>${escapeHtml(sender.name)}</strong> el ${formatDateTime(message.createdAt)}.
-          </div>
-          ${rows}
-        `
-      );
-    }
-
-    function openImageModal(messageId) {
-      const message = findMessageById(messageId);
-      if (!message || !message.attachment || message.attachment.type !== "image") return;
-
-      const att = message.attachment;
-
-      showModal(
-        escapeHtml(att.name),
-        `
-          <img class="modal-image" src="${escapeHtml(att.dataUrl)}" alt="${escapeHtml(att.name)}" />
-          <div style="margin-top:12px;">
-            <a class="download-link" href="${escapeHtml(att.dataUrl)}" download="${escapeHtml(att.name)}">Descargar imagen</a>
-          </div>
-        `
-      );
-    }
-
-    function showModal(title, body) {
-      modalTitle.textContent = title;
-      modalBody.innerHTML = body;
-      modalBackdrop.classList.add("show");
-    }
-
-    function closeModal() {
-      modalBackdrop.classList.remove("show");
-      modalTitle.textContent = "";
-      modalBody.innerHTML = "";
-    }
-
-    modalBackdrop.addEventListener("click", event => {
-      if (event.target === modalBackdrop) closeModal();
-    });
-
-    function formatFileSize(bytes) {
-      const n = Number(bytes || 0);
-
-      if (n < 1024) return `${n} B`;
-      if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-      return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-    }
-
-    function scrollMessages() {
-      setTimeout(() => {
-        const box = document.getElementById("messagesBox");
-        if (box) box.scrollTop = box.scrollHeight;
-      }, 0);
-    }
-
-    function markAllRead() {
-      state.directChats.forEach(chat => {
-        chat.unread = 0;
-        markMessagesAsRead(chat.messages);
-      });
-
-      state.teams.forEach(team => {
-        if (team.members.includes(CURRENT_USER_ID)) {
-          team.unread = 0;
-          markMessagesAsRead(team.messages);
-        }
-      });
-
-      state.forum.unread = 0;
-      markMessagesAsRead(state.forum.messages);
-
-      saveState();
-      render();
-      showToast("Todo marcado como leído");
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add("show");
-
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 1800);
-    }
-
-    updateBadges();
+</section>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-h">
+      <strong id="modalTitle">Detalle</strong>
+      <button class="icon-btn" onclick="closeModal()">x</button>
+    </div>
+    <div class="modal-b" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const KEY="ximpler_team_chat_v1_2_fixed";
+const ME="u1";
+
+const demo={
+  users:[
+    {id:"u1",name:"Anel Castro",initials:"AC",color:""},
+    {id:"u2",name:"Melchor Iván Angulo",initials:"MA",color:"blue"},
+    {id:"u3",name:"Victoria Hernández",initials:"VH",color:"gold"},
+    {id:"u4",name:"Saúl Nahúm Cruz",initials:"SC",color:"green"},
+    {id:"u5",name:"Salvador Ahumada",initials:"SA",color:"purple"},
+    {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red"},
+    {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal"},
+    {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink"}
+  ],
+  chats:[
+    {
+      id:"c_u2",
+      userId:"u2",
+      unread:2,
+      lastActivityAt:"2026-05-02T15:25:00",
+      messages:[
+        msg("m1","u2","Revisar avance del tablero antes de la reunión.","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
+        msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"})
+      ]
+    },
+    {
+      id:"c_u3",
+      userId:"u3",
+      unread:0,
+      lastActivityAt:"2026-05-02T15:30:00",
+      messages:[
+        msg("m3","u3","Ya quedó listo el documento inicial.","2026-05-02T15:30:00",{u3:"2026-05-02T15:30:00",u1:"2026-05-02T15:50:00"})
+      ]
+    }
+  ],
+  teams:[
+    {
+      id:"t1",
+      name:"Administración",
+      members:["u1","u2","u3"],
+      unread:0,
+      lastActivityAt:"2026-05-01T11:10:00",
+      messages:[
+        msg("tm1","u2","Necesitamos cerrar los pendientes administrativos esta semana.","2026-05-01T11:10:00",{u2:"2026-05-01T11:10:00",u1:"2026-05-01T11:15:00",u3:"2026-05-01T11:35:00"})
+      ]
+    },
+    {
+      id:"t2",
+      name:"Proyecto ABC",
+      members:["u1","u4","u5"],
+      unread:1,
+      lastActivityAt:"2026-05-01T12:30:00",
+      messages:[
+        msg("tm2","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"})
+      ]
+    },
+    {
+      id:"t3",
+      name:"Sistemas",
+      members:["u1","u2","u4","u5"],
+      unread:1,
+      lastActivityAt:"2026-05-01T13:10:00",
+      messages:[
+        msg("tm3","u5","Hay que validar permisos del nuevo módulo.","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
+        msg("tm4","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"})
+      ]
+    }
+  ],
+  forum:{
+    unread:1,
+    lastActivityAt:"2026-05-01T11:05:00",
+    messages:[
+      msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
+      msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"})
+    ]
+  }
+};
+
+function msg(id,senderId,text,createdAt,readBy){
+  return {
+    id,senderId,text,createdAt,
+    readBy:readBy||{[senderId]:createdAt},
+    replyTo:null,
+    attachment:null,
+    deletedForAll:false,
+    hiddenFor:[]
+  };
+}
+
+let state=load();
+let section="chat";
+let viewMode="list";
+let selectedChat=null;
+let selectedTeam=null;
+let replying=null;
+let pendingFile=null;
+
+const $=id=>document.getElementById(id);
+
+$("launcher").onclick=()=>{$("panel").classList.add("open");render()};
+$("close").onclick=()=>{$("panel").classList.remove("open")};
+$("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
+
+document.querySelectorAll(".rail-item").forEach(el=>{
+  el.onclick=()=>{
+    section=el.dataset.section;
+    viewMode="list";
+    selectedChat=null;
+    selectedTeam=null;
+    replying=null;
+    pendingFile=null;
     render();
-  </script>
+  };
+});
+
+function load(){
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(saved) return normalize(JSON.parse(saved));
+  }catch(e){}
+  localStorage.setItem(KEY,JSON.stringify(demo));
+  return normalize(JSON.parse(JSON.stringify(demo)));
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));badges()}
+function normalize(s){
+  s.chats=s.chats||[];
+  s.teams=s.teams||[];
+  s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+  [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
+    (box.messages||[]).forEach(m=>{
+      m.readBy=m.readBy||{[m.senderId]:m.createdAt};
+      m.hiddenFor=m.hiddenFor||[];
+      m.deletedForAll=!!m.deletedForAll;
+      if(m.attachment===undefined)m.attachment=null;
+    });
+    box.lastActivityAt=box.lastActivityAt||lastDate(box.messages||[]);
+    box.unread=Number(box.unread||0);
+  });
+  return s;
+}
+function resetDemo(){
+  if(!confirm("¿Reiniciar datos demo y limpiar almacenamiento de esta versión?"))return;
+  localStorage.removeItem(KEY);
+  state=load();
+  section="chat";viewMode="list";selectedChat=null;selectedTeam=null;
+  render();toast("Demo reiniciado");
+}
+function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
+function av(id,size="sm"){
+  const u=user(id);
+  return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`;
+}
+function esc(v){
+  return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function now(){return new Date().toISOString()}
+function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
+function fmt(iso){
+  return new Date(iso).toLocaleString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",","")+" hrs.";
+}
+function dateOnly(iso){
+  return new Date(iso).toLocaleDateString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit"});
+}
+function lastDate(messages){
+  return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00";
+}
+function activity(x){return x.lastActivityAt||lastDate(x.messages)}
+function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
+function badges(){
+  const chatUnread=state.chats.reduce((a,c)=>a+Number(c.unread||0),0);
+  const teamUnread=state.teams.filter(t=>t.members.includes(ME)).reduce((a,t)=>a+Number(t.unread||0),0);
+  const forumUnread=Number(state.forum.unread||0);
+  $("chatBadge").textContent=chatUnread;
+  $("teamsBadge").textContent=teamUnread;
+  $("forumBadge").textContent=forumUnread;
+  $("totalBadge").textContent=chatUnread+teamUnread+forumUnread;
+}
+function render(){
+  document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section));
+  badges();
+
+  if(section==="chat"){
+    if(viewMode==="conversation") renderChatConversation();
+    else if(viewMode==="newChat") renderNewChat();
+    else renderChatList();
+  }
+  if(section==="teams"){
+    if(viewMode==="teamConversation") renderTeamConversation();
+    else if(viewMode==="teamForm") renderTeamForm();
+    else renderTeamsList();
+  }
+  if(section==="forum") renderForum();
+}
+function searchHTML(value=""){
+  return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:" value="${esc(value)}"></div>`;
+}
+
+/* CHAT INDIVIDUAL */
+function renderChatList(filter=""){
+  $("title").textContent="Chat";
+  $("back").style.visibility="hidden";
+  const f=filter.toLowerCase();
+
+  const rows=state.chats
+    .map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)}))
+    .filter(r=>r.u.name.toLowerCase().includes(f))
+    .sort((a,b)=>new Date(activity(b.chat))-new Date(activity(a.chat)));
+
+  $("view").innerHTML=`
+    ${searchHTML(filter)}
+    <div class="toolbar">
+      <button class="primary" id="newChatBtn">+ Nuevo Chat</button>
+      <button id="markAllBtn">Marcar todo leído</button>
+      <button id="resetBtn">Reiniciar demo</button>
+    </div>
+    <div class="body">
+      ${rows.length?rows.map(r=>`
+        <div class="item chat-open" data-id="${r.chat.id}">
+          ${av(r.u.id)}
+          <div class="item-main">
+            <div class="item-title">${esc(r.u.name)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
+            <div class="item-sub">${preview(r.last)}</div>
+            <div class="item-time">Último movimiento: ${fmt(activity(r.chat))}</div>
+          </div>
+          <div class="item-actions">
+            <button class="mini empty-chat" data-id="${r.chat.id}">Vaciar</button>
+            <button class="mini danger delete-chat" data-id="${r.chat.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
+    </div>
+  `;
+
+  $("searchInput").oninput=e=>renderChatList(e.target.value);
+  $("newChatBtn").onclick=()=>{viewMode="newChat";render()};
+  $("markAllBtn").onclick=markAllRead;
+  $("resetBtn").onclick=resetDemo;
+
+  document.querySelectorAll(".chat-open").forEach(el=>{
+    el.onclick=e=>{
+      if(e.target.closest("button"))return;
+      openChat(el.dataset.id);
+    };
+  });
+  document.querySelectorAll(".empty-chat").forEach(b=>b.onclick=e=>{e.stopPropagation();emptyChat(b.dataset.id)});
+  document.querySelectorAll(".delete-chat").forEach(b=>b.onclick=e=>{e.stopPropagation();deleteChat(b.dataset.id)});
+}
+function renderNewChat(filter=""){
+  $("title").textContent="Nuevo Chat";
+  $("back").style.visibility="visible";
+  const f=filter.toLowerCase();
+  const users=state.users.filter(u=>u.id!==ME&&u.name.toLowerCase().includes(f));
+
+  $("view").innerHTML=`
+    ${searchHTML(filter)}
+    <div class="note">Busca usuarios de la empresa para iniciar o abrir una conversación individual.</div>
+    <div class="body">
+      ${users.map(u=>{
+        const exists=state.chats.find(c=>c.userId===u.id);
+        return `
+          <div class="item start-chat" data-user="${u.id}">
+            ${av(u.id)}
+            <div class="item-main">
+              <div class="item-title">${esc(u.name)}</div>
+              <div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div>
+            </div>
+            <button class="mini">${exists?"Abrir":"Iniciar"}</button>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+  $("searchInput").oninput=e=>renderNewChat(e.target.value);
+  document.querySelectorAll(".start-chat").forEach(el=>el.onclick=()=>startChat(el.dataset.user));
+}
+function startChat(userId){
+  let c=state.chats.find(x=>x.userId===userId);
+  if(!c){
+    c={id:`c_${userId}_${Date.now()}`,userId,unread:0,lastActivityAt:now(),messages:[]};
+    state.chats.push(c);
+    save();
+  }
+  openChat(c.id);
+}
+function openChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c){toast("No encontré ese chat");return}
+  selectedChat=id;
+  viewMode="conversation";
+  c.unread=0;
+  markRead(c.messages);
+  save();
+  render();
+}
+function renderChatConversation(){
+  const c=state.chats.find(x=>x.id===selectedChat);
+  if(!c){viewMode="list";renderChatList();return}
+  $("title").textContent=user(c.userId).name;
+  $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="toolbar">
+      <button id="emptyThis">Vaciar chat</button>
+      <button class="danger" id="deleteThis">Eliminar chat</button>
+    </div>
+    <div class="conversation">
+      <div class="messages" id="messages">${renderMessages(c.messages)}</div>
+      ${composerHTML("sendChat")}
+    </div>
+  `;
+  $("emptyThis").onclick=()=>emptyChat(c.id);
+  $("deleteThis").onclick=()=>deleteChat(c.id);
+  bindComposer();
+  bindMessageButtons();
+  scrollBottom();
+}
+function emptyChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c||!confirm("¿Vaciar este chat solo para ti?"))return;
+  c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});
+  c.unread=0;
+  c.lastActivityAt=now();
+  save();
+  viewMode=selectedChat===id?"conversation":"list";
+  render();
+  toast("Chat vaciado para ti");
+}
+function deleteChat(id){
+  if(!confirm("¿Eliminar este chat de tu lista?"))return;
+  state.chats=state.chats.filter(c=>c.id!==id);
+  selectedChat=null;
+  viewMode="list";
+  save();
+  render();
+  toast("Chat eliminado");
+}
+
+/* TEAMS */
+function renderTeamsList(filter=""){
+  $("title").textContent="Teams";
+  $("back").style.visibility="hidden";
+  const f=filter.toLowerCase();
+  const teams=state.teams
+    .filter(t=>t.members.includes(ME))
+    .filter(t=>t.name.toLowerCase().includes(f))
+    .sort((a,b)=>new Date(activity(b))-new Date(activity(a)));
+
+  $("view").innerHTML=`
+    ${searchHTML(filter)}
+    <div class="body" style="position:relative">
+      ${teams.length?teams.map(t=>`
+        <div class="item team-open" data-id="${t.id}">
+          <div class="team-avatars">${t.members.slice(0,4).map(id=>av(id,"xs")).join("")}</div>
+          <div class="item-main">
+            <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
+            <div class="item-sub">${t.members.length} integrantes · ${preview(visibleMessages(t.messages).at(-1))}</div>
+            <div class="item-time">Último movimiento: ${fmt(activity(t))}</div>
+          </div>
+        </div>
+      `).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
+      <div class="float-add"><button class="plus" id="addTeam">+</button><span>Agregar Team</span></div>
+    </div>
+  `;
+  $("searchInput").oninput=e=>renderTeamsList(e.target.value);
+  $("addTeam").onclick=()=>{viewMode="teamForm";render()};
+  document.querySelectorAll(".team-open").forEach(el=>el.onclick=()=>openTeam(el.dataset.id));
+}
+function openTeam(id){
+  const t=state.teams.find(x=>x.id===id);
+  if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}
+  selectedTeam=id;
+  viewMode="teamConversation";
+  t.unread=0;
+  markRead(t.messages);
+  save();
+  render();
+}
+function renderTeamConversation(){
+  const t=state.teams.find(x=>x.id===selectedTeam);
+  if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
+  $("title").textContent=t.name;
+  $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="note"><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes: ${t.members.map(id=>esc(user(id).name)).join(", ")}</div>
+    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button></div>
+    <div class="conversation">
+      <div class="messages" id="messages">${renderMessages(t.messages)}</div>
+      ${composerHTML("sendTeam")}
+    </div>
+  `;
+  $("leaveTeam").onclick=()=>leaveTeam(t.id);
+  bindComposer();
+  bindMessageButtons();
+  scrollBottom();
+}
+function renderTeamForm(){
+  $("title").textContent="Agregar Team";
+  $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="body">
+      <div class="form">
+        <label class="lbl">Nombre del equipo:</label>
+        <input type="text" id="teamName" placeholder="Ej. Dirección Comercial">
+        <label class="lbl">INVITADOS:</label>
+        <input type="text" id="memberSearch" placeholder="Buscar internos...">
+        <div class="picker" id="memberPicker">${pickerRows("")}</div>
+        <button class="primary-btn" id="createTeam">Crear Team</button>
+        <button class="secondary-btn" id="cancelTeam">Cancelar</button>
+      </div>
+    </div>
+  `;
+  $("memberSearch").oninput=e=>$("memberPicker").innerHTML=pickerRows(e.target.value);
+  $("createTeam").onclick=createTeam;
+  $("cancelTeam").onclick=()=>{viewMode="list";render()};
+}
+function pickerRows(filter){
+  const f=filter.toLowerCase();
+  return state.users.filter(u=>u.id!==ME&&u.name.toLowerCase().includes(f)).map(u=>`
+    <label class="pick">
+      ${av(u.id)}
+      <span>${esc(u.name)}</span>
+      <input type="checkbox" class="memberCheck" value="${u.id}">
+    </label>
+  `).join("");
+}
+function createTeam(){
+  const name=$("teamName").value.trim();
+  const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);
+  if(!name){toast("Escribe el nombre del equipo");return}
+  const t={
+    id:uid("team"),
+    name,
+    members:[...new Set([ME,...selected])],
+    unread:0,
+    lastActivityAt:now(),
+    messages:[newMessage(`Team creado: ${name}`)]
+  };
+  state.teams.push(t);
+  save();
+  selectedTeam=t.id;
+  viewMode="teamConversation";
+  render();
+  toast("Team creado");
+}
+function leaveTeam(id){
+  const t=state.teams.find(x=>x.id===id);
+  if(!t||!confirm(`¿Salir del chat grupal "${t.name}"?`))return;
+  t.members=t.members.filter(x=>x!==ME);
+  const m=newMessage(`${user(ME).name} salió del Team.`);
+  t.messages.push(m);
+  t.lastActivityAt=m.createdAt;
+  selectedTeam=null;
+  viewMode="list";
+  save();
+  render();
+  toast("Saliste del chat grupal");
+}
+
+/* FORUM */
+function renderForum(){
+  $("title").textContent="Forum";
+  $("back").style.visibility="hidden";
+  state.forum.unread=0;
+  markRead(state.forum.messages);
+  save();
+  $("view").innerHTML=`
+    <div class="note">Foro general para anuncios, conversación abierta, documentos, fotos y acuerdos compartidos.</div>
+    <div class="conversation">
+      <div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>
+      ${composerHTML("sendForum")}
+    </div>
+  `;
+  bindComposer();
+  bindMessageButtons();
+  scrollBottom();
+}
+
+/* MENSAJES */
+function preview(m){
+  if(!m)return "Sin mensajes";
+  if(m.deletedForAll)return "Mensaje eliminado";
+  if(m.attachment)return `${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;
+  return esc(m.text);
+}
+function renderMessages(messages){
+  const msgs=visibleMessages(messages);
+  if(!msgs.length)return `<div class="empty">No hay mensajes todavía.</div>`;
+
+  let d="";
+  return msgs.map(m=>{
+    const mine=m.senderId===ME;
+    const day=dateOnly(m.createdAt);
+    const showDate=day!==d;
+    d=day;
+
+    const deleted=m.deletedForAll;
+    const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
+    const content=deleted
+      ? `<div class="deleted">Mensaje eliminado para todos</div>`
+      : `${reply}${m.text?`<div>${esc(m.text)}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
+
+    const actions=deleted
+      ? `<button data-action="reads" data-id="${m.id}">Lecturas</button>`
+      : `
+        <button data-action="reply" data-id="${m.id}">Responder</button>
+        <button data-action="copy" data-id="${m.id}">Copiar</button>
+        <button data-action="reads" data-id="${m.id}">Lecturas</button>
+        ${mine?`
+          <button class="danger" data-action="deleteMe" data-id="${m.id}">Eliminar para mí</button>
+          <button class="danger" data-action="deleteAll" data-id="${m.id}">Eliminar para todos</button>
+        `:""}
+      `;
+
+    return `
+      ${showDate?`<div class="date">${day}</div>`:""}
+      <div class="msg-row ${mine?"me":""}">
+        ${mine?"":av(m.senderId,"xs")}
+        <div class="bubble">
+          <div class="msg-actions">${actions}</div>
+          ${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}
+          ${content}
+          <div class="meta">
+            <span>${fmt(m.createdAt)}</span>
+            <span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+function attachmentHTML(m){
+  const a=m.attachment;
+  const href=esc(a.dataUrl);
+  const name=esc(a.name);
+  if(a.type==="image"){
+    return `
+      <img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}">
+      <div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a></div>
+    `;
+  }
+  return `
+    <div class="attachment">
+      <div>📎</div>
+      <div class="att-info">
+        <div class="att-name">${name}</div>
+        <div class="att-size">${fileSize(a.size)}</div>
+      </div>
+      <a class="download" href="${href}" download="${name}">Descargar</a>
+    </div>
+  `;
+}
+function composerHTML(fn){
+  return `
+    <div class="composer-wrap">
+      <div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div>
+      <div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div>
+      <div class="composer">
+        <button class="attach" id="attachBtn">+</button>
+        <div class="attach-menu" id="attachMenu">
+          <div data-file="image">🖼️ Imagen / Foto</div>
+          <div data-file="file">📄 Archivo</div>
+          <div data-file="camera">📸 Cámara</div>
+        </div>
+        <input type="file" id="fileInput" style="display:none">
+        <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
+        <button class="send" id="sendBtn">➤</button>
+      </div>
+    </div>
+  `;
+}
+function bindComposer(){
+  updateReply();
+  updatePending();
+
+  $("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");
+  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));
+  $("fileInput").onchange=handleFile;
+  $("clearReply").onclick=()=>{replying=null;updateReply()};
+  $("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};
+  $("sendBtn").onclick=sendCurrent;
+  $("messageInput").onkeydown=e=>{if(e.key==="Enter")sendCurrent()};
+}
+function bindMessageButtons(){
+  document.querySelectorAll("[data-action]").forEach(el=>{
+    el.onclick=e=>{
+      const action=el.dataset.action;
+      const id=el.dataset.id;
+      if(action==="reply")replyMsg(id);
+      if(action==="copy")copyMsg(id);
+      if(action==="reads")showReads(id);
+      if(action==="deleteMe")deleteMsgForMe(id);
+      if(action==="deleteAll")deleteMsgForAll(id);
+      if(action==="image")openImage(id);
+    };
+  });
+}
+function currentMessages(){
+  if(section==="chat"){
+    const c=state.chats.find(x=>x.id===selectedChat);
+    return c?c.messages:[];
+  }
+  if(section==="teams"){
+    const t=state.teams.find(x=>x.id===selectedTeam);
+    return t?t.messages:[];
+  }
+  return state.forum.messages;
+}
+function currentParticipants(){
+  if(section==="chat"){
+    const c=state.chats.find(x=>x.id===selectedChat);
+    return c?[ME,c.userId]:[ME];
+  }
+  if(section==="teams"){
+    const t=state.teams.find(x=>x.id===selectedTeam);
+    return t?t.members:[ME];
+  }
+  return state.users.map(u=>u.id);
+}
+function findMsg(id){return currentMessages().find(m=>m.id===id)}
+function newMessage(text){
+  const createdAt=now();
+  return {
+    id:uid("msg"),
+    senderId:ME,
+    text:text||"",
+    createdAt,
+    readBy:{[ME]:createdAt},
+    replyTo:replying?{...replying}:null,
+    attachment:pendingFile?{...pendingFile}:null,
+    deletedForAll:false,
+    hiddenFor:[]
+  };
+}
+function sendCurrent(){
+  const input=$("messageInput");
+  const text=input.value.trim();
+  if(!text&&!pendingFile)return;
+
+  const m=newMessage(text);
+  if(section==="chat"){
+    const c=state.chats.find(x=>x.id===selectedChat);
+    c.messages.push(m);c.lastActivityAt=m.createdAt;
+  }else if(section==="teams"){
+    const t=state.teams.find(x=>x.id===selectedTeam);
+    t.messages.push(m);t.lastActivityAt=m.createdAt;
+  }else{
+    state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt;
+  }
+  input.value="";
+  replying=null;
+  pendingFile=null;
+  save();
+  render();
+}
+function replyMsg(id){
+  const m=findMsg(id);
+  if(!m||m.deletedForAll)return;
+  replying={id:m.id,text:m.text||m.attachment?.name||"Archivo adjunto",senderId:m.senderId};
+  updateReply();
+  $("messageInput").focus();
+}
+function copyMsg(id){
+  const m=findMsg(id);
+  if(!m||m.deletedForAll)return;
+  navigator.clipboard?.writeText(m.text||m.attachment?.name||"").then(()=>toast("Mensaje copiado"));
+}
+function deleteMsgForMe(id){
+  const m=findMsg(id);
+  if(!m||m.senderId!==ME)return;
+  if(!confirm("¿Eliminar este mensaje solo para ti?"))return;
+  if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);
+  touch();
+  save();
+  render();
+  toast("Eliminado solo para ti");
+}
+function deleteMsgForAll(id){
+  const m=findMsg(id);
+  if(!m||m.senderId!==ME)return;
+  if(!confirm("¿Eliminar este mensaje para todos?"))return;
+  m.deletedForAll=true;
+  m.text="";
+  m.attachment=null;
+  m.replyTo=null;
+  touch();
+  save();
+  render();
+  toast("Eliminado para todos");
+}
+function chooseFile(mode){
+  const input=$("fileInput");
+  input.value="";
+  input.removeAttribute("capture");
+  if(mode==="image"){input.accept="image/*"}
+  else if(mode==="camera"){input.accept="image/*";input.setAttribute("capture","environment")}
+  else{input.accept="*/*"}
+  $("attachMenu").classList.remove("show");
+  input.click();
+}
+function handleFile(e){
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+  if(f.size>4*1024*1024){toast("Máximo 4 MB en este prototipo");return}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    pendingFile={
+      id:uid("att"),
+      name:f.name||"archivo",
+      mime:f.type||"application/octet-stream",
+      size:f.size,
+      type:f.type.startsWith("image/")?"image":"file",
+      dataUrl:ev.target.result,
+      createdAt:now()
+    };
+    updatePending();
+    toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo");
+  };
+  reader.readAsDataURL(f);
+}
+function updateReply(){
+  const box=$("replyingBox"),text=$("replyText");
+  if(!box||!text)return;
+  if(replying){box.classList.add("show");text.textContent=`Respondiendo a: ${replying.text}`}
+  else{box.classList.remove("show");text.textContent=""}
+}
+function updatePending(){
+  const box=$("pendingBox"),text=$("pendingText");
+  if(!box||!text)return;
+  if(pendingFile){
+    box.classList.add("show");
+    text.textContent=`${pendingFile.type==="image"?"Imagen":"Archivo"} listo: ${pendingFile.name} (${fileSize(pendingFile.size)})`;
+  }else{
+    box.classList.remove("show");
+    text.textContent="";
+  }
+}
+function fileSize(bytes){
+  const n=Number(bytes||0);
+  if(n<1024)return `${n} B`;
+  if(n<1024*1024)return `${(n/1024).toFixed(1)} KB`;
+  return `${(n/(1024*1024)).toFixed(1)} MB`;
+}
+function markRead(messages){
+  const t=now();
+  messages.forEach(m=>{
+    if(!m.readBy)m.readBy={};
+    if(!m.readBy[ME])m.readBy[ME]=t;
+  });
+}
+function markAllRead(){
+  state.chats.forEach(c=>{c.unread=0;markRead(c.messages)});
+  state.teams.forEach(t=>{if(t.members.includes(ME)){t.unread=0;markRead(t.messages)}});
+  state.forum.unread=0;markRead(state.forum.messages);
+  save();render();toast("Todo marcado como leído");
+}
+function readStatus(m){
+  const participants=currentParticipants();
+  const others=participants.filter(id=>id!==m.senderId);
+  const seen=others.filter(id=>m.readBy&&m.readBy[id]);
+  if(!others.length)return "✓";
+  if(seen.length===others.length)return "✓✓";
+  if(seen.length)return `✓ ${seen.length}/${others.length}`;
+  return "✓";
+}
+function showReads(id){
+  const m=findMsg(id);
+  if(!m)return;
+  const rows=currentParticipants().map(id=>{
+    const u=user(id);
+    const seen=m.readBy&&m.readBy[id];
+    return `
+      <div class="receipt">
+        ${av(id)}
+        <div class="receipt-main">
+          <div class="receipt-name">${esc(u.name)} ${id===m.senderId?"(envió)":""}</div>
+          <div class="receipt-status">${seen?`Visto: ${fmt(seen)}`:"Pendiente de lectura"}</div>
+        </div>
+        <div class="${seen?"seen":"pending-read"}">${seen?"Visto":"Pendiente"}</div>
+      </div>
+    `;
+  }).join("");
+  showModal("Confirmación de lectura",`
+    <div style="margin-bottom:10px;color:#475569;font-size:12px">
+      Enviado el ${fmt(m.createdAt)}.
+    </div>
+    ${rows}
+  `);
+}
+function openImage(id){
+  const m=findMsg(id);
+  if(!m||!m.attachment||m.attachment.type!=="image")return;
+  const a=m.attachment;
+  showModal(a.name,`
+    <img class="modal-img" src="${esc(a.dataUrl)}" alt="${esc(a.name)}">
+    <div style="margin-top:12px"><a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a></div>
+  `);
+}
+function touch(){
+  const t=now();
+  if(section==="chat"){
+    const c=state.chats.find(x=>x.id===selectedChat);
+    if(c)c.lastActivityAt=t;
+  }else if(section==="teams"){
+    const tm=state.teams.find(x=>x.id===selectedTeam);
+    if(tm)tm.lastActivityAt=t;
+  }else{
+    state.forum.lastActivityAt=t;
+  }
+}
+function showModal(title,body){
+  $("modalTitle").textContent=title;
+  $("modalBody").innerHTML=body;
+  $("modal").classList.add("show");
+}
+function closeModal(){
+  $("modal").classList.remove("show");
+  $("modalBody").innerHTML="";
+}
+$("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
+function scrollBottom(){
+  setTimeout(()=>{const m=$("messages");if(m)m.scrollTop=m.scrollHeight},0);
+}
+function toast(t){
+  $("toast").textContent=t;
+  $("toast").classList.add("show");
+  setTimeout(()=>$("toast").classList.remove("show"),1800);
+}
+
+badges();
+render();
+</script>
 </body>
 </html>
