@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6 Sesión / Presencia</title>
+<title>Ximpler.App | Team Chat V1.6.1 Presencia Limpia</title>
 
 <style>
 :root{
@@ -220,7 +220,7 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
     <header class="topbar">
       <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
       <div class="top-center">XIMPLER.APP</div>
-      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="presence-avatar-wrap"><span class="avatar">AC</span><span class="presence-dot online"></span></span><span>Anel Castro</span><span class="session-pill online" id="sessionStatus">Sesión activa</span></div>
+      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="avatar">AC</span><span>Anel Castro</span><span class="session-pill online" id="sessionStatus">Sesión activa</span></div>
     </header>
 
     <section class="board">
@@ -270,7 +270,7 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_session_presence";
+const KEY="ximpler_team_chat_v1_6_1_clean_presence";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
@@ -361,10 +361,9 @@ function normalize(s){
   });
   return s;
 }
-function resetDemo(){if(!confirm("¿Reiniciar datos demo, presencia y almacenamiento de esta versión?"))return;localStorage.removeItem(KEY);localStorage.removeItem(SESSION_KEY);currentSession=bootSession();state=load();section="chat";viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render();toast("Demo reiniciado")}
 function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
 function av(id,size="sm"){const u=user(id);return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`}
-function avp(id,size="sm"){return `<span class="presence-avatar-wrap">${av(id,size)}${presenceDot(id)}</span>`}
+function avp(id,size="sm"){return av(id,size)}
 
 function readSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||"null")}catch(e){return null}}
 function persistSession(session){localStorage.setItem(SESSION_KEY,JSON.stringify(session));currentSession=session}
@@ -402,16 +401,12 @@ function registerUserActivity(source="actividad"){
   updateSessionUI();
   // PRODUCCIÓN: aquí NO haría polling. Solo enviaría este dato junto con una acción real ya existente del backend.
 }
-function demoLogin(){const s=createSession();persistSession(s);syncCurrentUserPresenceInState(state);save();render();toast("Sesión demo iniciada: Online")}
-function demoLogout(){currentSession=bootSession();currentSession.isOnline=false;currentSession.lastLogoutAt=now();currentSession.lastSeenAt=currentSession.lastLogoutAt;currentSession.expiresAt=currentSession.lastLogoutAt;persistSession(currentSession);syncCurrentUserPresenceInState(state);save();render();toast("Sesión demo cerrada: Offline")}
-function toggleDemoSession(){isSessionActive(bootSession())?demoLogout():demoLogin()}
 function presenceStatus(id){if(id===ME)syncCurrentUserPresenceInState(state);const u=user(id),p=u.presence||demoPresenceFor(id);if(!p.isOnline||isExpired(p.expiresAt))return"offline";return"online"}
 function presenceDot(id){const st=presenceStatus(id);return`<span class="presence-dot ${st}" title="${esc(presenceLabel(id))}"></span>`}
 function presenceChip(id){const st=presenceStatus(id);return`<span class="presence-chip ${st}">${st==="online"?"Sesión activa":"Sin sesión"}</span>`}
-function presenceLabel(id){const u=user(id),p=u.presence||{};const st=presenceStatus(id);if(st==="online")return"Sesión activa";if(p.lastSeenAt)return`Última actividad: ${fmt(p.lastSeenAt)}`;return"Sin sesión activa"}
-function sessionButtonLabel(){return isSessionActive(bootSession())?"Simular cerrar sesión":"Simular iniciar sesión"}
+function presenceLabel(id){return presenceStatus(id)==="online"?"Sesión activa":"Sin sesión"}
 function onlineCount(ids){return ids.filter(id=>presenceStatus(id)==="online").length}
-function updateSessionUI(){const el=$("sessionStatus");if(!el)return;const st=presenceStatus(ME);el.className=`session-pill ${st}`;el.innerHTML=`<span class="presence-dot ${st}"></span>${st==="online"?"Sesión activa":"Sin sesión"}`}
+function updateSessionUI(){const el=$("sessionStatus");if(!el)return;const st=presenceStatus(ME);el.className=`session-pill ${st}`;el.textContent=st==="online"?"Sesión activa":"Sin sesión"}
 function esc(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function now(){return new Date().toISOString()}
 function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
@@ -438,20 +433,18 @@ function renderChatList(){
   const rows=state.chats.map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)})).sort((a,b)=>new Date(activity(b.chat))-new Date(activity(a.chat)));
   $("view").innerHTML=`
     ${searchHTML()}
-    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button><button id="toggleSessionBtn"></button><button id="resetBtn">Reiniciar demo</button></div>
+    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button></div>
     <div class="body">
       ${rows.length?rows.map(r=>`
         <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(r.u.name.toLowerCase())}">
-          ${avp(r.u.id)}
+          ${av(r.u.id)}
           <div class="item-main">
             <div class="item-title">${esc(r.u.name)} ${presenceChip(r.u.id)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
             <div class="item-sub">${preview(r.last)}</div>
-            <div class="presence-line">${presenceDot(r.u.id)} ${presenceLabel(r.u.id)}</div>
-            <div class="item-time">Último movimiento: ${fmt(activity(r.chat))}</div>
           </div>
         </div>`).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
     </div>`;
-  $("newChatBtn").onclick=()=>{registerUserActivity("nuevo_chat");viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead; $("toggleSessionBtn").textContent=sessionButtonLabel(); $("toggleSessionBtn").onclick=toggleDemoSession; $("resetBtn").onclick=resetDemo;
+  $("newChatBtn").onclick=()=>{registerUserActivity("nuevo_chat");viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead;
   document.querySelectorAll(".chat-open").forEach(el=>el.onclick=()=>openChat(el.dataset.id));
   filterRows("searchInput",".chat-open");
 }
@@ -463,8 +456,8 @@ function renderNewChat(){
     <div class="body">
       ${state.users.filter(u=>u.id!==ME).map(u=>{const exists=state.chats.find(c=>c.userId===u.id);return `
         <div class="item start-chat" data-user="${u.id}" data-search="${esc(u.name.toLowerCase())}">
-          ${avp(u.id)}
-          <div class="item-main"><div class="item-title">${esc(u.name)} ${presenceChip(u.id)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div><div class="presence-line">${presenceDot(u.id)} ${presenceLabel(u.id)}</div></div>
+          ${av(u.id)}
+          <div class="item-main"><div class="item-title">${esc(u.name)} ${presenceChip(u.id)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div></div>
           <button class="mini">${exists?"Abrir":"Iniciar"}</button>
         </div>`}).join("")}
     </div>`;
@@ -477,7 +470,7 @@ function renderChatConversation(){
   const c=state.chats.find(x=>x.id===selectedChat); if(!c){viewMode="list";renderChatList();return}
   $("title").textContent=user(c.userId).name; $("back").style.visibility="visible";
   $("view").innerHTML=`
-    <div class="note"><span>${presenceDot(c.userId)} ${presenceLabel(c.userId)}</span></div>
+    <div class="note"><span>${presenceChip(c.userId)}<span style="margin-left:8px">Último movimiento: ${fmt(activity(c))}</span></span></div>
     <div class="toolbar"><button id="emptyThis">Vaciar chat</button><button class="danger" id="deleteThis">Eliminar chat</button></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
   $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
@@ -496,11 +489,10 @@ function renderTeamsList(){
     <div class="body">
       ${teams.length?teams.map(t=>`
         <div class="item team-open" data-id="${t.id}" data-search="${esc(t.name.toLowerCase())}">
-          <div class="team-avatars">${t.members.slice(0,4).map(id=>av(id,"xs")).join("")}</div>
+          <div class="team-avatars">${t.members.slice(0,3).map(id=>av(id,"xs")).join("")}</div>
           <div class="item-main">
             <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
-            <div class="item-sub">${t.members.length} integrantes · ${onlineCount(t.members)} en línea · ${preview(visibleMessages(t.messages).at(-1))}</div>
-            <div class="item-time">Último movimiento: ${fmt(activity(t))}</div>
+            <div class="item-sub">${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>
           </div>
         </div>`).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
     </div>`;
@@ -531,11 +523,11 @@ function renderTeamForm(){
   $("memberSearch").oninput=()=>{const q=$("memberSearch").value.toLowerCase();document.querySelectorAll(".pick").forEach(r=>r.style.display=(r.dataset.search||"").includes(q)?"flex":"none")};
   $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
 }
-function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${avp(u.id)}<span>${esc(u.name)}<br><small style="color:#64748b">${presenceLabel(u.id)}</small></span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
+function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${av(u.id)}<span>${esc(u.name)}<br>${presenceChip(u.id)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
 function createTeam(){const name=$("teamName").value.trim();const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);if(!name){toast("Escribe el nombre del chat grupal");return}const t={id:uid("team"),name,members:[...new Set([ME,...selected])],unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")}
 function leaveTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`))return;t.members=t.members.filter(x=>x!==ME);const m=newMessage(`${user(ME).name} salió del chat grupal.`);t.messages.push(m);t.lastActivityAt=m.createdAt;selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal")}
 function deleteTeamChat(id){const t=state.teams.find(x=>x.id===id);if(!t)return;if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`))return;state.teams=state.teams.filter(x=>x.id!==id);selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado")}
-function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>${t.members.map(id=>`<div class="receipt">${avp(id)}<div class="receipt-main"><div class="receipt-name">${esc(user(id).name)}</div><div class="receipt-status">${id===ME?"Tú · ":""}${presenceLabel(id)}</div></div><div class="${presenceStatus(id)==="online"?"seen":"pending-read"}">${presenceStatus(id)==="online"?"Online":"Offline"}</div></div>`).join("")}`)}
+function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>${t.members.map(id=>`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(user(id).name)}</div><div class="receipt-status">${id===ME?"Tú":"Integrante"}</div></div>${presenceChip(id)}</div>`).join("")}`)}
 
 /* FORUM */
 function renderForum(){
