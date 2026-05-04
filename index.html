@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.5</title>
+<title>Ximpler.App | Team Chat V1.6 Sesión / Presencia</title>
 
 <style>
 :root{
@@ -29,6 +29,16 @@ button,input,textarea{font-family:inherit}
 .avatar.sm{width:24px;height:24px;font-size:10px}
 .avatar.xs{width:19px;height:19px;font-size:8px}
 .avatar.blue{background:#1f8fe5}.avatar.green{background:#16a34a}.avatar.gold{background:#f59e0b}.avatar.purple{background:#7c3aed}.avatar.red{background:#e3262f}.avatar.teal{background:#0f766e}.avatar.pink{background:#db2777}
+
+.presence-avatar-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.presence-avatar-wrap .presence-dot{position:absolute;right:-2px;bottom:-2px;border:2px solid white}
+.presence-dot{width:9px;height:9px;border-radius:999px;display:inline-block;flex:0 0 auto;background:#94a3b8;box-shadow:0 0 0 1px rgba(15,23,42,.08)}
+.presence-dot.online{background:#16a34a}.presence-dot.offline{background:#94a3b8}
+.presence-line{margin-top:4px;font-size:10px;color:#64748b;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;color:#334155;background:white;white-space:nowrap}
+.session-pill.online{color:#15803d;background:#f0fdf4;border-color:#bbf7d0}.session-pill.offline{color:#475569;background:#f8fafc;border-color:#cbd5e1}
+.presence-chip{font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px;border:1px solid #cbd5e1;color:#475569;background:#f8fafc;white-space:nowrap}
+.presence-chip.online{background:#dcfce7;border-color:#bbf7d0;color:#15803d}.presence-chip.offline{background:#f1f5f9;color:#64748b}
 .board{padding:30px 26px 80px}
 .board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .board-title{font-size:24px;font-weight:800;margin:0}
@@ -210,7 +220,7 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
     <header class="topbar">
       <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
       <div class="top-center">XIMPLER.APP</div>
-      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="avatar">AC</span><span>Anel Castro</span></div>
+      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="presence-avatar-wrap"><span class="avatar">AC</span><span class="presence-dot online"></span></span><span>Anel Castro</span><span class="session-pill online" id="sessionStatus">Sesión activa</span></div>
     </header>
 
     <section class="board">
@@ -260,8 +270,25 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_5_1_fixed";
+const KEY="ximpler_team_chat_v1_6_session_presence";
+const SESSION_KEY="ximpler_demo_active_session_v1";
+const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
+const SESSION_DURATION_HOURS=8;
+
+/*
+  PRESENCIA XIMPLER — MODO ECONÓMICO BASADO EN SESIÓN
+  ----------------------------------------------------
+  Demo localStorage:
+  - Al iniciar/cargar este archivo se crea una sesión local para ME.
+  - Online = sesión activa y no vencida.
+  - Offline = sesión cerrada, vencida o inexistente.
+
+  Producción Ximpler.App:
+  - Reemplazar COMPANY_ID y ME con los valores reales del login.
+  - Reemplazar readSession()/persistSession() por la sesión/token real del backend.
+  - Aprovechar acciones reales del sistema para actualizar LastSeenAt sin hacer polling constante.
+*/
 
 function msg(id,senderId,text,createdAt,readBy){
   return {id,senderId,text,createdAt,readBy:readBy||{[senderId]:createdAt},replyTo:null,attachment:null,deletedForAll:false,hiddenFor:[]};
@@ -310,17 +337,23 @@ const demo={
   ]}
 };
 
-let state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null;
+let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null;
 const $=id=>document.getElementById(id);
 
-$("launcher").onclick=()=>{$("panel").classList.add("open");render()};
+$("launcher").onclick=()=>{registerUserActivity("abrir_panel_chat");$("panel").classList.add("open");render()};
 $("close").onclick=()=>{$("panel").classList.remove("open")};
 $("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
 document.querySelectorAll(".rail-item").forEach(el=>el.onclick=()=>{section=el.dataset.section;viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()});
 
-function load(){try{const saved=localStorage.getItem(KEY);if(saved)return normalize(JSON.parse(saved))}catch(e){} localStorage.setItem(KEY,JSON.stringify(demo)); return normalize(JSON.parse(JSON.stringify(demo)))}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));badges()}
+function load(){try{const saved=localStorage.getItem(KEY);if(saved)return normalize(JSON.parse(saved))}catch(e){} const fresh=normalize(JSON.parse(JSON.stringify(demo))); localStorage.setItem(KEY,JSON.stringify(fresh)); return fresh}
+function save(){syncCurrentUserPresenceInState(state);localStorage.setItem(KEY,JSON.stringify(state));badges()}
 function normalize(s){
+  s.users=s.users||[];
+  s.users.forEach(u=>{
+    u.companyId=u.companyId||COMPANY_ID;
+    if(!u.presence)u.presence=demoPresenceFor(u.id);
+  });
+  syncCurrentUserPresenceInState(s);
   s.chats=s.chats||[]; s.teams=s.teams||[]; s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
   [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
     (box.messages||[]).forEach(m=>{m.readBy=m.readBy||{[m.senderId]:m.createdAt};m.hiddenFor=m.hiddenFor||[];m.deletedForAll=!!m.deletedForAll;if(m.attachment===undefined)m.attachment=null;if(m.replyTo===undefined)m.replyTo=null});
@@ -328,9 +361,57 @@ function normalize(s){
   });
   return s;
 }
-function resetDemo(){if(!confirm("¿Reiniciar datos demo y limpiar almacenamiento de esta versión?"))return;localStorage.removeItem(KEY);state=load();section="chat";viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render();toast("Demo reiniciado")}
+function resetDemo(){if(!confirm("¿Reiniciar datos demo, presencia y almacenamiento de esta versión?"))return;localStorage.removeItem(KEY);localStorage.removeItem(SESSION_KEY);currentSession=bootSession();state=load();section="chat";viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render();toast("Demo reiniciado")}
 function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
 function av(id,size="sm"){const u=user(id);return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`}
+function avp(id,size="sm"){return `<span class="presence-avatar-wrap">${av(id,size)}${presenceDot(id)}</span>`}
+
+function readSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||"null")}catch(e){return null}}
+function persistSession(session){localStorage.setItem(SESSION_KEY,JSON.stringify(session));currentSession=session}
+function addHours(date,hours){return new Date(date.getTime()+hours*60*60*1000)}
+function isExpired(iso){return !iso || new Date(iso).getTime()<=Date.now()}
+function isSessionActive(session){return !!(session&&session.isOnline&&!isExpired(session.expiresAt))}
+function createSession(){const t=now();return{companyId:COMPANY_ID,userId:ME,sessionId:uid("session"),isOnline:true,lastLoginAt:t,lastSeenAt:t,lastLogoutAt:null,expiresAt:addHours(new Date(),SESSION_DURATION_HOURS).toISOString(),source:"localStorage-demo"}}
+function bootSession(){let s=readSession();if(!s||s.companyId!==COMPANY_ID||s.userId!==ME){s=createSession();persistSession(s);return s}if(!isSessionActive(s)&&s.isOnline){s.isOnline=false;s.lastLogoutAt=s.lastLogoutAt||now();persistSession(s)}return s}
+function presenceFromSession(session){const active=isSessionActive(session);return{companyId:COMPANY_ID,userId:ME,sessionId:session?.sessionId||null,isOnline:active,status:active?"online":"offline",lastLoginAt:session?.lastLoginAt||null,lastSeenAt:session?.lastSeenAt||session?.lastLoginAt||null,lastLogoutAt:session?.lastLogoutAt||null,expiresAt:session?.expiresAt||null,source:"session"}}
+function demoPresenceFor(userId){
+  const onlineIds=["u1","u2","u4","u9","u10"];
+  const d=new Date();
+  const online=onlineIds.includes(userId);
+  const minutesAgo={u3:18,u5:42,u6:85,u7:130,u8:240,u11:55,u12:190,u13:12}[userId]||25;
+  const lastSeen=new Date(d.getTime()-minutesAgo*60*1000).toISOString();
+  const loginAt=new Date(d.getTime()-Math.max(minutesAgo,8)*60*1000).toISOString();
+  return{companyId:COMPANY_ID,userId,isOnline:online,status:online?"online":"offline",lastLoginAt:online?loginAt:null,lastSeenAt:online?now():lastSeen,lastLogoutAt:online?null:lastSeen,expiresAt:online?addHours(d,SESSION_DURATION_HOURS).toISOString():lastSeen,source:"demo"}
+}
+function syncCurrentUserPresenceInState(targetState){
+  if(!targetState||!targetState.users)return;
+  currentSession=bootSession();
+  const me=targetState.users.find(u=>u.id===ME);
+  if(me){me.companyId=COMPANY_ID;me.presence=presenceFromSession(currentSession)}
+}
+function registerUserActivity(source="actividad"){
+  currentSession=bootSession();
+  if(!isSessionActive(currentSession))return;
+  currentSession.lastSeenAt=now();
+  currentSession.currentModule=section||"chat";
+  currentSession.lastActivitySource=source;
+  currentSession.expiresAt=addHours(new Date(),SESSION_DURATION_HOURS).toISOString();
+  persistSession(currentSession);
+  syncCurrentUserPresenceInState(state);
+  localStorage.setItem(KEY,JSON.stringify(state));
+  updateSessionUI();
+  // PRODUCCIÓN: aquí NO haría polling. Solo enviaría este dato junto con una acción real ya existente del backend.
+}
+function demoLogin(){const s=createSession();persistSession(s);syncCurrentUserPresenceInState(state);save();render();toast("Sesión demo iniciada: Online")}
+function demoLogout(){currentSession=bootSession();currentSession.isOnline=false;currentSession.lastLogoutAt=now();currentSession.lastSeenAt=currentSession.lastLogoutAt;currentSession.expiresAt=currentSession.lastLogoutAt;persistSession(currentSession);syncCurrentUserPresenceInState(state);save();render();toast("Sesión demo cerrada: Offline")}
+function toggleDemoSession(){isSessionActive(bootSession())?demoLogout():demoLogin()}
+function presenceStatus(id){if(id===ME)syncCurrentUserPresenceInState(state);const u=user(id),p=u.presence||demoPresenceFor(id);if(!p.isOnline||isExpired(p.expiresAt))return"offline";return"online"}
+function presenceDot(id){const st=presenceStatus(id);return`<span class="presence-dot ${st}" title="${esc(presenceLabel(id))}"></span>`}
+function presenceChip(id){const st=presenceStatus(id);return`<span class="presence-chip ${st}">${st==="online"?"Sesión activa":"Sin sesión"}</span>`}
+function presenceLabel(id){const u=user(id),p=u.presence||{};const st=presenceStatus(id);if(st==="online")return"Sesión activa";if(p.lastSeenAt)return`Última actividad: ${fmt(p.lastSeenAt)}`;return"Sin sesión activa"}
+function sessionButtonLabel(){return isSessionActive(bootSession())?"Simular cerrar sesión":"Simular iniciar sesión"}
+function onlineCount(ids){return ids.filter(id=>presenceStatus(id)==="online").length}
+function updateSessionUI(){const el=$("sessionStatus");if(!el)return;const st=presenceStatus(ME);el.className=`session-pill ${st}`;el.innerHTML=`<span class="presence-dot ${st}"></span>${st==="online"?"Sesión activa":"Sin sesión"}`}
 function esc(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function now(){return new Date().toISOString()}
 function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
@@ -339,7 +420,7 @@ function dateOnly(iso){return new Date(iso).toLocaleDateString("es-MX",{year:"nu
 function lastDate(messages){return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00"}
 function activity(x){return x.lastActivityAt||lastDate(x.messages)}
 function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
-function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f}
+function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f;updateSessionUI()}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
 function filterRows(inputSelector,rowSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(rowSelector).forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
 function filterMessages(inputSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(".msg-row").forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
@@ -357,19 +438,20 @@ function renderChatList(){
   const rows=state.chats.map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)})).sort((a,b)=>new Date(activity(b.chat))-new Date(activity(a.chat)));
   $("view").innerHTML=`
     ${searchHTML()}
-    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button><button id="resetBtn">Reiniciar demo</button></div>
+    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button><button id="toggleSessionBtn"></button><button id="resetBtn">Reiniciar demo</button></div>
     <div class="body">
       ${rows.length?rows.map(r=>`
         <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(r.u.name.toLowerCase())}">
-          ${av(r.u.id)}
+          ${avp(r.u.id)}
           <div class="item-main">
-            <div class="item-title">${esc(r.u.name)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
+            <div class="item-title">${esc(r.u.name)} ${presenceChip(r.u.id)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
             <div class="item-sub">${preview(r.last)}</div>
+            <div class="presence-line">${presenceDot(r.u.id)} ${presenceLabel(r.u.id)}</div>
             <div class="item-time">Último movimiento: ${fmt(activity(r.chat))}</div>
           </div>
         </div>`).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
     </div>`;
-  $("newChatBtn").onclick=()=>{viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead; $("resetBtn").onclick=resetDemo;
+  $("newChatBtn").onclick=()=>{registerUserActivity("nuevo_chat");viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead; $("toggleSessionBtn").textContent=sessionButtonLabel(); $("toggleSessionBtn").onclick=toggleDemoSession; $("resetBtn").onclick=resetDemo;
   document.querySelectorAll(".chat-open").forEach(el=>el.onclick=()=>openChat(el.dataset.id));
   filterRows("searchInput",".chat-open");
 }
@@ -381,8 +463,8 @@ function renderNewChat(){
     <div class="body">
       ${state.users.filter(u=>u.id!==ME).map(u=>{const exists=state.chats.find(c=>c.userId===u.id);return `
         <div class="item start-chat" data-user="${u.id}" data-search="${esc(u.name.toLowerCase())}">
-          ${av(u.id)}
-          <div class="item-main"><div class="item-title">${esc(u.name)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div></div>
+          ${avp(u.id)}
+          <div class="item-main"><div class="item-title">${esc(u.name)} ${presenceChip(u.id)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div><div class="presence-line">${presenceDot(u.id)} ${presenceLabel(u.id)}</div></div>
           <button class="mini">${exists?"Abrir":"Iniciar"}</button>
         </div>`}).join("")}
     </div>`;
@@ -390,11 +472,12 @@ function renderNewChat(){
   filterRows("searchInput",".start-chat");
 }
 function startChat(userId){let c=state.chats.find(x=>x.userId===userId); if(!c){c={id:`c_${userId}_${Date.now()}`,userId,unread:0,lastActivityAt:now(),messages:[]};state.chats.push(c);save()} openChat(c.id)}
-function openChat(id){const c=state.chats.find(x=>x.id===id);if(!c){toast("No encontré ese chat");return} selectedChat=id;viewMode="conversation";c.unread=0;markRead(c.messages);save();render()}
+function openChat(id){const c=state.chats.find(x=>x.id===id);if(!c){toast("No encontré ese chat");return} registerUserActivity("abrir_chat_individual");selectedChat=id;viewMode="conversation";c.unread=0;markRead(c.messages);save();render()}
 function renderChatConversation(){
   const c=state.chats.find(x=>x.id===selectedChat); if(!c){viewMode="list";renderChatList();return}
   $("title").textContent=user(c.userId).name; $("back").style.visibility="visible";
   $("view").innerHTML=`
+    <div class="note"><span>${presenceDot(c.userId)} ${presenceLabel(c.userId)}</span></div>
     <div class="toolbar"><button id="emptyThis">Vaciar chat</button><button class="danger" id="deleteThis">Eliminar chat</button></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
   $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
@@ -416,7 +499,7 @@ function renderTeamsList(){
           <div class="team-avatars">${t.members.slice(0,4).map(id=>av(id,"xs")).join("")}</div>
           <div class="item-main">
             <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
-            <div class="item-sub">${t.members.length} integrantes · ${preview(visibleMessages(t.messages).at(-1))}</div>
+            <div class="item-sub">${t.members.length} integrantes · ${onlineCount(t.members)} en línea · ${preview(visibleMessages(t.messages).at(-1))}</div>
             <div class="item-time">Último movimiento: ${fmt(activity(t))}</div>
           </div>
         </div>`).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
@@ -425,12 +508,12 @@ function renderTeamsList(){
   document.querySelectorAll(".team-open").forEach(el=>el.onclick=()=>openTeam(el.dataset.id));
   filterRows("searchInput",".team-open");
 }
-function openTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}selectedTeam=id;viewMode="teamConversation";t.unread=0;markRead(t.messages);save();render()}
+function openTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}registerUserActivity("abrir_chat_grupal");selectedTeam=id;viewMode="teamConversation";t.unread=0;markRead(t.messages);save();render()}
 function renderTeamConversation(){
   const t=state.teams.find(x=>x.id===selectedTeam); if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
   $("title").textContent=t.name; $("back").style.visibility="visible";
   $("view").innerHTML=`
-    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes</span><button class="info-btn" id="groupInfo">Info</button></div>
+    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes · ${onlineCount(t.members)} en línea</span><button class="info-btn" id="groupInfo">Info</button></div>
     <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button><button class="danger" id="deleteTeam">Eliminar chat</button></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
   $("groupInfo").onclick=()=>showGroupInfo(t.id); $("leaveTeam").onclick=()=>leaveTeam(t.id); $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
@@ -448,18 +531,19 @@ function renderTeamForm(){
   $("memberSearch").oninput=()=>{const q=$("memberSearch").value.toLowerCase();document.querySelectorAll(".pick").forEach(r=>r.style.display=(r.dataset.search||"").includes(q)?"flex":"none")};
   $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
 }
-function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${av(u.id)}<span>${esc(u.name)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
+function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${avp(u.id)}<span>${esc(u.name)}<br><small style="color:#64748b">${presenceLabel(u.id)}</small></span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
 function createTeam(){const name=$("teamName").value.trim();const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);if(!name){toast("Escribe el nombre del chat grupal");return}const t={id:uid("team"),name,members:[...new Set([ME,...selected])],unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")}
 function leaveTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`))return;t.members=t.members.filter(x=>x!==ME);const m=newMessage(`${user(ME).name} salió del chat grupal.`);t.messages.push(m);t.lastActivityAt=m.createdAt;selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal")}
 function deleteTeamChat(id){const t=state.teams.find(x=>x.id===id);if(!t)return;if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`))return;state.teams=state.teams.filter(x=>x.id!==id);selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado")}
-function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes</div>${t.members.map(id=>`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(user(id).name)}</div><div class="receipt-status">${id===ME?"Tú":"Integrante"}</div></div></div>`).join("")}`)}
+function showGroupInfo(id){const t=state.teams.find(x=>x.id===id);if(!t)return;showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>${t.members.map(id=>`<div class="receipt">${avp(id)}<div class="receipt-main"><div class="receipt-name">${esc(user(id).name)}</div><div class="receipt-status">${id===ME?"Tú · ":""}${presenceLabel(id)}</div></div><div class="${presenceStatus(id)==="online"?"seen":"pending-read"}">${presenceStatus(id)==="online"?"Online":"Offline"}</div></div>`).join("")}`)}
 
 /* FORUM */
 function renderForum(){
+  registerUserActivity("abrir_forum");
   $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
   $("view").innerHTML=`
     ${searchHTML()}
-    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos.</span></div>
+    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos. · ${onlineCount(state.users.map(u=>u.id))} usuarios en línea</span></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
   filterMessages("searchInput");
   bindComposer(); bindMessageButtons(); scrollBottom();
@@ -553,6 +637,7 @@ function newMessage(text){const createdAt=now();return{id:uid("msg"),senderId:ME
 function sendCurrent(){
   const input=$("messageInput"),text=input.value.trim();
   if(!text&&!pendingFile)return;
+  registerUserActivity("enviar_mensaje");
   const m=newMessage(input.value.trim());
   if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(!c)return;c.messages.push(m);c.lastActivityAt=m.createdAt}
   else if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);if(!t)return;t.messages.push(m);t.lastActivityAt=m.createdAt}
@@ -574,7 +659,7 @@ function markAllRead(){state.chats.forEach(c=>{c.unread=0;markRead(c.messages)})
 function readStatus(m){const p=currentParticipants(),others=p.filter(id=>id!==m.senderId),seen=others.filter(id=>m.readBy&&m.readBy[id]);if(!others.length)return"✓";if(seen.length===others.length)return"✓✓";if(seen.length)return`✓ ${seen.length}/${others.length}`;return"✓"}
 function showReads(id){const m=findMsg(id);if(!m)return;const rows=currentParticipants().map(id=>{const u=user(id),seen=m.readBy&&m.readBy[id];return`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(u.name)} ${id===m.senderId?"(envió)":""}</div><div class="receipt-status">${seen?`Visto: ${fmt(seen)}`:"Pendiente de lectura"}</div></div><div class="${seen?"seen":"pending-read"}">${seen?"Visto":"Pendiente"}</div></div>`}).join("");showModal("Confirmación de lectura",`<div style="margin-bottom:10px;color:#475569;font-size:12px">Enviado el ${fmt(m.createdAt)}.</div>${rows}`)}
 function openImage(id){const m=findMsg(id);if(!m||!m.attachment||m.attachment.type!=="image")return;const a=m.attachment;showModal(a.name,`<img class="modal-img" src="${esc(a.dataUrl)}" alt="${esc(a.name)}"><div style="margin-top:12px"><a class="download" href="${esc(a.dataUrl)}" download="${esc(a.name)}">Descargar imagen</a></div>`)}
-function touch(){const t=now();if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(c)c.lastActivityAt=t}else if(section==="teams"){const tm=state.teams.find(x=>x.id===selectedTeam);if(tm)tm.lastActivityAt=t}else{state.forum.lastActivityAt=t}}
+function touch(){registerUserActivity("actualizar_conversacion");const t=now();if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(c)c.lastActivityAt=t}else if(section==="teams"){const tm=state.teams.find(x=>x.id===selectedTeam);if(tm)tm.lastActivityAt=t}else{state.forum.lastActivityAt=t}}
 function showModal(title,body){$("modalTitle").textContent=title;$("modalBody").innerHTML=body;$("modal").classList.add("show")}
 function closeModal(){$("modal").classList.remove("show");$("modalBody").innerHTML=""}
 $("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
