@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.4 Chat UI Ajustado</title>
+<title>Ximpler.App | Team Chat V1.6.5 Buscador Profundo</title>
 
 <style>
 :root{
@@ -754,10 +754,80 @@ function sortByLastMovement(list){
   return [...list].sort((a,b)=>activityTime(b)-activityTime(a));
 }
 function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
+
+/*
+  BUSCADOR PROFUNDO XIMPLER
+  -------------------------
+  El buscador de la lista de Chat y Teams ya no se limita al título visible.
+  Ahora indexa conversación interna, nombres de usuarios, iniciales, correos,
+  áreas, puestos, nombres de archivos adjuntos, tipos de archivo y referencias #folio.
+
+  Producción Ximpler.App:
+  - Para volúmenes grandes, mover esta lógica a un índice backend o a un Web Worker.
+  - Mantener normalizeForSearch() también del lado servidor para que la búsqueda sea consistente.
+*/
+function normalizeForSearch(value){
+  return String(value||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+}
+function userSearchText(id){
+  const u=user(id)||{};
+  return [u.name,u.initials,u.jefe,u.area,u.puesto,u.correo,presenceLabel(id)].filter(Boolean).join(" ");
+}
+function messageSearchText(m){
+  if(!m)return "";
+  const reply=m.replyTo?[m.replyTo.text,m.replyTo.senderId?userSearchText(m.replyTo.senderId):""].join(" "):"";
+  const att=m.attachment?[m.attachment.name,m.attachment.mime,m.attachment.type].join(" "):"";
+  const folios=String(m.text||"").match(/#[A-Za-z0-9_-]{2,}/g)?.join(" ")||"";
+  return normalizeForSearch([userSearchText(m.senderId),m.text,reply,att,folios,dateOnly(m.createdAt),fmt(m.createdAt)].join(" "));
+}
+function messagesSearchText(messages){
+  return (visibleMessages(messages||[])).map(messageSearchText).join(" ");
+}
+function chatSearchText(chat){
+  return normalizeForSearch([
+    "chat individual",
+    userSearchText(ME),
+    userSearchText(chat.userId),
+    preview(visibleMessages(chat.messages||[]).at(-1)),
+    messagesSearchText(chat.messages||[])
+  ].join(" "));
+}
+function teamSearchText(team){
+  return normalizeForSearch([
+    "chat grupal team grupo",
+    team.name,
+    `${team.members?.length||0} integrantes`,
+    `${onlineCount(team.members||[])} en linea`,
+    (team.members||[]).map(userSearchText).join(" "),
+    preview(visibleMessages(team.messages||[]).at(-1)),
+    messagesSearchText(team.messages||[])
+  ].join(" "));
+}
 function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f;updateSessionUI()}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
-function filterRows(inputSelector,rowSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(rowSelector).forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
-function filterMessages(inputSelector){const input=$(inputSelector); if(!input)return; input.oninput=()=>{const q=input.value.toLowerCase();document.querySelectorAll(".msg-row").forEach(row=>{row.style.display=(row.dataset.search||"").includes(q)?"flex":"none"})}}
+function filterRows(inputSelector,rowSelector){
+  const input=$(inputSelector); if(!input)return;
+  input.oninput=()=>{
+    const q=normalizeForSearch(input.value);
+    document.querySelectorAll(rowSelector).forEach(row=>{
+      row.style.display=(!q || (row.dataset.search||"").includes(q))?"flex":"none";
+    });
+  };
+}
+function filterMessages(inputSelector){
+  const input=$(inputSelector); if(!input)return;
+  input.oninput=()=>{
+    const q=normalizeForSearch(input.value);
+    document.querySelectorAll(".msg-row").forEach(row=>{
+      row.style.display=(!q || (row.dataset.search||"").includes(q))?"flex":"none";
+    });
+  };
+}
 
 function render(){
   document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section)); badges();
@@ -775,7 +845,7 @@ function renderChatList(){
     <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button></div>
     <div class="body">
       ${rows.length?rows.map(r=>`
-        <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(r.u.name.toLowerCase())}">
+        <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(chatSearchText(r.chat))}">
           ${av(r.u.id)}
           <div class="item-main">
             <div class="item-title">${esc(r.u.name)} ${presenceChip(r.u.id)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
@@ -794,7 +864,7 @@ function renderNewChat(){
     <div class="note"><span>Busca usuarios de la empresa para iniciar o abrir una conversación individual.</span></div>
     <div class="body">
       ${state.users.filter(u=>u.id!==ME).map(u=>{const exists=state.chats.find(c=>c.userId===u.id);return `
-        <div class="item start-chat" data-user="${u.id}" data-search="${esc(u.name.toLowerCase())}">
+        <div class="item start-chat" data-user="${u.id}" data-search="${esc(normalizeForSearch(userSearchText(u.id)))}">
           ${av(u.id)}
           <div class="item-main"><div class="item-title">${esc(u.name)} ${presenceChip(u.id)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div></div>
           <div style="display:flex;gap:6px;align-items:center"><button class="mini user-info-open" data-user-info="${u.id}">Info</button><button class="mini">${exists?"Abrir":"Iniciar"}</button></div>
@@ -829,7 +899,7 @@ function renderTeamsList(){
     <div class="toolbar"><button class="primary" id="addTeamTop">+ Nuevo Chat</button><button id="markAllTeams">Marcar todo leído</button></div>
     <div class="body">
       ${teams.length?teams.map(t=>`
-        <div class="item team-open" data-id="${t.id}" data-search="${esc(t.name.toLowerCase())}">
+        <div class="item team-open" data-id="${t.id}" data-search="${esc(teamSearchText(t))}">
           <div class="team-avatars">${t.members.slice(0,3).map(id=>av(id,"xs")).join("")}</div>
           <div class="item-main">
             <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
@@ -864,7 +934,7 @@ function renderTeamForm(){
   $("memberSearch").oninput=()=>{const q=$("memberSearch").value.toLowerCase();document.querySelectorAll(".pick").forEach(r=>r.style.display=(r.dataset.search||"").includes(q)?"flex":"none")};
   $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
 }
-function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(u.name.toLowerCase())}">${av(u.id)}<span>${esc(u.name)}<br>${presenceChip(u.id)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
+function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(normalizeForSearch(userSearchText(u.id)))}">${av(u.id)}<span>${esc(u.name)}<br>${presenceChip(u.id)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
 function createTeam(){const name=$("teamName").value.trim();const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);if(!name){toast("Escribe el nombre del chat grupal");return}const t={id:uid("team"),name,members:[...new Set([ME,...selected])],unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")}
 function leaveTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`))return;t.members=t.members.filter(x=>x!==ME);const m=newMessage(`${user(ME).name} salió del chat grupal.`);t.messages.push(m);t.lastActivityAt=m.createdAt;selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal")}
 function deleteTeamChat(id){const t=state.teams.find(x=>x.id===id);if(!t)return;if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`))return;state.teams=state.teams.filter(x=>x.id!==id);selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado")}
@@ -937,7 +1007,6 @@ function openTaskModal(folio){
   `,{wide:true});
 }
 function preview(m){if(!m)return"Sin mensajes";if(m.deletedForAll)return"Mensaje eliminado";if(m.attachment)return`${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;return esc(m.text)}
-function messageSearchText(m){return `${user(m.senderId).name} ${m.text||""} ${m.attachment?.name||""}`.toLowerCase()}
 function renderMessages(messages){
   const msgs=visibleMessages(messages); if(!msgs.length)return`<div class="empty">No hay mensajes todavía.</div>`; let d="";
   return msgs.map(m=>{const mine=m.senderId===ME,day=dateOnly(m.createdAt),showDate=day!==d;d=day;const deleted=m.deletedForAll;
