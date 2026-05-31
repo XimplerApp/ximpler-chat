@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.6 Repositorio Documental</title>
+<title>Ximpler.App | Team Chat V1.6.7 Demo Extendida Chats y Docs</title>
 
 <style>
 :root{
@@ -605,7 +605,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_3_tasks_files";
+const KEY="ximpler_team_chat_v1_6_7_demo_extendida_chats_docs";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
@@ -631,46 +631,134 @@ function msg(id,senderId,text,createdAt,readBy){
   return {id,senderId,text,createdAt,readBy:readBy||{[senderId]:createdAt},replyTo:null,attachment:null,deletedForAll:false,hiddenFor:[]};
 }
 
+function demoDataUrl(mime,content){
+  const safeContent=content||"Archivo demo Ximpler";
+  try{
+    return `data:${mime};base64,${btoa(unescape(encodeURIComponent(safeContent)))}`;
+  }catch(e){
+    return `data:${mime};charset=utf-8,${encodeURIComponent(safeContent)}`;
+  }
+}
+function demoAttachment(id,name,mime,size,type,content){
+  return {
+    id,
+    name,
+    mime,
+    size,
+    type:type||((mime||"").startsWith("image/")?"image":"file"),
+    objectUrl:"",
+    dataUrl:demoDataUrl(mime,content||`Archivo demo: ${name}`),
+    localOnly:false,
+    storageMode:"demo-data-url",
+    createdAt:now()
+  };
+}
+function demoImageAttachment(id,name,title,subtitle,bg){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+    <rect width="900" height="520" rx="34" fill="${bg||"#1f8fe5"}"/>
+    <rect x="44" y="44" width="812" height="432" rx="28" fill="rgba(255,255,255,.16)"/>
+    <text x="78" y="170" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800" fill="#ffffff">${title||"Ximpler.App"}</text>
+    <text x="78" y="245" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#ffffff">${subtitle||"Archivo de ejemplo compartido"}</text>
+    <circle cx="760" cy="385" r="55" fill="rgba(255,255,255,.25)"/>
+    <text x="724" y="404" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#ffffff">Xi</text>
+  </svg>`;
+  return demoAttachment(id,name,"image/svg+xml",svg.length,"image",svg);
+}
+function msgWithAttachment(id,senderId,text,createdAt,readBy,attachment){
+  const m=msg(id,senderId,text,createdAt,readBy);
+  m.attachment=attachment;
+  if(m.attachment)m.attachment.createdAt=createdAt;
+  return m;
+}
+
 const demo={
   users:[
     {id:"u1",name:"Anel Castro",initials:"AC",color:"",jefe:"Melchor Iván Angulo",area:"Dirección / Administración",puesto:"Coordinadora de Seguimiento",correo:"anel.castro@ximpler.app"},
-  {id:"u2",name:"Melchor Iván Angulo",initials:"MA",color:"blue",jefe:"Consejo Directivo",area:"Dirección General",puesto:"Director General",correo:"melchor.angulo@ximpler.app"},
-  {id:"u3",name:"Victoria Hernández",initials:"VH",color:"gold",jefe:"Anel Castro",area:"Administración",puesto:"Analista Administrativa",correo:"victoria.hernandez@ximpler.app"},
-  {id:"u4",name:"Saúl Nahúm Cruz",initials:"SC",color:"green",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Desarrollador Front-End",correo:"saul.cruz@ximpler.app"},
-  {id:"u5",name:"Salvador Ahumada",initials:"SA",color:"purple",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Arquitecto de Soluciones",correo:"salvador.ahumada@ximpler.app"},
-  {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red",jefe:"Anel Castro",area:"Operaciones",puesto:"Coordinadora Operativa",correo:"alejandra.ruiz@ximpler.app"},
-  {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal",jefe:"Melchor Iván Angulo",area:"Comercial",puesto:"Ejecutivo Comercial",correo:"carlos.medina@ximpler.app"},
-  {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink",jefe:"Anel Castro",area:"Marketing",puesto:"Diseñadora de Contenido",correo:"laura.beltran@ximpler.app"},
-  {id:"u9",name:"Luis Dávalos",initials:"LD",color:"blue",jefe:"Melchor Iván Angulo",area:"Consultoría",puesto:"Consultor Senior",correo:"luis.davalos@ximpler.app"},
-  {id:"u10",name:"Juan Lopez",initials:"JL",color:"green",jefe:"Luis Dávalos",area:"Consultoría",puesto:"Consultor Operativo",correo:"juan.lopez@ximpler.app"},
-  {id:"u11",name:"Jose Luis Rentería",initials:"JR",color:"gold",jefe:"Melchor Iván Angulo",area:"Proyectos",puesto:"Líder de Proyecto",correo:"jose.renteria@ximpler.app"},
-  {id:"u12",name:"Marcos Payan",initials:"MP",color:"purple",jefe:"Jose Luis Rentería",area:"Proyectos",puesto:"Coordinador de Implementación",correo:"marcos.payan@ximpler.app"},
-  {id:"u13",name:"Joaquin Rosas",initials:"JR",color:"teal",jefe:"Melchor Iván Angulo",area:"Atención a Clientes",puesto:"Customer Success",correo:"joaquin.rosas@ximpler.app"}
+    {id:"u2",name:"Melchor Iván Angulo",initials:"MA",color:"blue",jefe:"Consejo Directivo",area:"Dirección General",puesto:"Director General",correo:"melchor.angulo@ximpler.app"},
+    {id:"u3",name:"Victoria Hernández",initials:"VH",color:"gold",jefe:"Anel Castro",area:"Administración",puesto:"Analista Administrativa",correo:"victoria.hernandez@ximpler.app"},
+    {id:"u4",name:"Saúl Nahúm Cruz",initials:"SC",color:"green",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Desarrollador Front-End",correo:"saul.cruz@ximpler.app"},
+    {id:"u5",name:"Salvador Ahumada",initials:"SA",color:"purple",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Arquitecto de Soluciones",correo:"salvador.ahumada@ximpler.app"},
+    {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red",jefe:"Anel Castro",area:"Operaciones",puesto:"Coordinadora Operativa",correo:"alejandra.ruiz@ximpler.app"},
+    {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal",jefe:"Melchor Iván Angulo",area:"Comercial",puesto:"Ejecutivo Comercial",correo:"carlos.medina@ximpler.app"},
+    {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink",jefe:"Anel Castro",area:"Marketing",puesto:"Diseñadora de Contenido",correo:"laura.beltran@ximpler.app"},
+    {id:"u9",name:"Luis Dávalos",initials:"LD",color:"blue",jefe:"Melchor Iván Angulo",area:"Consultoría",puesto:"Consultor Senior",correo:"luis.davalos@ximpler.app"},
+    {id:"u10",name:"Juan Lopez",initials:"JL",color:"green",jefe:"Luis Dávalos",area:"Consultoría",puesto:"Consultor Operativo",correo:"juan.lopez@ximpler.app"},
+    {id:"u11",name:"Jose Luis Rentería",initials:"JR",color:"gold",jefe:"Melchor Iván Angulo",area:"Proyectos",puesto:"Líder de Proyecto",correo:"jose.renteria@ximpler.app"},
+    {id:"u12",name:"Marcos Payan",initials:"MP",color:"purple",jefe:"Jose Luis Rentería",area:"Proyectos",puesto:"Coordinador de Implementación",correo:"marcos.payan@ximpler.app"},
+    {id:"u13",name:"Joaquin Rosas",initials:"JR",color:"teal",jefe:"Melchor Iván Angulo",area:"Atención a Clientes",puesto:"Customer Success",correo:"joaquin.rosas@ximpler.app"}
   ],
   chats:[
-    {id:"c_u2",userId:"u2",unread:2,lastActivityAt:"2026-05-02T15:25:00",messages:[
+    {id:"c_u2",userId:"u2",unread:1,lastActivityAt:"2026-05-04T09:35:00",messages:[
       msg("m1","u2","Revisar avance del tablero antes de la reunión. Ver #206731","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
-      msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"})
+      msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"}),
+      msgWithAttachment("m3","u2","Te comparto la minuta de dirección con acuerdos y responsables. Incluye seguimiento de #206731.","2026-05-04T09:35:00",{u2:"2026-05-04T09:35:00"},demoAttachment("att_m3","minuta_direccion_04_mayo.pdf","application/pdf",184000,"file","Minuta demo de direccion - acuerdos, responsables y fechas."))
     ]},
-    {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-02T15:30:00",messages:[
-      msg("m3","u3","Ya quedó listo el documento inicial.","2026-05-02T15:30:00",{u3:"2026-05-02T15:30:00",u1:"2026-05-02T15:50:00"})
+    {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-03T17:50:00",messages:[
+      msg("m4","u3","Ya quedó listo el documento inicial.","2026-05-02T15:30:00",{u3:"2026-05-02T15:30:00",u1:"2026-05-02T15:50:00"}),
+      msgWithAttachment("m5","u3","Te dejo el control actualizado de pagos de mayo para revisión.","2026-05-03T17:50:00",{u3:"2026-05-03T17:50:00",u1:"2026-05-03T18:05:00"},demoAttachment("att_m5","control_pagos_mayo.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",268000,"file","Archivo demo de control de pagos mayo."))
+    ]},
+    {id:"c_u4",userId:"u4",unread:1,lastActivityAt:"2026-05-04T11:20:00",messages:[
+      msgWithAttachment("m6","u4","Te envío captura del error detectado en el buscador profundo del chat.","2026-05-04T11:20:00",{u4:"2026-05-04T11:20:00"},demoImageAttachment("att_m6","captura_error_buscador.svg","Captura Error Buscador","Referencia visual enviada por Sistemas","#0f766e"))
+    ]},
+    {id:"c_u5",userId:"u5",unread:0,lastActivityAt:"2026-05-03T10:12:00",messages:[
+      msg("m7","u5","Validé la estructura del módulo de documentos. El shortcut no debe duplicar el archivo.","2026-05-03T10:12:00",{u5:"2026-05-03T10:12:00",u1:"2026-05-03T10:16:00"})
+    ]},
+    {id:"c_u7",userId:"u7",unread:2,lastActivityAt:"2026-05-04T14:42:00",messages:[
+      msg("m8","u7","Anel, tengo nuevos prospectos para la campaña EDGE.","2026-05-04T14:10:00",{u7:"2026-05-04T14:10:00"}),
+      msgWithAttachment("m9","u7","Te comparto la base priorizada. Filtré empresas por tamaño y oportunidad de entrada.","2026-05-04T14:42:00",{u7:"2026-05-04T14:42:00"},demoAttachment("att_m9","prospectos_prioritarios_culiacan.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",412000,"file","Base demo de prospectos prioritarios Culiacan."))
+    ]},
+    {id:"c_u8",userId:"u8",unread:1,lastActivityAt:"2026-05-04T13:15:00",messages:[
+      msgWithAttachment("m10","u8","Te mando el mockup visual para la campaña Carpe Diem Empresarial.","2026-05-04T13:15:00",{u8:"2026-05-04T13:15:00"},demoImageAttachment("att_m10","mockup_carpe_diem.svg","Carpe Diem Empresarial","Diseño preliminar para campaña","#db2777"))
+    ]},
+    {id:"c_u9",userId:"u9",unread:0,lastActivityAt:"2026-05-03T19:05:00",messages:[
+      msgWithAttachment("m11","u9","Aquí va el diagnóstico preliminar del cliente demo. Marqué hallazgos de nómina muerta y coordinación.","2026-05-03T19:05:00",{u9:"2026-05-03T19:05:00",u1:"2026-05-03T19:40:00"},demoAttachment("att_m11","diagnostico_nomina_muerta_cliente_demo.pdf","application/pdf",356000,"file","Diagnostico demo de nomina muerta: hallazgos, riesgos y oportunidades."))
+    ]},
+    {id:"c_u11",userId:"u11",unread:1,lastActivityAt:"2026-05-04T08:05:00",messages:[
+      msgWithAttachment("m12","u11","Te dejo el cronograma actualizado de implementación para validarlo hoy.","2026-05-04T08:05:00",{u11:"2026-05-04T08:05:00"},demoAttachment("att_m12","cronograma_implementacion_edge.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",298000,"file","Cronograma demo de implementacion EDGE."))
+    ]},
+    {id:"c_u13",userId:"u13",unread:0,lastActivityAt:"2026-05-02T18:22:00",messages:[
+      msgWithAttachment("m13","u13","Compartí la lista de tickets abiertos con prioridad alta y media.","2026-05-02T18:22:00",{u13:"2026-05-02T18:22:00",u1:"2026-05-02T19:01:00"},demoAttachment("att_m13","tickets_customer_success.csv","text/csv",42000,"file","ticket,cliente,prioridad\n101,Cliente Demo,Alta\n102,Cliente B,Media"))
     ]}
   ],
   teams:[
-    {id:"t1",name:"Administración",members:["u1","u2","u3"],unread:0,lastActivityAt:"2026-05-01T11:10:00",messages:[
-      msg("tm1","u2","Necesitamos cerrar los pendientes administrativos esta semana.","2026-05-01T11:10:00",{u2:"2026-05-01T11:10:00",u1:"2026-05-01T11:15:00",u3:"2026-05-01T11:35:00"})
+    {id:"t1",name:"Administración",members:["u1","u2","u3"],unread:1,lastActivityAt:"2026-05-04T12:05:00",messages:[
+      msg("tm1","u2","Necesitamos cerrar los pendientes administrativos esta semana.","2026-05-01T11:10:00",{u2:"2026-05-01T11:10:00",u1:"2026-05-01T11:15:00",u3:"2026-05-01T11:35:00"}),
+      msgWithAttachment("tm2","u3","Subo la relación de facturas pendientes y gastos administrativos.","2026-05-04T12:05:00",{u3:"2026-05-04T12:05:00"},demoAttachment("att_tm2","facturas_pendientes_mayo.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",221000,"file","Facturas pendientes mayo - demo."))
     ]},
-    {id:"t2",name:"Proyecto ABC",members:["u1","u4","u5"],unread:1,lastActivityAt:"2026-05-01T12:30:00",messages:[
-      msg("tm2","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"})
+    {id:"t2",name:"Proyecto ABC",members:["u1","u4","u5"],unread:2,lastActivityAt:"2026-05-04T16:55:00",messages:[
+      msg("tm3","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"}),
+      msgWithAttachment("tm4","u5","Adjunto arquitectura propuesta del módulo ABC para validación técnica.","2026-05-04T16:10:00",{u5:"2026-05-04T16:10:00"},demoAttachment("att_tm4","arquitectura_modulo_abc.pdf","application/pdf",305000,"file","Arquitectura demo modulo ABC.")),
+      msgWithAttachment("tm5","u4","También dejo imagen del flujo de conversación con documentos.","2026-05-04T16:55:00",{u4:"2026-05-04T16:55:00"},demoImageAttachment("att_tm5","flujo_conversacion_docs.svg","Flujo Docs + Chat","Shortcut al documento original","#7c3aed"))
     ]},
-    {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-01T13:10:00",messages:[
-      msg("tm3","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
-      msg("tm4","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"})
+    {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-04T15:30:00",messages:[
+      msg("tm6","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
+      msg("tm7","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"}),
+      msgWithAttachment("tm8","u4","Les dejo el checklist técnico de pruebas para repositorio documental.","2026-05-04T15:30:00",{u4:"2026-05-04T15:30:00"},demoAttachment("att_tm8","checklist_pruebas_repositorio.pdf","application/pdf",176000,"file","Checklist demo de pruebas del repositorio documental."))
+    ]},
+    {id:"t4",name:"Comité Dirección",members:["u1","u2","u7","u9","u11"],unread:1,lastActivityAt:"2026-05-04T10:45:00",messages:[
+      msgWithAttachment("tm9","u9","Comparto resumen ejecutivo con riesgos, decisiones y próximos pasos.","2026-05-04T10:45:00",{u9:"2026-05-04T10:45:00"},demoAttachment("att_tm9","resumen_ejecutivo_comite.pdf","application/pdf",244000,"file","Resumen ejecutivo demo: riesgos, decisiones y proximos pasos."))
+    ]},
+    {id:"t5",name:"Comercial EDGE",members:["u1","u7","u8","u9"],unread:2,lastActivityAt:"2026-05-04T17:20:00",messages:[
+      msgWithAttachment("tm10","u7","Base de empresas para llamadas de esta semana. Incluye prioridad y argumento de entrada.","2026-05-04T17:05:00",{u7:"2026-05-04T17:05:00"},demoAttachment("att_tm10","pipeline_comercial_edge.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",388000,"file","Pipeline comercial EDGE demo.")),
+      msgWithAttachment("tm11","u8","Agrego el guion visual para mensajes de seguimiento en LinkedIn.","2026-05-04T17:20:00",{u8:"2026-05-04T17:20:00"},demoAttachment("att_tm11","guion_visual_linkedin.pdf","application/pdf",165000,"file","Guion visual demo para seguimiento LinkedIn."))
+    ]},
+    {id:"t6",name:"Implementación Gobierno",members:["u1","u2","u4","u11","u12","u13"],unread:3,lastActivityAt:"2026-05-04T18:05:00",messages:[
+      msgWithAttachment("tm12","u11","Aquí está la matriz de actividades para el arranque gubernamental.","2026-05-04T17:40:00",{u11:"2026-05-04T17:40:00"},demoAttachment("att_tm12","matriz_arranque_gobierno.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",275000,"file","Matriz demo de arranque gobierno.")),
+      msgWithAttachment("tm13","u12","Adjunto minuta de acuerdos con dependencias y responsables.","2026-05-04T17:55:00",{u12:"2026-05-04T17:55:00"},demoAttachment("att_tm13","minuta_acuerdos_dependencias.pdf","application/pdf",210000,"file","Minuta demo de acuerdos con dependencias.")),
+      msgWithAttachment("tm14","u13","Comparto reporte de dudas frecuentes para usuarios nuevos.","2026-05-04T18:05:00",{u13:"2026-05-04T18:05:00"},demoAttachment("att_tm14","faq_usuarios_gobierno.docx","application/vnd.openxmlformats-officedocument.wordprocessingml.document",132000,"file","FAQ demo usuarios gobierno."))
+    ]},
+    {id:"t7",name:"Soporte Clientes",members:["u1","u4","u5","u13"],unread:0,lastActivityAt:"2026-05-03T16:25:00",messages:[
+      msgWithAttachment("tm15","u13","Subí la bitácora semanal de incidencias resueltas y pendientes.","2026-05-03T16:25:00",{u13:"2026-05-03T16:25:00",u1:"2026-05-03T16:40:00"},demoAttachment("att_tm15","bitacora_soporte_semanal.csv","text/csv",58000,"file","fecha,incidencia,estatus\n2026-05-03,Login,Resuelto\n2026-05-03,Permisos,Pendiente"))
     ]}
   ],
-  forum:{unread:1,lastActivityAt:"2026-05-01T11:05:00",messages:[
+  forum:{unread:4,lastActivityAt:"2026-05-04T18:30:00",messages:[
     msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
-    msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"})
+    msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"}),
+    msgWithAttachment("fm3","u2","Aviso general: comparto los lineamientos de uso de Ximpler.App para todo el equipo.","2026-05-04T09:00:00",{u2:"2026-05-04T09:00:00"},demoAttachment("att_fm3","lineamientos_generales_ximpler.pdf","application/pdf",195000,"file","Lineamientos demo de uso Ximpler.App.")),
+    msgWithAttachment("fm4","u8","Dejo la infografía institucional para próximos comunicados.","2026-05-04T11:30:00",{u8:"2026-05-04T11:30:00"},demoImageAttachment("att_fm4","infografia_repositorio_docs.svg","Repositorio Documental","Todos los documentos recibidos en un solo lugar","#1f8fe5")),
+    msgWithAttachment("fm5","u9","Comparto plantilla de diagnóstico exprés para uso general del equipo.","2026-05-04T14:20:00",{u9:"2026-05-04T14:20:00"},demoAttachment("att_fm5","plantilla_diagnostico_expres.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",234000,"file","Plantilla demo de diagnostico expres.")),
+    msgWithAttachment("fm6","u7","Subo el calendario comercial de mayo con fechas de seguimiento.","2026-05-04T16:50:00",{u7:"2026-05-04T16:50:00"},demoAttachment("att_fm6","calendario_comercial_mayo.pdf","application/pdf",148000,"file","Calendario comercial mayo demo.")),
+    msgWithAttachment("fm7","u13","Adjunto paquete de formatos de soporte para clientes nuevos.","2026-05-04T18:30:00",{u13:"2026-05-04T18:30:00"},demoAttachment("att_fm7","formatos_soporte_clientes.zip","application/zip",512000,"file","Paquete demo de formatos soporte clientes."))
   ]}
 };
 
