@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.3 Tareas y Adjuntos</title>
+<title>Ximpler.App | Team Chat V1.6.4 Chat UI Ajustado</title>
 
 <style>
 :root{
@@ -230,7 +230,248 @@ label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
 .attachment.missing{opacity:.82;background:#f8fafc}
 .attachment-note{font-size:10px;color:#64748b;margin-top:2px}
 
+
+/* =========================================================
+   AJUSTES V1.6.4 — CHAT UI
+   1) Launcher / ícono flotante del chat 2.5x más grande.
+   2) Panel completo de chat 1.5x más grande: textos, botones,
+      avatares, imágenes, burbujas, input, íconos y navegación.
+   3) Mantiene el chat anclado y usable en escritorio y móvil.
+   ========================================================= */
+:root{
+  --panel:585px;   /* 390px x 1.5 */
+  --rail:87px;     /* 58px x 1.5 */
+}
+.launcher{
+  width:160px;     /* 64px x 2.5 */
+  height:160px;    /* 64px x 2.5 */
+  right:36px;
+  bottom:34px;
+  font-size:75px;  /* 30px x 2.5 */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.launcher .badge{
+  top:8px;
+  right:8px;
+  min-width:36px;
+  height:36px;
+  padding:0 9px;
+  border-width:3px;
+  font-size:18px;
+}
+.panel{
+  right:-700px;
+  top:74px;
+  height:calc(100vh - 104px);
+}
+.panel.open{right:18px}
+.rail-item{
+  height:108px;
+  gap:6px;
+  font-size:15px;
+}
+.rail-item > span:not(.rail-badge){font-size:18px}
+.rail-item > span:nth-child(2){font-size:24px}
+.rail-badge{
+  top:10px;
+  right:10px;
+  min-width:26px;
+  height:26px;
+  padding:0 6px;
+  font-size:15px;
+}
+.chat-header{
+  height:78px;
+  padding:0 18px;
+}
+.title-wrap{gap:12px}
+.chat-title{font-size:26px}
+.icon-btn{font-size:27px}
+.search{
+  height:72px;
+  gap:12px;
+  padding:0 18px;
+  font-size:18px;
+}
+.search input{
+  height:51px;
+  font-size:18px;
+}
+.toolbar{
+  gap:12px;
+  padding:15px 18px;
+}
+.toolbar button,.mini{
+  padding:11px 14px;
+  border-radius:11px;
+  font-size:16px;
+}
+.note{
+  padding:14px 18px;
+  font-size:16px;
+  gap:15px;
+}
+.info-btn{
+  border-radius:11px;
+  font-size:16px;
+  padding:9px 12px;
+}
+.item{
+  min-height:99px;
+  gap:15px;
+  padding:15px 18px;
+}
+.item-title{
+  font-size:20px;
+  gap:9px;
+}
+.item-sub{
+  margin-top:6px;
+  font-size:16px;
+}
+.item-time{font-size:15px}
+.counter{
+  min-width:30px;
+  height:30px;
+  padding:0 9px;
+  font-size:16px;
+}
+.panel .avatar.sm{
+  width:36px;
+  height:36px;
+  font-size:15px;
+}
+.panel .avatar.xs{
+  width:29px;
+  height:29px;
+  font-size:12px;
+}
+.team-avatars{
+  min-width:81px;
+}
+.team-avatars .avatar{
+  margin-left:-11px;
+  border-width:3px;
+}
+.team-avatars .avatar:first-child{margin-left:0}
+.presence-line{font-size:15px;gap:8px}
+.presence-chip{
+  font-size:15px;
+  padding:5px 10px;
+}
+.presence-dot{
+  width:14px;
+  height:14px;
+}
+.messages{
+  padding:21px 18px 15px;
+}
+.date{
+  font-size:15px;
+  margin:15px 0;
+}
+.msg-row{
+  gap:11px;
+  margin-bottom:15px;
+}
+.bubble{
+  border-radius:15px;
+  padding:12px 14px;
+  font-size:18px;
+}
+.sender{
+  font-size:15px;
+  margin-bottom:5px;
+}
+.reply{
+  border-left-width:5px;
+  padding:8px 11px;
+  border-radius:9px;
+  margin-bottom:8px;
+  font-size:15px;
+}
+.meta{
+  gap:15px;
+  margin-top:8px;
+  font-size:14px;
+}
+.msg-actions{
+  gap:6px;
+  margin-bottom:11px;
+  padding:8px;
+  border-radius:11px;
+}
+.msg-actions button{
+  padding:8px 11px;
+  font-size:15px;
+  border-radius:8px;
+}
+.attachment{
+  margin-top:11px;
+  border-radius:12px;
+  padding:12px;
+  gap:12px;
+}
+.att-name{font-size:16px}
+.att-size,.attachment-note{font-size:15px}
+.download{font-size:15px}
+.chat-img{
+  margin-top:11px;
+  max-width:315px;
+  max-height:270px;
+  border-radius:15px;
+}
+.replying,.pending{
+  gap:12px;
+  padding:12px 15px;
+  font-size:16px;
+}
+.composer{
+  gap:12px;
+  padding:15px;
+}
+.composer textarea{
+  min-height:54px;
+  max-height:144px;
+  border-radius:12px;
+  padding:14px 15px;
+  font-size:18px;
+}
+.attach,.send,.expand-write{
+  width:54px;
+  height:54px;
+  font-size:18px;
+}
+.attach-menu{
+  left:15px;
+  bottom:78px;
+  border-radius:12px;
+}
+.attach-menu div{
+  padding:14px 18px;
+  font-size:18px;
+}
+.form{padding:21px 21px 120px}
+label.lbl{font-size:18px;margin:18px 0 9px}
+.form input[type=text]{height:54px;border-radius:9px;padding:0 15px;font-size:18px}
+.picker{margin-top:12px;border-radius:12px;max-height:345px}
+.pick{gap:12px;padding:12px 15px;font-size:18px}
+.primary-btn,.secondary-btn{min-height:57px;border-radius:12px;margin-top:15px;font-size:18px}
+.empty{padding:39px 27px;font-size:20px}
+.user-info-name{font-size:24px}
+.user-info-grid{grid-template-columns:132px 1fr;gap:12px 15px;font-size:18px}
+.user-info-actions button{padding:11px 14px;border-radius:11px;font-size:16px}
+.task-link{padding:3px 9px}
+.expanded-compose{min-height:390px;border-radius:15px;padding:18px;font-size:21px}
+.expanded-actions button{padding:14px 18px;border-radius:12px;font-size:16px}
+.toast{bottom:220px;font-size:16px;padding:14px 18px;border-radius:12px}
+
 @media(max-width:760px){
+  .launcher{width:112px;height:112px;font-size:52px;right:18px;bottom:18px}
+  .launcher .badge{min-width:30px;height:30px;font-size:15px;top:4px;right:4px}
   .panel{top:0;right:-100vw;width:100vw;height:100vh}
   .panel.open{right:0}
   .board{padding:18px 14px 90px}
@@ -503,6 +744,15 @@ function fmt(iso){return new Date(iso).toLocaleString("es-MX",{year:"numeric",mo
 function dateOnly(iso){return new Date(iso).toLocaleDateString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit"})}
 function lastDate(messages){return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00"}
 function activity(x){return x.lastActivityAt||lastDate(x.messages)}
+function activityTime(x){
+  const direct=x?.lastActivityAt;
+  const byMessages=lastDate(x?.messages||[]);
+  return new Date(direct||byMessages||"1970-01-01T00:00:00").getTime()||0;
+}
+function sortByLastMovement(list){
+  // Orden descendente: el chat individual o grupal con el último movimiento siempre queda arriba.
+  return [...list].sort((a,b)=>activityTime(b)-activityTime(a));
+}
 function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
 function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0);$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;$("totalBadge").textContent=c+t+f;updateSessionUI()}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
@@ -519,7 +769,7 @@ function render(){
 /* CHAT */
 function renderChatList(){
   $("title").textContent="Chat"; $("back").style.visibility="hidden";
-  const rows=state.chats.map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)})).sort((a,b)=>new Date(activity(b.chat))-new Date(activity(a.chat)));
+  const rows=sortByLastMovement(state.chats).map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)}));
   $("view").innerHTML=`
     ${searchHTML()}
     <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button></div>
@@ -573,7 +823,7 @@ function deleteChat(id){if(!confirm("¿Eliminar este chat de tu lista? Esta acci
 /* TEAMS */
 function renderTeamsList(){
   $("title").textContent="Teams"; $("back").style.visibility="hidden";
-  const teams=state.teams.filter(t=>t.members.includes(ME)).sort((a,b)=>new Date(activity(b))-new Date(activity(a)));
+  const teams=sortByLastMovement(state.teams.filter(t=>t.members.includes(ME)));
   $("view").innerHTML=`
     ${searchHTML()}
     <div class="toolbar"><button class="primary" id="addTeamTop">+ Nuevo Chat</button><button id="markAllTeams">Marcar todo leído</button></div>
