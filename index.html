@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.9 Docs UX y Permisos de Grupo</title>
+<title>Ximpler.App | Team Chat V1.6.10 Docs Búsqueda Combinada</title>
 
 <style>
 :root{
@@ -638,6 +638,122 @@ label.lbl{font-size:18px;margin:18px 0 9px}
   .doc-row{align-items:flex-start;flex-wrap:wrap}
 }
 
+
+/* =========================================================
+   AJUSTES V1.6.10 — DOCS BÚSQUEDA COMBINADA + UX LISTA
+   ========================================================= */
+.rail-badge{display:none}
+.docs-head{display:none}
+.docs-search-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:white;
+  flex:0 0 auto;
+}
+.docs-search-main{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px 9px;
+  background:#f8fafc;
+}
+.docs-search-main span{color:#475569;font-size:16px}
+.docs-search-main input{
+  border:0;
+  outline:0;
+  background:transparent;
+  flex:1;
+  min-width:80px;
+  height:28px;
+  font-size:13px;
+  color:#0f172a;
+}
+.docs-filter-strip{
+  display:none;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+}
+.docs-search-panel.open .docs-filter-strip{display:grid}
+.docs-filter-field{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+.docs-filter-field label{
+  font-size:10px;
+  color:#64748b;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.docs-filter-field select,.docs-filter-field input{
+  height:30px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  padding:0 8px;
+  font-size:12px;
+  color:#334155;
+  min-width:0;
+}
+.docs-toolbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:7px;
+  padding:7px 10px;
+  background:#f8fafc;
+}
+.doc-filter-group,.doc-bulk-actions{justify-content:space-between;width:100%}
+.doc-filter-group{gap:5px}
+.doc-filter{flex:1;text-align:center;padding:7px 8px;font-size:11px}
+.doc-bulk-actions{gap:5px;flex-wrap:nowrap}
+.doc-bulk-actions button{padding:7px 8px;font-size:11px;white-space:nowrap}
+.doc-selected-count{flex:1;min-width:76px;font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.doc-bulk-actions #selectAllDocs{max-width:78px}
+.doc-bulk-actions #clearSelectedDocs{max-width:64px}
+.doc-row{
+  min-height:74px;
+  align-items:flex-start;
+  gap:9px;
+  padding:9px 10px;
+  cursor:default;
+}
+.doc-row:hover{background:#f8fafc}
+.doc-row[data-has-preview="true"] .doc-main{cursor:pointer}
+.doc-main{padding-right:2px}
+.doc-name{font-size:13px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-meta{font-size:10.5px;line-height:1.25}
+.doc-snippet{font-size:10.5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-buttons{display:none!important}
+.doc-origin-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.doc-origin-row .mini,.doc-origin-row .doc-source-disabled{
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1;
+}
+.doc-origin-row .mini{border:1px solid var(--border);background:white;color:#334155;cursor:pointer;font-weight:800}
+.doc-origin-row .mini:hover{background:#eef2ff}
+.doc-preview-hint{font-size:10px;color:#64748b;font-weight:800}
+.doc-preview-hint.available{color:#0369a1}
+@media(max-width:760px){
+  .docs-filter-strip{grid-template-columns:1fr}
+  .doc-bulk-actions{flex-wrap:wrap;justify-content:flex-start}
+  .doc-selected-count{width:100%}
+  .doc-filter{flex:1 1 30%}
+}
+
 .doc-preview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .doc-preview-actions .download{border:1px solid var(--border);border-radius:11px;padding:11px 14px;background:white;color:#1d4ed8;font-size:16px;font-weight:800;text-decoration:none}
 .msg-row.highlight-message .bubble{
@@ -703,7 +819,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
     <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
     <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
     <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
-    <div class="rail-item" data-section="docs"><span class="rail-badge docs-count" id="docsBadge">0</span><span>📎</span><span>Docs</span></div>
+    <div class="rail-item" data-section="docs"><span>📎</span><span>Docs</span></div>
   </aside>
 
   <div class="chat-main">
@@ -725,7 +841,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_9_docs_ux_permisos_grupo";
+const KEY="ximpler_team_chat_v1_6_10_docs_busqueda_combinada";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
@@ -1087,7 +1203,28 @@ function teamSearchText(team){
     messagesSearchText(team.messages||[])
   ].join(" "));
 }
-function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0),d=collectSharedDocuments().length;$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;if($("docsBadge"))$("docsBadge").textContent=d;$("totalBadge").textContent=c+t+f;updateSessionUI()}
+function setBadgeVisibility(id,count){
+  const el=$(id);
+  if(!el)return;
+  if(Number(count)>0){
+    el.textContent=count;
+    el.style.display="flex";
+  }else{
+    el.textContent="";
+    el.style.display="none";
+  }
+}
+function badges(){
+  const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0);
+  const t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0);
+  const f=Number(state.forum.unread||0);
+  const total=c+t+f;
+  setBadgeVisibility("chatBadge",c);
+  setBadgeVisibility("teamsBadge",t);
+  setBadgeVisibility("forumBadge",f);
+  setBadgeVisibility("totalBadge",total);
+  updateSessionUI();
+}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
 function filterRows(inputSelector,rowSelector){
   const input=$(inputSelector); if(!input)return;
@@ -1304,7 +1441,6 @@ function renderForum(){
   $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
   $("view").innerHTML=`
     ${searchHTML()}
-    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos. · ${onlineCount(state.users.map(u=>u.id))} usuarios en línea</span></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
   filterMessages("searchInput");
   bindComposer(); bindMessageButtons(); scrollBottom();
@@ -1407,6 +1543,32 @@ function docSearchText(d){
   ].join(" "));
 }
 function docIcon(a){return documentKind(a)==="image"?"🖼️":"📎"}
+function docsSearchHTML(docs){
+  const users=[...new Map(docs.map(d=>[d.senderId,user(d.senderId)])).values()].sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="docs-search-panel" id="docsSearchPanel">
+    <div class="docs-search-main" id="docsSearchMain">
+      <span>⌕</span>
+      <input id="docsTextSearch" placeholder="Buscar por archivo, mensaje, chat, tipo..." autocomplete="off">
+    </div>
+    <div class="docs-filter-strip" id="docsFilterStrip">
+      <div class="docs-filter-field">
+        <label>Usuario</label>
+        <select id="docsUserFilter">
+          <option value="">Todos</option>
+          ${users.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="docs-filter-field">
+        <label>Desde</label>
+        <input type="date" id="docsFromDate">
+      </div>
+      <div class="docs-filter-field">
+        <label>Hasta</label>
+        <input type="date" id="docsToDate">
+      </div>
+    </div>
+  </div>`;
+}
 function renderDocumentRepository(){
   registerUserActivity("abrir_repositorio_documental");
   const docs=collectSharedDocuments();
@@ -1415,11 +1577,7 @@ function renderDocumentRepository(){
   $("title").textContent="Docs";
   $("back").style.visibility="hidden";
   $("view").innerHTML=`
-    ${searchHTML()}
-    <div class="docs-head">
-      <div class="docs-title">Repositorio documental</div>
-      <div class="docs-counter" id="docsVisibleCounter">${docs.length} archivos</div>
-    </div>
+    ${docsSearchHTML(docs)}
     <div class="docs-toolbar doc-actions">
       <div class="doc-filter-group">
         <button class="doc-filter ${selectedDocTypeFilter==="all"?"active":""}" data-doc-filter="all">Todos (${docs.length})</button>
@@ -1428,6 +1586,7 @@ function renderDocumentRepository(){
       </div>
       <div class="doc-bulk-actions">
         <span class="doc-selected-count" id="docSelectedCount">0 seleccionados</span>
+        <button id="previewSelectedDoc">Previsualizar</button>
         <button id="selectAllDocs">Todos</button>
         <button id="clearSelectedDocs">Limpiar</button>
         <button class="primary" id="downloadSelectedDocs">Descargar</button>
@@ -1449,60 +1608,77 @@ function documentRowHTML(d){
   const sourceControl=d.archived
     ? `<span class="doc-source-disabled" title="El chat o grupo original ya fue eliminado o abandonado">Origen eliminado</span>`
     : `<button class="mini" data-doc-action="source" data-doc-id="${esc(d.repoId)}">Ir al mensaje</button>`;
-  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-doc-kind="${kind}" data-search="${esc(docSearchText(d))}">
+  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-doc-kind="${kind}" data-doc-sender="${esc(d.senderId)}" data-doc-date="${esc(dateOnlyInput(d.createdAt))}" data-search="${esc(docSearchText(d))}" data-has-preview="${canPreview?"true":"false"}">
     <label class="doc-check" title="Seleccionar"><input type="checkbox" class="doc-select" value="${esc(d.repoId)}"></label>
     <div class="doc-icon">${docIcon(a)}</div>
-    <div class="doc-main">
+    <div class="doc-main" data-doc-action="preview" data-doc-id="${esc(d.repoId)}">
       <div class="doc-name">${esc(a.name||"Archivo sin nombre")} <span class="doc-direction ${directionClass}">${directionLabel}</span><span class="doc-kind-pill">${documentKindLabel(a)}</span></div>
       <div class="doc-meta"><strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · <strong>${esc(d.sourceTitle)}</strong>${d.archived?" · Origen eliminado":""}</div>
       <div class="doc-meta">${esc(a.mime||a.type||"archivo")} · ${fileSize(a.size)}</div>
       ${d.messageText?`<div class="doc-snippet">${esc(d.messageText)}</div>`:""}
-    </div>
-    <div class="doc-buttons">
-      ${sourceControl}
-      <button class="mini" data-doc-action="preview" data-doc-id="${esc(d.repoId)}" ${canPreview?"":"disabled"}>Previsualizar</button>
-      ${canPreview?`<a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Bajar</a>`:`<span class="download" style="opacity:.55;cursor:not-allowed">No disponible</span>`}
-      <button class="mini danger" data-doc-action="delete" data-doc-id="${esc(d.repoId)}">Eliminar</button>
+      <div class="doc-origin-row">
+        ${sourceControl}
+        <span class="doc-preview-hint ${canPreview?"available":""}">${canPreview?"Click para previsualizar":"Vista previa no disponible"}</span>
+      </div>
     </div>
   </div>`;
 }
+function dateOnlyInput(iso){
+  const d=new Date(iso);
+  if(Number.isNaN(d.getTime()))return"";
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
 function bindDocumentRepository(){
-  const selectAll=$("selectAllDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),deleteSelected=$("deleteSelectedDocs");
-  const search=$("searchInput");
-  if(search)search.oninput=applyDocFilters;
+  const panel=$("docsSearchPanel"),main=$("docsSearchMain"),text=$("docsTextSearch"),userFilter=$("docsUserFilter"),fromDate=$("docsFromDate"),toDate=$("docsToDate");
+  const selectAll=$("selectAllDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),deleteSelected=$("deleteSelectedDocs"),previewSelected=$("previewSelectedDoc");
+  if(main)main.onclick=()=>{panel?.classList.add("open");setTimeout(()=>text?.focus(),0)};
+  [text,userFilter,fromDate,toDate].forEach(el=>{if(el)el.oninput=applyDocFilters;if(el)el.onchange=applyDocFilters});
   document.querySelectorAll(".doc-filter").forEach(btn=>btn.onclick=()=>{selectedDocTypeFilter=btn.dataset.docFilter||"all";applyDocFilters()});
   if(selectAll)selectAll.onclick=()=>{document.querySelectorAll(".doc-row").forEach(row=>{if(row.style.display!=="none"){const cb=row.querySelector(".doc-select");if(cb)cb.checked=true}});updateDocSelectionUI()};
   if(clearBtn)clearBtn.onclick=()=>{document.querySelectorAll(".doc-select").forEach(cb=>cb.checked=false);updateDocSelectionUI()};
+  if(previewSelected)previewSelected.onclick=()=>{
+    const selected=[...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value);
+    if(selected.length!==1){toast("Selecciona un solo archivo para previsualizar");return}
+    previewSharedDocument(selected[0]);
+  };
   if(downloadSelected)downloadSelected.onclick=()=>downloadDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
   if(deleteSelected)deleteSelected.onclick=()=>deleteDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
-  document.querySelectorAll(".doc-select").forEach(cb=>cb.onchange=updateDocSelectionUI);
+  document.querySelectorAll(".doc-select").forEach(cb=>cb.onchange=e=>{e.stopPropagation();updateDocSelectionUI()});
   document.querySelectorAll("[data-doc-action]").forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
     const id=btn.dataset.docId,action=btn.dataset.docAction;
     if(action==="source")goToDocumentMessage(id);
     if(action==="preview")previewSharedDocument(id);
-    if(action==="delete")deleteDocumentSet([id]);
   });
 }
 function applyDocFilters(){
-  const q=normalizeForSearch($("searchInput")?.value||"");
+  const q=normalizeForSearch($("docsTextSearch")?.value||"");
+  const sender=$("docsUserFilter")?.value||"";
+  const from=$("docsFromDate")?.value||"";
+  const to=$("docsToDate")?.value||"";
   let visible=0;
   document.querySelectorAll(".doc-filter").forEach(btn=>btn.classList.toggle("active",(btn.dataset.docFilter||"all")===selectedDocTypeFilter));
   document.querySelectorAll(".doc-row").forEach(row=>{
-    const matchesSearch=(row.dataset.search||"").includes(q);
+    const docDate=row.dataset.docDate||"";
+    const matchesSearch=!q || (row.dataset.search||"").includes(q);
     const matchesKind=selectedDocTypeFilter==="all" || row.dataset.docKind===selectedDocTypeFilter;
-    const show=matchesSearch&&matchesKind;
+    const matchesSender=!sender || row.dataset.docSender===sender;
+    const matchesFrom=!from || (docDate && docDate>=from);
+    const matchesTo=!to || (docDate && docDate<=to);
+    const show=matchesSearch&&matchesKind&&matchesSender&&matchesFrom&&matchesTo;
     row.style.display=show?"flex":"none";
     if(show)visible++;
   });
-  const counter=$("docsVisibleCounter");
-  if(counter)counter.textContent=`${visible} de ${collectSharedDocuments().length} archivos`;
-  updateDocSelectionUI();
+  updateDocSelectionUI(visible);
 }
-function updateDocSelectionUI(){
+function updateDocSelectionUI(visibleCount){
   const selected=[...document.querySelectorAll(".doc-select:checked")].length;
   const label=$("docSelectedCount");
-  if(label)label.textContent=`${selected} seleccionado${selected===1?"":"s"}`;
+  const visible=visibleCount ?? [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").length;
+  if(label)label.textContent=`${selected} sel. · ${visible} visibles`;
 }
 function visibleDocIds(){return [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").map(row=>row.dataset.docId)}
 function canInlinePreview(a){
