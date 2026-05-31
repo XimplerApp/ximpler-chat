@@ -520,6 +520,16 @@ label.lbl{font-size:18px;margin:18px 0 9px}
   font-size:16px;
   font-weight:800;
 }
+.doc-filter{border:1px solid var(--border);background:white;color:#334155;padding:11px 14px;border-radius:11px;cursor:pointer;font-size:16px;font-weight:800}
+.doc-filter.active{background:#0f172a;color:white;border-color:#0f172a}
+.doc-direction{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+.doc-direction.mine{background:#dcfce7;color:#15803d;border-color:#bbf7d0}
+.doc-kind-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.doc-preview-frame{width:100%;height:68vh;border:1px solid var(--border);border-radius:12px;background:white}
+.doc-preview-card{border:1px solid var(--border);border-radius:14px;background:#f8fafc;padding:18px;line-height:1.45;color:#334155}
+.doc-preview-card h3{margin:0 0 8px;font-size:20px;color:#0f172a}
+.doc-preview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.doc-preview-actions .download{border:1px solid var(--border);border-radius:11px;padding:11px 14px;background:white;color:#1d4ed8;font-size:16px;font-weight:800;text-decoration:none}
 .msg-row.highlight-message .bubble{
   outline:3px solid #f59e0b;
   box-shadow:0 0 0 6px rgba(245,158,11,.16);
@@ -605,7 +615,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_7_demo_extendida_chats_docs";
+const KEY="ximpler_team_chat_v1_6_8_docs_preview_delete_filters";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
@@ -691,6 +701,7 @@ const demo={
     {id:"c_u2",userId:"u2",unread:1,lastActivityAt:"2026-05-04T09:35:00",messages:[
       msg("m1","u2","Revisar avance del tablero antes de la reunión. Ver #206731","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
       msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"}),
+      msgWithAttachment("m2a","u1","Te subo mi propuesta de ajustes para validar antes de implementarla.","2026-05-04T10:05:00",{u1:"2026-05-04T10:05:00",u2:"2026-05-04T10:14:00"},demoAttachment("att_m2a","propuesta_ajustes_chat_docs.pdf","application/pdf",152000,"file","Propuesta demo de ajustes para Chat y Docs.")),
       msgWithAttachment("m3","u2","Te comparto la minuta de dirección con acuerdos y responsables. Incluye seguimiento de #206731.","2026-05-04T09:35:00",{u2:"2026-05-04T09:35:00"},demoAttachment("att_m3","minuta_direccion_04_mayo.pdf","application/pdf",184000,"file","Minuta demo de direccion - acuerdos, responsables y fechas."))
     ]},
     {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-03T17:50:00",messages:[
@@ -733,6 +744,7 @@ const demo={
     {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-04T15:30:00",messages:[
       msg("tm6","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
       msg("tm7","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"}),
+      msgWithAttachment("tm7a","u1","Dejo la imagen de referencia del comportamiento esperado en Docs.","2026-05-04T14:25:00",{u1:"2026-05-04T14:25:00",u2:"2026-05-04T14:29:00"},demoImageAttachment("att_tm7a","referencia_docs_preview.svg","Vista Previa Docs","Filtros, descarga y eliminación desde repositorio","#06192f")),
       msgWithAttachment("tm8","u4","Les dejo el checklist técnico de pruebas para repositorio documental.","2026-05-04T15:30:00",{u4:"2026-05-04T15:30:00"},demoAttachment("att_tm8","checklist_pruebas_repositorio.pdf","application/pdf",176000,"file","Checklist demo de pruebas del repositorio documental."))
     ]},
     {id:"t4",name:"Comité Dirección",members:["u1","u2","u7","u9","u11"],unread:1,lastActivityAt:"2026-05-04T10:45:00",messages:[
@@ -754,6 +766,7 @@ const demo={
   forum:{unread:4,lastActivityAt:"2026-05-04T18:30:00",messages:[
     msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
     msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"}),
+    msgWithAttachment("fm2a","u1","Subo una guía rápida para explicar cómo usar el repositorio documental.","2026-05-04T08:20:00",{u1:"2026-05-04T08:20:00",u2:"2026-05-04T08:32:00"},demoAttachment("att_fm2a","guia_rapida_repositorio_docs.pdf","application/pdf",126000,"file","Guia rapida demo para repositorio documental.")),
     msgWithAttachment("fm3","u2","Aviso general: comparto los lineamientos de uso de Ximpler.App para todo el equipo.","2026-05-04T09:00:00",{u2:"2026-05-04T09:00:00"},demoAttachment("att_fm3","lineamientos_generales_ximpler.pdf","application/pdf",195000,"file","Lineamientos demo de uso Ximpler.App.")),
     msgWithAttachment("fm4","u8","Dejo la infografía institucional para próximos comunicados.","2026-05-04T11:30:00",{u8:"2026-05-04T11:30:00"},demoImageAttachment("att_fm4","infografia_repositorio_docs.svg","Repositorio Documental","Todos los documentos recibidos en un solo lugar","#1f8fe5")),
     msgWithAttachment("fm5","u9","Comparto plantilla de diagnóstico exprés para uso general del equipo.","2026-05-04T14:20:00",{u9:"2026-05-04T14:20:00"},demoAttachment("att_fm5","plantilla_diagnostico_expres.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",234000,"file","Plantilla demo de diagnostico expres.")),
@@ -762,7 +775,7 @@ const demo={
   ]}
 };
 
-let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null, pendingFocusMessageId=null;
+let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null, pendingFocusMessageId=null, selectedDocTypeFilter="all";
 const $=id=>document.getElementById(id);
 
 $("launcher").onclick=()=>{registerUserActivity("abrir_panel_chat");$("panel").classList.add("open");render()};
@@ -1135,11 +1148,13 @@ function renderForum(){
 
 
 /* REPOSITORIO DOCUMENTAL */
+function documentKind(a){return (a?.type==="image" || String(a?.mime||"").startsWith("image/"))?"image":"document"}
+function documentKindLabel(a){return documentKind(a)==="image"?"Imagen":"Documento"}
 function collectSharedDocuments(){
   const docs=[];
   const addFromMessages=(messages,context)=>{
     visibleMessages(messages||[]).forEach(m=>{
-      if(!m||m.deletedForAll||!m.attachment||m.senderId===ME)return;
+      if(!m||m.deletedForAll||!m.attachment)return;
       const a=m.attachment;
       docs.push({
         repoId:`${context.type}:${context.id||"forum"}:${m.id}:${a.id||a.name||"archivo"}`,
@@ -1147,9 +1162,11 @@ function collectSharedDocuments(){
         sourceId:context.id||"forum",
         sourceTitle:context.title,
         messageId:m.id,
+        messageRef:m,
         messageText:m.text||"",
         senderId:m.senderId,
         createdAt:m.createdAt,
+        direction:m.senderId===ME?"mine":"received",
         attachment:a
       });
     });
@@ -1162,78 +1179,114 @@ function collectSharedDocuments(){
 function findSharedDocument(repoId){return collectSharedDocuments().find(d=>d.repoId===repoId)}
 function docSearchText(d){
   return normalizeForSearch([
-    d.attachment?.name,d.attachment?.mime,d.attachment?.type,fileSize(d.attachment?.size),
-    userSearchText(d.senderId),d.sourceTitle,d.sourceType,d.messageText,
+    d.attachment?.name,d.attachment?.mime,d.attachment?.type,documentKindLabel(d.attachment),fileSize(d.attachment?.size),
+    userSearchText(d.senderId),d.senderId===ME?"subido por mi enviado por mi":"compartido conmigo recibido hacia mi",d.sourceTitle,d.sourceType,d.messageText,
     dateOnly(d.createdAt),fmt(d.createdAt)
   ].join(" "));
 }
-function docIcon(a){return a?.type==="image"?"🖼️":"📎"}
+function docIcon(a){return documentKind(a)==="image"?"🖼️":"📎"}
 function renderDocumentRepository(){
   registerUserActivity("abrir_repositorio_documental");
   const docs=collectSharedDocuments();
-  $("title").textContent="Repositorio";
+  const imageCount=docs.filter(d=>documentKind(d.attachment)==="image").length;
+  const documentCount=docs.filter(d=>documentKind(d.attachment)==="document").length;
+  $("title").textContent="Docs";
   $("back").style.visibility="hidden";
   $("view").innerHTML=`
     ${searchHTML()}
     <div class="note">
-      <span><strong>Documentos compartidos hacia mí</strong><br><span class="doc-summary">Shortcuts a archivos recibidos en chats individuales, Teams y Forum. No se duplica el documento: cada registro apunta al adjunto original.</span></span>
+      <span><strong>Repositorio documental</strong><br><span class="doc-summary">Shortcuts a todos los archivos compartidos en chats individuales, Teams y Forum, incluyendo los que te compartieron y los que tú subiste. No se duplica el documento: cada registro apunta al adjunto original.</span></span>
     </div>
     <div class="toolbar doc-actions">
-      <button id="selectVisibleDocs">Seleccionar todos</button>
+      <button class="doc-filter ${selectedDocTypeFilter==="all"?"active":""}" data-doc-filter="all">Todos (${docs.length})</button>
+      <button class="doc-filter ${selectedDocTypeFilter==="image"?"active":""}" data-doc-filter="image">Imágenes (${imageCount})</button>
+      <button class="doc-filter ${selectedDocTypeFilter==="document"?"active":""}" data-doc-filter="document">Documentos (${documentCount})</button>
+      <button id="selectVisibleDocs">Seleccionar visibles</button>
       <button id="clearSelectedDocs">Limpiar selección</button>
       <button class="primary" id="downloadSelectedDocs">Descargar seleccionados</button>
-      <button id="downloadVisibleDocs">Descargar todos</button>
+      <button id="downloadVisibleDocs">Descargar visibles</button>
+      <button class="danger" id="deleteSelectedDocs">Eliminar seleccionados</button>
     </div>
     <div class="body" id="docsBody">
-      ${docs.length?docs.map(documentRowHTML).join(""):`<div class="empty">Aún no hay documentos compartidos hacia ti en chats individuales, Teams o Forum.</div>`}
+      ${docs.length?docs.map(documentRowHTML).join(""):`<div class="empty">Aún no hay documentos compartidos en chats individuales, Teams o Forum.</div>`}
     </div>`;
   bindDocumentRepository();
-  filterRows("searchInput",".doc-row");
+  applyDocFilters();
 }
 function documentRowHTML(d){
-  const a=d.attachment||{},url=attachmentURL(a),canOpen=!!url;
+  const a=d.attachment||{},url=attachmentURL(a),canPreview=!!url;
   const sender=user(d.senderId);
-  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-search="${esc(docSearchText(d))}">
+  const directionLabel=d.senderId===ME?"Subido por mí":"Compartido conmigo";
+  const directionClass=d.senderId===ME?"mine":"received";
+  const kind=documentKind(a);
+  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-doc-kind="${kind}" data-search="${esc(docSearchText(d))}">
     <label class="doc-check" title="Seleccionar"><input type="checkbox" class="doc-select" value="${esc(d.repoId)}"></label>
     <div class="doc-icon">${docIcon(a)}</div>
     <div class="doc-main">
-      <div class="doc-name">${esc(a.name||"Archivo sin nombre")}</div>
-      <div class="doc-meta">Compartido por <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>
+      <div class="doc-name">${esc(a.name||"Archivo sin nombre")} <span class="doc-direction ${directionClass}">${directionLabel}</span><span class="doc-kind-pill">${documentKindLabel(a)}</span></div>
+      <div class="doc-meta">Usuario: <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>
       <div class="doc-meta">${esc(a.mime||a.type||"archivo")} · ${fileSize(a.size)}</div>
       ${d.messageText?`<div class="doc-snippet">Mensaje: ${esc(d.messageText)}</div>`:""}
       ${a.localOnly?`<div class="attachment-note">Demo local: este shortcut usa el adjunto original de la conversación. En producción apuntaría al fileId/URL segura del backend.</div>`:""}
     </div>
     <div class="doc-buttons">
       <button class="mini" data-doc-action="source" data-doc-id="${esc(d.repoId)}">Ir al mensaje</button>
-      <button class="mini" data-doc-action="open" data-doc-id="${esc(d.repoId)}" ${canOpen?"":"disabled"}>Abrir</button>
-      ${canOpen?`<a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a>`:`<span class="download" style="opacity:.55;cursor:not-allowed">No disponible</span>`}
+      <button class="mini" data-doc-action="preview" data-doc-id="${esc(d.repoId)}" ${canPreview?"":"disabled"}>Previsualizar</button>
+      <button class="mini danger" data-doc-action="delete" data-doc-id="${esc(d.repoId)}">Eliminar archivo</button>
+      ${canPreview?`<a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a>`:`<span class="download" style="opacity:.55;cursor:not-allowed">No disponible</span>`}
     </div>
   </div>`;
 }
 function bindDocumentRepository(){
-  const selectBtn=$("selectVisibleDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),downloadAll=$("downloadVisibleDocs");
+  const selectBtn=$("selectVisibleDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),downloadAll=$("downloadVisibleDocs"),deleteSelected=$("deleteSelectedDocs");
+  const search=$("searchInput");
+  if(search)search.oninput=applyDocFilters;
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.onclick=()=>{selectedDocTypeFilter=btn.dataset.docFilter||"all";applyDocFilters()});
   if(selectBtn)selectBtn.onclick=()=>document.querySelectorAll(".doc-row").forEach(row=>{if(row.style.display!=="none"){const cb=row.querySelector(".doc-select");if(cb)cb.checked=true}});
   if(clearBtn)clearBtn.onclick=()=>document.querySelectorAll(".doc-select").forEach(cb=>cb.checked=false);
   if(downloadSelected)downloadSelected.onclick=()=>downloadDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
   if(downloadAll)downloadAll.onclick=()=>downloadDocumentSet(visibleDocIds());
+  if(deleteSelected)deleteSelected.onclick=()=>deleteDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
   document.querySelectorAll("[data-doc-action]").forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
     const id=btn.dataset.docId,action=btn.dataset.docAction;
     if(action==="source")goToDocumentMessage(id);
-    if(action==="open")openSharedDocument(id);
+    if(action==="preview")previewSharedDocument(id);
+    if(action==="delete")deleteDocumentSet([id]);
+  });
+}
+function applyDocFilters(){
+  const q=normalizeForSearch($("searchInput")?.value||"");
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.classList.toggle("active",(btn.dataset.docFilter||"all")===selectedDocTypeFilter));
+  document.querySelectorAll(".doc-row").forEach(row=>{
+    const matchesSearch=(row.dataset.search||"").includes(q);
+    const matchesKind=selectedDocTypeFilter==="all" || row.dataset.docKind===selectedDocTypeFilter;
+    row.style.display=(matchesSearch&&matchesKind)?"flex":"none";
   });
 }
 function visibleDocIds(){return [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").map(row=>row.dataset.docId)}
-function openSharedDocument(repoId){
+function canInlinePreview(a){
+  const mime=String(a?.mime||"").toLowerCase();
+  return documentKind(a)==="image" || mime==="application/pdf" || mime.startsWith("text/") || mime.includes("json") || mime.includes("xml") || mime.includes("svg");
+}
+function previewSharedDocument(repoId){
   const d=findSharedDocument(repoId); if(!d)return;
-  const url=attachmentURL(d.attachment);
+  const a=d.attachment||{},url=attachmentURL(a);
   if(!url){toast("Documento no disponible en este demo local");return}
-  if(d.attachment?.type==="image"){
-    showModal(d.attachment.name||"Imagen",`<img class="modal-img" src="${esc(url)}" alt="${esc(d.attachment.name||"imagen")}"><div style="margin-top:12px"><a class="download" href="${esc(url)}" download="${esc(d.attachment.name||"imagen")}">Descargar imagen</a></div>`);
+  const sender=user(d.senderId);
+  const meta=`<div class="doc-meta" style="margin-bottom:12px">Usuario: <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>`;
+  const actions=`<div class="doc-preview-actions"><a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a><button class="mini danger" onclick="deleteDocumentSet(['${esc(d.repoId)}']);closeModal();">Eliminar archivo</button></div>`;
+  if(documentKind(a)==="image"){
+    showModal(`Previsualizar: ${a.name||"Imagen"}`,`${meta}<img class="modal-img" src="${esc(url)}" alt="${esc(a.name||"imagen")}">${actions}`);
     return;
   }
-  window.open(url,"_blank","noopener");
+  if(canInlinePreview(a)){
+    showModal(`Previsualizar: ${a.name||"Documento"}`,`${meta}<iframe class="doc-preview-frame" src="${esc(url)}" title="${esc(a.name||"documento")}"></iframe>${actions}`,{wide:true});
+    return;
+  }
+  showModal(`Previsualizar: ${a.name||"Documento"}`,`${meta}<div class="doc-preview-card"><h3>${esc(a.name||"Archivo")}</h3><div><strong>Tipo:</strong> ${esc(a.mime||a.type||"archivo")}</div><div><strong>Tamaño:</strong> ${fileSize(a.size)}</div><div><strong>Origen:</strong> ${esc(d.sourceTitle)}</div><p>Este tipo de archivo no tiene vista previa directa en el navegador dentro del demo. El shortcut sigue apuntando al adjunto original del chat y puedes descargarlo o ir al mensaje donde fue compartido.</p></div>${actions}`);
 }
+function openSharedDocument(repoId){previewSharedDocument(repoId)}
 function downloadDocumentSet(repoIds){
   const unique=[...new Set(repoIds||[])];
   if(!unique.length){toast("Selecciona al menos un documento");return}
@@ -1252,6 +1305,23 @@ function downloadDocumentSet(repoIds){
     count++;
   });
   toast(`${count} descarga${count===1?"":"s"} iniciada${count===1?"":"s"}${missing?` · ${missing} no disponible${missing===1?"":"s"}`:""}`);
+}
+function deleteDocumentSet(repoIds){
+  const unique=[...new Set(repoIds||[])];
+  if(!unique.length){toast("Selecciona al menos un documento");return}
+  const label=unique.length===1?"este archivo":"estos archivos";
+  if(!confirm(`¿Eliminar ${label}? También se quitarán del chat, grupo o Forum donde están compartidos.`))return;
+  let count=0;
+  unique.forEach(id=>{
+    const d=findSharedDocument(id);
+    if(d&&d.messageRef&&d.messageRef.attachment){
+      d.messageRef.attachment=null;
+      count++;
+    }
+  });
+  save();
+  renderDocumentRepository();
+  toast(`${count} archivo${count===1?"":"s"} eliminado${count===1?"":"s"} del repositorio y de sus chats`);
 }
 function goToDocumentMessage(repoId){
   const d=findSharedDocument(repoId); if(!d)return;
