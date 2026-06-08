@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.12 Modal Chat UI</title>
+<title>Ximpler.App | Team Chat V1.6.13 Modal Header Limpio</title>
 
 <style>
 :root{
@@ -857,6 +857,13 @@ label.lbl{font-size:18px;margin:18px 0 9px}
 .panel .docs-search-main input{font-size:12px}
 .panel .doc-filter,.panel .doc-bulk-actions button,.panel .doc-selected-count{font-size:10px}
 
+
+/* =========================================================
+   AJUSTES V1.6.13 — HEADER LIMPIO EN MODAL
+   - Mueve sesión, último movimiento, info y acciones al header.
+   - El cuerpo del chat queda limpio para lectura/escritura.
+   - Vaciar Forum se mantiene solo para el usuario actual.
+   ========================================================= */
 body.chat-workspace-open{overflow:hidden}
 .chat-workspace-bg{
   position:fixed;
@@ -882,17 +889,28 @@ body.chat-workspace-open{overflow:hidden}
   overflow:hidden;
 }
 .chat-workspace-h{
-  min-height:64px;
+  min-height:76px;
   background:var(--navy);
   color:white;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:14px;
-  padding:0 20px;
+  gap:16px;
+  padding:10px 20px;
   flex:0 0 auto;
 }
-.chat-workspace-title{min-width:0;font-size:20px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-workspace-head-main{min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.chat-workspace-title{min-width:0;font-size:21px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.08}
+.chat-workspace-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:rgba(255,255,255,.74);font-size:12px;font-weight:800;line-height:1.2;min-height:18px}
+.chat-workspace-meta .presence-chip{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.86)}
+.chat-workspace-meta .presence-chip.online{background:rgba(22,163,74,.18);border-color:rgba(187,247,208,.28);color:#dcfce7}
+.chat-workspace-meta .presence-chip.offline{background:rgba(148,163,184,.16);border-color:rgba(203,213,225,.22);color:#e2e8f0}
+.chat-workspace-head-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.chat-workspace-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.workspace-btn{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:white;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap}
+.workspace-btn:hover{background:rgba(255,255,255,.16)}
+.workspace-btn.danger{border-color:rgba(248,113,113,.46);color:#fecaca;background:rgba(239,68,68,.10)}
+.workspace-btn.danger:hover{background:rgba(239,68,68,.18)}
 .chat-workspace-close{width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:white;font-size:25px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .chat-workspace-close:hover{background:rgba(255,255,255,.15)}
 .chat-workspace-b{flex:1;min-height:0;display:flex;flex-direction:column;background:white}
@@ -914,9 +932,13 @@ body.chat-workspace-open{overflow:hidden}
 @media(max-width:760px){
   .chat-workspace-bg{padding:0}
   .chat-workspace{width:100vw;height:100vh;border-radius:0}
-  .chat-workspace-h{min-height:58px;padding:0 14px}
+  .chat-workspace-h{min-height:64px;padding:8px 12px;gap:10px}
   .chat-workspace-title{font-size:17px}
-  .chat-workspace-close{width:38px;height:38px;font-size:22px}
+  .chat-workspace-meta{font-size:10.5px;gap:5px}
+  .chat-workspace-head-actions{gap:7px}
+  .chat-workspace-actions{gap:5px;max-width:56vw}
+  .workspace-btn{padding:6px 8px;border-radius:9px;font-size:10.5px}
+  .chat-workspace-close{width:36px;height:36px;font-size:22px}
   .chat-workspace-b .messages{padding:16px 14px 12px}
   .chat-workspace-b .bubble{max-width:84%}
 }
@@ -989,8 +1011,14 @@ body.chat-workspace-open{overflow:hidden}
 <div class="chat-workspace-bg" id="chatWorkspace" aria-hidden="true">
   <div class="chat-workspace" role="dialog" aria-modal="true" aria-labelledby="workspaceTitle">
     <div class="chat-workspace-h">
-      <div class="chat-workspace-title" id="workspaceTitle">Chat</div>
-      <button class="chat-workspace-close" id="workspaceClose" aria-label="Cerrar modal">×</button>
+      <div class="chat-workspace-head-main">
+        <div class="chat-workspace-meta" id="workspaceMeta"></div>
+        <div class="chat-workspace-title" id="workspaceTitle">Chat</div>
+      </div>
+      <div class="chat-workspace-head-actions">
+        <div class="chat-workspace-actions" id="workspaceActions"></div>
+        <button class="chat-workspace-close" id="workspaceClose" aria-label="Cerrar modal">×</button>
+      </div>
     </div>
     <div class="chat-workspace-b" id="workspaceBody"></div>
   </div>
@@ -1434,10 +1462,17 @@ function openWorkspace(mode){
   document.body.classList.add("chat-workspace-open");
   renderWorkspace();
 }
+function setWorkspaceHeader(title,metaHTML="",actionsHTML=""){
+  const titleEl=$("workspaceTitle"),metaEl=$("workspaceMeta"),actionsEl=$("workspaceActions");
+  if(titleEl)titleEl.textContent=title||"Chat";
+  if(metaEl)metaEl.innerHTML=metaHTML||"";
+  if(actionsEl)actionsEl.innerHTML=actionsHTML||"";
+}
 function closeWorkspace(){
   $("chatWorkspace").classList.remove("show");
   $("chatWorkspace").setAttribute("aria-hidden","true");
   document.body.classList.remove("chat-workspace-open");
+  setWorkspaceHeader("Chat","","");
   workspaceMode=null;
   replying=null;
   pendingFile=null;
@@ -1455,7 +1490,11 @@ function renderWorkspace(){
   if(workspaceMode==="chat"){
     const c=state.chats.find(x=>x.id===selectedChat && !(x.hiddenFor||[]).includes(ME));
     if(!c){closeWorkspace();render();return}
-    $("workspaceTitle").textContent=user(c.userId).name;
+    setWorkspaceHeader(
+      user(c.userId).name,
+      `${presenceChip(c.userId)}<span>Último movimiento: ${fmt(activity(c))}</span>`,
+      `<button class="workspace-btn" id="userInfoBtn">Info usuario</button><button class="workspace-btn" id="emptyThis">Vaciar chat</button><button class="workspace-btn danger" id="deleteThis">Eliminar chat</button>`
+    );
     $("workspaceBody").innerHTML=renderChatConversationContent(c);
     bindChatConversation(c);
     scrollBottom();
@@ -1463,19 +1502,29 @@ function renderWorkspace(){
   if(workspaceMode==="teams"){
     const t=state.teams.find(x=>x.id===selectedTeam && !(x.hiddenFor||[]).includes(ME));
     if(!t){closeWorkspace();render();return}
-    $("workspaceTitle").textContent=t.name;
+    ensureTeamOwner(t);
+    setWorkspaceHeader(
+      t.name,
+      `<span>${t.members.length} integrantes</span><span>${onlineCount(t.members)} en línea</span><span>Creador: ${esc(user(t.ownerId).name)}</span>`,
+      `<button class="workspace-btn" id="groupInfo">Info</button><button class="workspace-btn" id="emptyTeam">Vaciar chat</button><button class="workspace-btn danger" id="deleteTeam">Eliminar chat</button><button class="workspace-btn danger" id="leaveTeam">Salir</button>`
+    );
     $("workspaceBody").innerHTML=renderTeamConversationContent(t);
     bindTeamConversation(t);
     scrollBottom();
   }
   if(workspaceMode==="forum"){
-    $("workspaceTitle").textContent="Forum";
+    setWorkspaceHeader(
+      "Forum",
+      `<span>Último movimiento: ${fmt(activity(state.forum))}</span>`,
+      `<button class="workspace-btn" id="emptyForum">Vaciar Forum</button>`
+    );
     $("workspaceBody").innerHTML=renderForumContent();
     bindForumContent();
     scrollBottom();
   }
   if(workspaceMode==="docs"){
-    $("workspaceTitle").textContent="Docs";
+    const docsCount=collectSharedDocuments().length;
+    setWorkspaceHeader("Docs",`<span>${docsCount} archivo${docsCount===1?"":"s"} visible${docsCount===1?"":"s"}</span>`,"");
     $("workspaceBody").innerHTML=documentRepositoryContent();
     bindDocumentRepository();
     applyDocFilters();
@@ -1548,14 +1597,12 @@ function renderChatConversation(){
   scrollBottom();
 }
 function renderChatConversationContent(c){
-  return `
-    <div class="note"><span>${presenceChip(c.userId)}<span style="margin-left:8px">Último movimiento: ${fmt(activity(c))}</span></span><button class="info-btn" id="userInfoBtn">Info usuario</button></div>
-    <div class="toolbar"><button id="emptyThis">Vaciar chat</button><button class="danger" id="deleteThis">Eliminar chat</button></div>
-    <div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
+  return `<div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
 }
 function bindChatConversation(c){
-  $("userInfoBtn").onclick=()=>showUserInfo(c.userId);
-  $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
+  if($("userInfoBtn"))$("userInfoBtn").onclick=()=>showUserInfo(c.userId);
+  if($("emptyThis"))$("emptyThis").onclick=()=>emptyChat(c.id);
+  if($("deleteThis"))$("deleteThis").onclick=()=>deleteChat(c.id);
   bindComposer(); bindMessageButtons();
 }
 function emptyChat(id){
@@ -1621,17 +1668,13 @@ function renderTeamConversation(){
 }
 function renderTeamConversationContent(t){
   ensureTeamOwner(t);
-  const ownerText=`Creador: ${user(t.ownerId).name}`;
-  return `
-    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes · ${onlineCount(t.members)} en línea <span class="creator-note">${esc(ownerText)}</span></span><button class="info-btn" id="groupInfo">Info</button></div>
-    <div class="toolbar"><button id="emptyTeam">Vaciar chat</button><button class="danger" id="deleteTeam">Eliminar chat</button><button class="danger" id="leaveTeam">Salir del chat grupal</button></div>
-    <div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
+  return `<div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
 }
 function bindTeamConversation(t){
-  $("groupInfo").onclick=()=>showGroupInfo(t.id);
-  $("emptyTeam").onclick=()=>emptyTeam(t.id);
-  $("leaveTeam").onclick=()=>leaveTeam(t.id);
-  $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
+  if($("groupInfo"))$("groupInfo").onclick=()=>showGroupInfo(t.id);
+  if($("emptyTeam"))$("emptyTeam").onclick=()=>emptyTeam(t.id);
+  if($("leaveTeam"))$("leaveTeam").onclick=()=>leaveTeam(t.id);
+  if($("deleteTeam"))$("deleteTeam").onclick=()=>deleteTeamChat(t.id);
   bindComposer(); bindMessageButtons();
 }
 function renderTeamForm(){
@@ -1747,12 +1790,11 @@ function openForumWorkspace(){
 function renderForumContent(){
   return `
     ${searchHTML()}
-    <div class="toolbar"><button id="emptyForum">Vaciar Forum</button></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
 }
 function bindForumContent(){
   filterMessages("searchInput");
-  $("emptyForum").onclick=emptyForum;
+  if($("emptyForum"))$("emptyForum").onclick=emptyForum;
   bindComposer(); bindMessageButtons();
 }
 function emptyForum(){
@@ -2082,13 +2124,12 @@ function goToDocumentMessage(repoId){
   if(d.archived){toast("El chat o grupo original ya no está disponible");return}
   pendingFocusMessageId=d.messageId;
   if(d.sourceType==="chat"){
-    section="chat";viewMode="conversation";selectedChat=d.sourceId;selectedTeam=null;
+    section="chat";viewMode="list";selectedChat=d.sourceId;selectedTeam=null;render();openWorkspace("chat");
   }else if(d.sourceType==="teams"){
-    section="teams";viewMode="teamConversation";selectedTeam=d.sourceId;selectedChat=null;
+    section="teams";viewMode="list";selectedTeam=d.sourceId;selectedChat=null;render();openWorkspace("teams");
   }else{
-    section="forum";viewMode="list";selectedChat=null;selectedTeam=null;
+    section="forum";viewMode="list";selectedChat=null;selectedTeam=null;render();openWorkspace("forum");
   }
-  render();
 }
 
 /* MENSAJES */
