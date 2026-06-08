@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ximpler.App | Team Chat V1.6.11 Docs Limpieza UI</title>
+
+<style>
+:root{
+  --navy:#06192f; --red:#e3262f; --blue:#1f8fe5; --border:#dde3ea;
+  --muted:#6b7280; --text:#1f2937; --soft:#f8fafc;
+  --shadow:0 12px 28px rgba(0,0,0,.18);
+  --panel:390px; --rail:58px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f5;color:var(--text)}
+button,input,textarea{font-family:inherit}
+.app{min-height:100vh;display:flex}
+.sidebar{width:58px;background:var(--navy);color:white;position:fixed;inset:0 auto 0 0;z-index:20}
+.logo{height:58px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:24px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:14px}
+.nav div{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#cbd5e1}
+.nav div.active,.nav div:hover{background:rgba(255,255,255,.08);color:white}
+.content{margin-left:58px;width:calc(100% - 58px);min-height:100vh;background:white}
+.topbar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border)}
+.top-left,.top-right{display:flex;align-items:center;gap:14px}
+.top-center{font-weight:800;color:#9ca3af}
+.avatar{width:30px;height:30px;border-radius:999px;background:#111827;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+.avatar.sm{width:24px;height:24px;font-size:10px}
+.avatar.xs{width:19px;height:19px;font-size:8px}
+.avatar.blue{background:#1f8fe5}.avatar.green{background:#16a34a}.avatar.gold{background:#f59e0b}.avatar.purple{background:#7c3aed}.avatar.red{background:#e3262f}.avatar.teal{background:#0f766e}.avatar.pink{background:#db2777}
+
+.presence-avatar-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.presence-avatar-wrap .presence-dot{position:absolute;right:-2px;bottom:-2px;border:2px solid white}
+.presence-dot{width:9px;height:9px;border-radius:999px;display:inline-block;flex:0 0 auto;background:#94a3b8;box-shadow:0 0 0 1px rgba(15,23,42,.08)}
+.presence-dot.online{background:#16a34a}.presence-dot.offline{background:#94a3b8}
+.presence-line{margin-top:4px;font-size:10px;color:#64748b;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;color:#334155;background:white;white-space:nowrap}
+.session-pill.online{color:#15803d;background:#f0fdf4;border-color:#bbf7d0}.session-pill.offline{color:#475569;background:#f8fafc;border-color:#cbd5e1}
+.presence-chip{font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px;border:1px solid #cbd5e1;color:#475569;background:#f8fafc;white-space:nowrap}
+.presence-chip.online{background:#dcfce7;border-color:#bbf7d0;color:#15803d}.presence-chip.offline{background:#f1f5f9;color:#64748b}
+.board{padding:30px 26px 80px}
+.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.board-title{font-size:24px;font-weight:800;margin:0}
+.round-add{width:58px;height:58px;border-radius:50%;border:0;background:#222;color:white;font-size:32px;cursor:pointer}
+.tabs{display:flex;gap:34px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{padding:12px 0;font-size:14px;position:relative}
+.tab.active{font-weight:800}
+.tab.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#111827}
+.filter{width:100%;height:38px;border:1px solid var(--border);padding:0 12px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left}
+tr.danger{background:#f6a7a7} tr.warning{background:#fff3bf}
+.status{padding:5px 8px;border-radius:6px;font-size:11px;font-weight:800}
+.status.open{background:#dbeafe;color:#1d4ed8}.status.done{background:#dcfce7;color:#15803d}
+.detail{border:1px solid var(--border);background:white;border-radius:5px;padding:6px 8px;cursor:pointer;font-size:11px}
+
+.launcher{position:fixed;right:22px;bottom:24px;width:64px;height:64px;border-radius:999px;border:0;background:var(--blue);color:white;font-size:30px;z-index:30;box-shadow:var(--shadow);cursor:pointer}
+.badge{position:absolute;top:-7px;right:-1px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:var(--red);color:white;border:2px solid white;font-size:11px;display:flex;align-items:center;justify-content:center}
+
+.panel{position:fixed;top:88px;right:-460px;width:var(--panel);height:calc(100vh - 118px);background:white;border:1px solid #cfd8e3;box-shadow:var(--shadow);z-index:40;display:flex;transition:.25s}
+.panel.open{right:18px}
+.rail{width:var(--rail);background:var(--soft);border-right:1px solid var(--border);flex:0 0 var(--rail)}
+.rail-item{height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;cursor:pointer;border-bottom:1px solid var(--border);position:relative}
+.rail-item.active{background:white;font-weight:800}
+.rail-item.active:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.rail-badge{position:absolute;top:7px;right:7px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--red);color:white;font-size:10px;display:flex;align-items:center;justify-content:center}
+
+.chat-main{width:calc(100% - var(--rail));display:flex;flex-direction:column;min-width:0;height:100%}
+.chat-header{height:52px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex:0 0 auto}
+.title-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.chat-title{font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:0;background:transparent;color:inherit;font-size:18px;cursor:pointer}
+
+#view{flex:1;min-height:0;display:flex;flex-direction:column}
+.search{height:48px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--border);flex:0 0 auto}
+.search input{border:0;outline:0;flex:1;height:34px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--soft);flex:0 0 auto}
+.toolbar button,.mini{border:1px solid var(--border);background:white;color:#334155;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:11px}
+.toolbar button.primary{background:var(--navy);color:white;border-color:var(--navy)}
+.toolbar button.danger,.mini.danger{color:#b91c1c;border-color:#fecaca}
+.body{flex:1;overflow-y:auto;min-height:0;background:white}
+.body::-webkit-scrollbar,.messages::-webkit-scrollbar{width:8px}
+.body::-webkit-scrollbar-thumb,.messages::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+.body::-webkit-scrollbar-track,.messages::-webkit-scrollbar-track{background:#f8fafc}
+
+.item{min-height:66px;display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer}
+.item:hover{background:#f8fafc}
+.item-main{min-width:0;flex:1}
+.item-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+.item-sub{margin-top:4px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-time{margin-top:3px;font-size:10px;color:var(--muted)}
+.counter{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--red);color:white;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.team-avatars{display:flex;min-width:54px}.team-avatars .avatar{margin-left:-7px;border:2px solid white}.team-avatars .avatar:first-child{margin-left:0}
+.note{background:var(--soft);border-bottom:1px solid var(--border);padding:9px 12px;font-size:11px;color:#475569;line-height:1.35;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
+.info-btn{border:1px solid var(--border);background:white;border-radius:7px;font-size:11px;padding:6px 8px;cursor:pointer;color:#334155;white-space:nowrap}
+
+.user-info-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.user-info-name{font-size:16px;font-weight:800;color:#111827;margin-bottom:4px}
+.user-info-grid{display:grid;grid-template-columns:88px 1fr;gap:8px 10px;font-size:12px;line-height:1.35}
+.user-info-grid .label{font-weight:800;color:#475569}
+.user-info-grid .value{color:#111827;word-break:break-word}
+.user-info-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.user-info-actions button{border:1px solid var(--border);background:white;color:#334155;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:800}
+
+.conversation{display:flex;flex-direction:column;flex:1;min-height:0}
+.messages{flex:1;overflow-y:auto;min-height:0;padding:14px 12px 10px;background:white}
+.date{text-align:center;font-size:10px;color:var(--muted);margin:10px 0}
+.msg-row{display:flex;gap:7px;align-items:flex-end;margin-bottom:10px}
+.msg-row.me{justify-content:flex-end}
+.bubble{max-width:82%;background:#f1f5f9;border-radius:10px;padding:8px 9px;font-size:12px;line-height:1.35;word-break:break-word;position:relative}
+.msg-row.me .bubble{background:#dbeafe}
+.sender{font-weight:800;font-size:10px;color:#334155;margin-bottom:3px}
+.deleted{color:#64748b;font-style:italic}
+.reply{border-left:3px solid var(--blue);background:rgba(255,255,255,.7);padding:5px 7px;border-radius:6px;margin-bottom:5px;font-size:10px;color:#475569}
+.meta{display:flex;justify-content:space-between;gap:10px;margin-top:5px;font-size:9px;color:var(--muted)}
+.read{color:#2563eb;cursor:pointer}
+
+.msg-actions{display:none;flex-wrap:wrap;gap:4px;margin-bottom:7px;padding:5px;background:rgba(255,255,255,.9);border:1px solid #dbe3ea;border-radius:7px;width:100%}
+.bubble:hover .msg-actions,.bubble:focus-within .msg-actions{display:flex}
+.msg-actions button{border:1px solid var(--border);background:white;padding:5px 7px;font-size:10px;cursor:pointer;border-radius:5px;white-space:nowrap}
+.msg-actions button:hover{background:#f8fafc}
+.msg-actions button.danger{color:#b91c1c;border-color:#fecaca}
+
+.attachment{margin-top:7px;border:1px solid #cbd5e1;background:white;border-radius:8px;padding:8px;display:flex;align-items:center;gap:8px}
+.att-info{min-width:0;flex:1}.att-name{font-weight:800;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.att-size{font-size:10px;color:var(--muted)}
+.download{font-size:10px;font-weight:800;color:#1d4ed8;text-decoration:none}
+.chat-img{margin-top:7px;max-width:210px;max-height:180px;border-radius:10px;border:1px solid #cbd5e1;display:block;cursor:pointer}
+
+.composer-wrap{border-top:1px solid var(--border);flex:0 0 auto;background:white}
+.replying,.pending{display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--soft);border-bottom:1px solid var(--border);font-size:11px;color:#475569}
+.replying.show,.pending.show{display:flex}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:10px;position:relative;background:white}
+.composer textarea{
+  min-height:36px;
+  max-height:96px;
+  resize:none;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px 10px;
+  flex:1;
+  outline:0;
+  min-width:0;
+  font-size:12px;
+  line-height:1.35;
+  overflow-y:auto;
+}
+.attach,.send,.expand-write{width:36px;height:36px;border-radius:999px;cursor:pointer;flex:0 0 auto}
+.attach,.expand-write{border:1px solid var(--border);background:white;color:#334155}
+.send{border:0;background:var(--blue);color:white}
+.attach-menu{display:none;position:absolute;left:10px;bottom:52px;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.16);overflow:hidden;z-index:4}
+.attach-menu.show{display:block}
+.attach-menu div{padding:9px 12px;font-size:12px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
+.attach-menu div:hover{background:var(--soft)}
+
+.expanded-compose{
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  font-size:14px;
+  line-height:1.45;
+  outline:0;
+}
+.expanded-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+.expanded-actions button{
+  border:1px solid var(--border);
+  background:white;
+  color:#334155;
+  padding:9px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:800;
+}
+.expanded-actions button.primary{
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
+
+.form{padding:14px 14px 80px}
+label.lbl{font-size:12px;font-weight:800;margin:12px 0 6px;display:block}
+.form input[type=text]{width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px}
+.picker{margin-top:8px;border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:230px}
+.pick{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px}
+.pick input{margin-left:auto}
+.primary-btn,.secondary-btn{width:100%;min-height:38px;border-radius:8px;margin-top:10px;cursor:pointer;font-weight:800}
+.primary-btn{border:0;background:var(--navy);color:white}.secondary-btn{border:1px solid var(--border);background:white;color:#334155}
+.empty{padding:26px 18px;text-align:center;color:var(--muted);font-size:13px}
+
+.toast{position:fixed;right:24px;bottom:102px;background:var(--navy);color:white;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 10px 20px rgba(0,0,0,.2);z-index:90;opacity:0;pointer-events:none;transform:translateY(10px);transition:.2s}
+.toast.show{opacity:1;transform:translateY(0)}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.42);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-bg.show{display:flex}
+.modal{width:min(530px,96vw);max-height:86vh;overflow:auto;background:white;border-radius:14px;box-shadow:var(--shadow)}
+.modal-h{background:var(--navy);color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:14px 14px 0 0}
+.modal-b{padding:16px;font-size:13px}
+.receipt{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)}
+.receipt:last-child{border-bottom:0}.receipt-main{flex:1}.receipt-name{font-weight:800;font-size:12px}.receipt-status{font-size:11px;color:var(--muted);margin-top:2px}
+.seen{color:#15803d;font-weight:800;font-size:11px}.pending-read{color:#b91c1c;font-weight:800;font-size:11px}
+.modal-img{width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);border-radius:10px;background:#f8fafc}
+
+.task-link{
+  border:0;
+  background:#e0f2fe;
+  color:#0369a1;
+  font-weight:800;
+  font-size:inherit;
+  padding:2px 6px;
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  line-height:1.2;
+}
+.task-link:hover{background:#bae6fd;color:#075985}
+.modal.wide{width:min(980px,96vw)}
+.task-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-size:12px;color:#64748b}
+.task-toolbar a{color:#1d4ed8;font-weight:800;text-decoration:none}
+.task-frame{width:100%;height:68vh;border:1px solid var(--border);border-radius:10px;background:white}
+.task-help{font-size:11px;color:#64748b;margin-top:8px;line-height:1.35}
+.attachment.missing{opacity:.82;background:#f8fafc}
+.attachment-note{font-size:10px;color:#64748b;margin-top:2px}
+
+
+/* =========================================================
+   AJUSTES V1.6.4 — CHAT UI
+   1) Launcher / ícono flotante del chat 2.5x más grande.
+   2) Panel completo de chat 1.5x más grande: textos, botones,
+      avatares, imágenes, burbujas, input, íconos y navegación.
+   3) Mantiene el chat anclado y usable en escritorio y móvil.
+   ========================================================= */
+:root{
+  --panel:585px;   /* 390px x 1.5 */
+  --rail:87px;     /* 58px x 1.5 */
+}
+.launcher{
+  width:160px;     /* 64px x 2.5 */
+  height:160px;    /* 64px x 2.5 */
+  right:36px;
+  bottom:34px;
+  font-size:75px;  /* 30px x 2.5 */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.launcher .badge{
+  top:8px;
+  right:8px;
+  min-width:36px;
+  height:36px;
+  padding:0 9px;
+  border-width:3px;
+  font-size:18px;
+}
+.panel{
+  right:-700px;
+  top:74px;
+  height:calc(100vh - 104px);
+}
+.panel.open{right:18px}
+.rail-item{
+  height:108px;
+  gap:6px;
+  font-size:15px;
+}
+.rail-item > span:not(.rail-badge){font-size:18px}
+.rail-item > span:nth-child(2){font-size:24px}
+.rail-badge{
+  top:10px;
+  right:10px;
+  min-width:26px;
+  height:26px;
+  padding:0 6px;
+  font-size:15px;
+}
+.chat-header{
+  height:78px;
+  padding:0 18px;
+}
+.title-wrap{gap:12px}
+.chat-title{font-size:26px}
+.icon-btn{font-size:27px}
+.search{
+  height:72px;
+  gap:12px;
+  padding:0 18px;
+  font-size:18px;
+}
+.search input{
+  height:51px;
+  font-size:18px;
+}
+.toolbar{
+  gap:12px;
+  padding:15px 18px;
+}
+.toolbar button,.mini{
+  padding:11px 14px;
+  border-radius:11px;
+  font-size:16px;
+}
+.note{
+  padding:14px 18px;
+  font-size:16px;
+  gap:15px;
+}
+.info-btn{
+  border-radius:11px;
+  font-size:16px;
+  padding:9px 12px;
+}
+.item{
+  min-height:99px;
+  gap:15px;
+  padding:15px 18px;
+}
+.item-title{
+  font-size:20px;
+  gap:9px;
+}
+.item-sub{
+  margin-top:6px;
+  font-size:16px;
+}
+.item-time{font-size:15px}
+.counter{
+  min-width:30px;
+  height:30px;
+  padding:0 9px;
+  font-size:16px;
+}
+.panel .avatar.sm{
+  width:36px;
+  height:36px;
+  font-size:15px;
+}
+.panel .avatar.xs{
+  width:29px;
+  height:29px;
+  font-size:12px;
+}
+.team-avatars{
+  min-width:81px;
+}
+.team-avatars .avatar{
+  margin-left:-11px;
+  border-width:3px;
+}
+.team-avatars .avatar:first-child{margin-left:0}
+.presence-line{font-size:15px;gap:8px}
+.presence-chip{
+  font-size:15px;
+  padding:5px 10px;
+}
+.presence-dot{
+  width:14px;
+  height:14px;
+}
+.messages{
+  padding:21px 18px 15px;
+}
+.date{
+  font-size:15px;
+  margin:15px 0;
+}
+.msg-row{
+  gap:11px;
+  margin-bottom:15px;
+}
+.bubble{
+  border-radius:15px;
+  padding:12px 14px;
+  font-size:18px;
+}
+.sender{
+  font-size:15px;
+  margin-bottom:5px;
+}
+.reply{
+  border-left-width:5px;
+  padding:8px 11px;
+  border-radius:9px;
+  margin-bottom:8px;
+  font-size:15px;
+}
+.meta{
+  gap:15px;
+  margin-top:8px;
+  font-size:14px;
+}
+.msg-actions{
+  gap:6px;
+  margin-bottom:11px;
+  padding:8px;
+  border-radius:11px;
+}
+.msg-actions button{
+  padding:8px 11px;
+  font-size:15px;
+  border-radius:8px;
+}
+.attachment{
+  margin-top:11px;
+  border-radius:12px;
+  padding:12px;
+  gap:12px;
+}
+.att-name{font-size:16px}
+.att-size,.attachment-note{font-size:15px}
+.download{font-size:15px}
+.chat-img{
+  margin-top:11px;
+  max-width:315px;
+  max-height:270px;
+  border-radius:15px;
+}
+.replying,.pending{
+  gap:12px;
+  padding:12px 15px;
+  font-size:16px;
+}
+.composer{
+  gap:12px;
+  padding:15px;
+}
+.composer textarea{
+  min-height:54px;
+  max-height:144px;
+  border-radius:12px;
+  padding:14px 15px;
+  font-size:18px;
+}
+.attach,.send,.expand-write{
+  width:54px;
+  height:54px;
+  font-size:18px;
+}
+.attach-menu{
+  left:15px;
+  bottom:78px;
+  border-radius:12px;
+}
+.attach-menu div{
+  padding:14px 18px;
+  font-size:18px;
+}
+.form{padding:21px 21px 120px}
+label.lbl{font-size:18px;margin:18px 0 9px}
+.form input[type=text]{height:54px;border-radius:9px;padding:0 15px;font-size:18px}
+.picker{margin-top:12px;border-radius:12px;max-height:345px}
+.pick{gap:12px;padding:12px 15px;font-size:18px}
+.primary-btn,.secondary-btn{min-height:57px;border-radius:12px;margin-top:15px;font-size:18px}
+.empty{padding:39px 27px;font-size:20px}
+.user-info-name{font-size:24px}
+.user-info-grid{grid-template-columns:132px 1fr;gap:12px 15px;font-size:18px}
+.user-info-actions button{padding:11px 14px;border-radius:11px;font-size:16px}
+.task-link{padding:3px 9px}
+.expanded-compose{min-height:390px;border-radius:15px;padding:18px;font-size:21px}
+.expanded-actions button{padding:14px 18px;border-radius:12px;font-size:16px}
+.toast{bottom:220px;font-size:16px;padding:14px 18px;border-radius:12px}
+
+
+/* =========================================================
+   AJUSTES V1.6.6 — REPOSITORIO DOCUMENTAL
+   Repositorio de documentos recibidos como shortcuts a los
+   adjuntos originales en chat individual, Teams y Forum.
+   ========================================================= */
+.rail-item[data-section="docs"] .rail-badge{background:#64748b}
+.doc-summary{font-size:15px;color:#64748b;line-height:1.35}
+.doc-actions{align-items:center}
+.doc-row{
+  min-height:118px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--border);
+  background:white;
+}
+.doc-row:hover{background:#f8fafc}
+.doc-check{display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.doc-check input{width:22px;height:22px;cursor:pointer}
+.doc-icon{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:#e0f2fe;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  flex:0 0 auto;
+}
+.doc-main{min-width:0;flex:1}
+.doc-name{font-size:18px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta{font-size:14px;color:#64748b;margin-top:5px;line-height:1.35}
+.doc-snippet{font-size:13px;color:#475569;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-buttons{display:flex;flex-direction:column;gap:7px;align-items:stretch;flex:0 0 auto}
+.doc-buttons .mini,.doc-buttons .download{
+  text-align:center;
+  white-space:nowrap;
+  text-decoration:none;
+}
+.doc-buttons .download{
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:11px 14px;
+  background:white;
+  color:#1d4ed8;
+  font-size:16px;
+  font-weight:800;
+}
+.doc-filter{border:1px solid var(--border);background:white;color:#334155;padding:11px 14px;border-radius:11px;cursor:pointer;font-size:16px;font-weight:800}
+.doc-filter.active{background:#0f172a;color:white;border-color:#0f172a}
+.doc-direction{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+.doc-direction.mine{background:#dcfce7;color:#15803d;border-color:#bbf7d0}
+.doc-kind-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.doc-preview-frame{width:100%;height:68vh;border:1px solid var(--border);border-radius:12px;background:white}
+.doc-preview-card{border:1px solid var(--border);border-radius:14px;background:#f8fafc;padding:18px;line-height:1.45;color:#334155}
+.doc-preview-card h3{margin:0 0 8px;font-size:20px;color:#0f172a}
+
+/* =========================================================
+   AJUSTES V1.6.9 — DOCS UX COMPACTA + PERMISOS DE GRUPO
+   - Se elimina texto explicativo largo del repositorio.
+   - Acciones y filtros compactos para muchos archivos.
+   - Solo creador puede eliminar un chat grupal.
+   ========================================================= */
+.docs-head{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  background:white;
+  flex:0 0 auto;
+}
+.docs-title{font-size:16px;font-weight:900;color:#0f172a;white-space:nowrap}
+.docs-counter{font-size:12px;color:#64748b;font-weight:800;white-space:nowrap}
+.docs-toolbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:#f8fafc;
+  flex:0 0 auto;
+}
+.doc-filter-group,.doc-bulk-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.doc-filter{
+  padding:7px 9px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
+.doc-bulk-actions button{
+  padding:7px 9px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
+.doc-bulk-actions .primary{background:var(--navy);color:white;border-color:var(--navy)}
+.doc-selected-count{font-size:12px;color:#64748b;font-weight:800;white-space:nowrap;padding:0 4px}
+.doc-row{
+  min-height:86px;
+  gap:10px;
+  padding:10px 12px;
+}
+.doc-check input{width:18px;height:18px}
+.doc-icon{width:36px;height:36px;border-radius:10px;font-size:18px}
+.doc-name{font-size:14px;line-height:1.25}
+.doc-meta{font-size:11px;margin-top:3px;line-height:1.25}
+.doc-snippet{font-size:11px;margin-top:3px}
+.doc-direction,.doc-kind-pill{font-size:10px;padding:2px 6px;margin-left:4px;vertical-align:middle}
+.doc-buttons{
+  flex-direction:row;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:158px;
+}
+.doc-buttons .mini{
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  line-height:1;
+}
+.doc-buttons .download{
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  line-height:1;
+}
+.doc-source-disabled{
+  border:1px solid var(--border);
+  background:#f1f5f9;
+  color:#64748b;
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.doc-preview-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.doc-preview-actions .download{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+  background:white;
+  color:#1d4ed8;
+  font-size:13px;
+  font-weight:800;
+  text-decoration:none;
+}
+.owner-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:11px;font-weight:900;background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.creator-note{font-size:11px;color:#64748b;margin-left:6px}
+@media(max-width:760px){
+  .docs-toolbar{align-items:flex-start}
+  .doc-bulk-actions{width:100%}
+  .doc-buttons{max-width:none;width:100%;justify-content:flex-start;margin-top:6px}
+  .doc-row{align-items:flex-start;flex-wrap:wrap}
+}
+
+
+/* =========================================================
+   AJUSTES V1.6.10 — DOCS BÚSQUEDA COMBINADA + UX LISTA
+   ========================================================= */
+.rail-badge{display:none}
+.docs-head{display:none}
+.docs-search-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:white;
+  flex:0 0 auto;
+}
+.docs-search-main{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px 9px;
+  background:#f8fafc;
+}
+.docs-search-main span{color:#475569;font-size:16px}
+.docs-search-main input{
+  border:0;
+  outline:0;
+  background:transparent;
+  flex:1;
+  min-width:80px;
+  height:28px;
+  font-size:13px;
+  color:#0f172a;
+}
+.docs-filter-strip{
+  display:none;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+}
+.docs-search-panel.open .docs-filter-strip{display:grid}
+.docs-filter-field{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+.docs-filter-field label{
+  font-size:10px;
+  color:#64748b;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.docs-filter-field select,.docs-filter-field input{
+  height:30px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  padding:0 8px;
+  font-size:12px;
+  color:#334155;
+  min-width:0;
+}
+.docs-toolbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:7px;
+  padding:7px 10px;
+  background:#f8fafc;
+}
+.doc-filter-group,.doc-bulk-actions{justify-content:space-between;width:100%}
+.doc-filter-group{gap:5px}
+.doc-filter{flex:1;text-align:center;padding:7px 8px;font-size:11px}
+.doc-bulk-actions{gap:5px;flex-wrap:nowrap}
+.doc-bulk-actions button{padding:7px 8px;font-size:11px;white-space:nowrap}
+.doc-selected-count{flex:1;min-width:76px;font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.doc-bulk-actions #selectAllDocs{max-width:78px}
+.doc-bulk-actions #clearSelectedDocs{max-width:64px}
+.doc-row{
+  min-height:74px;
+  align-items:flex-start;
+  gap:9px;
+  padding:9px 10px;
+  cursor:default;
+}
+.doc-row:hover{background:#f8fafc}
+.doc-row[data-has-preview="true"] .doc-main{cursor:pointer}
+.doc-main{padding-right:2px}
+.doc-name{font-size:13px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-meta{font-size:10.5px;line-height:1.25}
+.doc-snippet{font-size:10.5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-buttons{display:none!important}
+.doc-origin-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.doc-origin-row .mini,.doc-origin-row .doc-source-disabled{
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1;
+}
+.doc-origin-row .mini{border:1px solid var(--border);background:white;color:#334155;cursor:pointer;font-weight:800}
+.doc-origin-row .mini:hover{background:#eef2ff}
+.doc-preview-hint{font-size:10px;color:#64748b;font-weight:800}
+.doc-preview-hint.available{color:#0369a1}
+@media(max-width:760px){
+  .docs-filter-strip{grid-template-columns:1fr}
+  .doc-bulk-actions{flex-wrap:wrap;justify-content:flex-start}
+  .doc-selected-count{width:100%}
+  .doc-filter{flex:1 1 30%}
+}
+
+.doc-preview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.doc-preview-actions .download{border:1px solid var(--border);border-radius:11px;padding:11px 14px;background:white;color:#1d4ed8;font-size:16px;font-weight:800;text-decoration:none}
+.msg-row.highlight-message .bubble{
+  outline:3px solid #f59e0b;
+  box-shadow:0 0 0 6px rgba(245,158,11,.16);
+}
+@media(max-width:760px){
+  .doc-row{align-items:flex-start;gap:10px;padding:14px}
+  .doc-buttons{width:100%;flex-direction:row;flex-wrap:wrap;margin-top:8px}
+  .doc-row{flex-wrap:wrap}
+  .doc-main{min-width:220px}
+}
+
+@media(max-width:760px){
+  .launcher{width:112px;height:112px;font-size:52px;right:18px;bottom:18px}
+  .launcher .badge{min-width:30px;height:30px;font-size:15px;top:4px;right:4px}
+  .panel{top:0;right:-100vw;width:100vw;height:100vh}
+  .panel.open{right:0}
+  .board{padding:18px 14px 90px}
+  table{min-width:880px}
+  .table-wrap{overflow:auto}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Xi</div>
+    <div class="nav"><div class="active">⌂</div><div>☑</div><div>▣</div><div>📁</div><div>📊</div><div>⚙</div></div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div class="top-left"><span>☰</span><span>▦</span><span>⌕</span><span>⌂</span></div>
+      <div class="top-center">XIMPLER.APP</div>
+      <div class="top-right"><span>✉</span><span>🔔</span><span>💬</span><span class="avatar">AC</span><span>Anel Castro</span><span class="session-pill online" id="sessionStatus">Sesión activa</span></div>
+    </header>
+
+    <section class="board">
+      <div class="board-header"><h1 class="board-title">Tablero de Acción</h1><button class="round-add">+</button></div>
+      <div class="tabs"><div class="tab active">(123) Chat</div><div class="tab">(85) Mis Acciones</div><div class="tab">(50) Delegado</div><div class="tab">(4) Apoyando</div><div class="tab">(4) Súper Visor</div></div>
+      <input class="filter" placeholder="Buscar / Filtrar" />
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Título</th><th>Creador</th><th>Responsable</th><th>Estatus</th><th>Último movimiento</th><th>Fecha planeada</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr class="danger"><td>206731</td><td>⚠ Liberar manual de cliente de MP Limpio</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>en una hora</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr><td>202523</td><td>Consulta - Sean Industries</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status done">Finalizada</span></td><td>hace 14 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr class="warning"><td>206666</td><td>Diseño Ximpler Corporativo Ágil</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>hace 12 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+            <tr class="danger"><td>205109</td><td>Alta de Ferrari</td><td><span class="avatar sm blue">MA</span> Melchor Iván Angulo</td><td><span class="avatar sm">AC</span> Anel Castro</td><td><span class="status open">Recibido</span></td><td>hace 4 horas</td><td>Sin fecha</td><td><button class="detail">Ver detalle</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button class="launcher" id="launcher">💬<span class="badge" id="totalBadge">0</span></button>
+
+<section class="panel" id="panel">
+  <aside class="rail">
+    <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
+    <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
+    <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
+    <div class="rail-item" data-section="docs"><span>📎</span><span>Docs</span></div>
+  </aside>
+
+  <div class="chat-main">
+    <header class="chat-header">
+      <div class="title-wrap"><button class="icon-btn" id="back">←</button><div class="chat-title" id="title">Chat</div></div>
+      <button class="icon-btn" id="close">x</button>
+    </header>
+    <div id="view"></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal" id="modalBox">
+    <div class="modal-h"><strong id="modalTitle">Detalle</strong><button class="icon-btn" onclick="closeModal()">x</button></div>
+    <div class="modal-b" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const KEY="ximpler_team_chat_v1_6_11_docs_limpieza_ui";
+const SESSION_KEY="ximpler_demo_active_session_v1";
+const COMPANY_ID="company_demo_ximpler_001";
+const ME="u1";
+const SESSION_DURATION_HOURS=8;
+const TASK_URL_BASE="https://www.ximpler.app/tasks?taskId=";
+const DEMO_MAX_FILE_BYTES=8*1024*1024;
+
+/*
+  PRESENCIA XIMPLER — MODO ECONÓMICO BASADO EN SESIÓN
+  ----------------------------------------------------
+  Demo localStorage:
+  - Al iniciar/cargar este archivo se crea una sesión local para ME.
+  - Online = sesión activa y no vencida.
+  - Offline = sesión cerrada, vencida o inexistente.
+
+  Producción Ximpler.App:
+  - Reemplazar COMPANY_ID y ME con los valores reales del login.
+  - Reemplazar readSession()/persistSession() por la sesión/token real del backend.
+  - Aprovechar acciones reales del sistema para actualizar LastSeenAt sin hacer polling constante.
+*/
+
+function msg(id,senderId,text,createdAt,readBy){
+  return {id,senderId,text,createdAt,readBy:readBy||{[senderId]:createdAt},replyTo:null,attachment:null,deletedForAll:false,hiddenFor:[]};
+}
+
+function demoDataUrl(mime,content){
+  const safeContent=content||"Archivo demo Ximpler";
+  try{
+    return `data:${mime};base64,${btoa(unescape(encodeURIComponent(safeContent)))}`;
+  }catch(e){
+    return `data:${mime};charset=utf-8,${encodeURIComponent(safeContent)}`;
+  }
+}
+function demoAttachment(id,name,mime,size,type,content){
+  return {
+    id,
+    name,
+    mime,
+    size,
+    type:type||((mime||"").startsWith("image/")?"image":"file"),
+    objectUrl:"",
+    dataUrl:demoDataUrl(mime,content||`Archivo demo: ${name}`),
+    localOnly:false,
+    storageMode:"demo-data-url",
+    createdAt:now()
+  };
+}
+function demoImageAttachment(id,name,title,subtitle,bg){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+    <rect width="900" height="520" rx="34" fill="${bg||"#1f8fe5"}"/>
+    <rect x="44" y="44" width="812" height="432" rx="28" fill="rgba(255,255,255,.16)"/>
+    <text x="78" y="170" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800" fill="#ffffff">${title||"Ximpler.App"}</text>
+    <text x="78" y="245" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#ffffff">${subtitle||"Archivo de ejemplo compartido"}</text>
+    <circle cx="760" cy="385" r="55" fill="rgba(255,255,255,.25)"/>
+    <text x="724" y="404" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#ffffff">Xi</text>
+  </svg>`;
+  return demoAttachment(id,name,"image/svg+xml",svg.length,"image",svg);
+}
+function msgWithAttachment(id,senderId,text,createdAt,readBy,attachment){
+  const m=msg(id,senderId,text,createdAt,readBy);
+  m.attachment=attachment;
+  if(m.attachment)m.attachment.createdAt=createdAt;
+  return m;
+}
+
+const demo={
+  users:[
+    {id:"u1",name:"Anel Castro",initials:"AC",color:"",jefe:"Melchor Iván Angulo",area:"Dirección / Administración",puesto:"Coordinadora de Seguimiento",correo:"anel.castro@ximpler.app"},
+    {id:"u2",name:"Melchor Iván Angulo",initials:"MA",color:"blue",jefe:"Consejo Directivo",area:"Dirección General",puesto:"Director General",correo:"melchor.angulo@ximpler.app"},
+    {id:"u3",name:"Victoria Hernández",initials:"VH",color:"gold",jefe:"Anel Castro",area:"Administración",puesto:"Analista Administrativa",correo:"victoria.hernandez@ximpler.app"},
+    {id:"u4",name:"Saúl Nahúm Cruz",initials:"SC",color:"green",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Desarrollador Front-End",correo:"saul.cruz@ximpler.app"},
+    {id:"u5",name:"Salvador Ahumada",initials:"SA",color:"purple",jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Arquitecto de Soluciones",correo:"salvador.ahumada@ximpler.app"},
+    {id:"u6",name:"Alejandra Ruiz",initials:"AR",color:"red",jefe:"Anel Castro",area:"Operaciones",puesto:"Coordinadora Operativa",correo:"alejandra.ruiz@ximpler.app"},
+    {id:"u7",name:"Carlos Medina",initials:"CM",color:"teal",jefe:"Melchor Iván Angulo",area:"Comercial",puesto:"Ejecutivo Comercial",correo:"carlos.medina@ximpler.app"},
+    {id:"u8",name:"Laura Beltrán",initials:"LB",color:"pink",jefe:"Anel Castro",area:"Marketing",puesto:"Diseñadora de Contenido",correo:"laura.beltran@ximpler.app"},
+    {id:"u9",name:"Luis Dávalos",initials:"LD",color:"blue",jefe:"Melchor Iván Angulo",area:"Consultoría",puesto:"Consultor Senior",correo:"luis.davalos@ximpler.app"},
+    {id:"u10",name:"Juan Lopez",initials:"JL",color:"green",jefe:"Luis Dávalos",area:"Consultoría",puesto:"Consultor Operativo",correo:"juan.lopez@ximpler.app"},
+    {id:"u11",name:"Jose Luis Rentería",initials:"JR",color:"gold",jefe:"Melchor Iván Angulo",area:"Proyectos",puesto:"Líder de Proyecto",correo:"jose.renteria@ximpler.app"},
+    {id:"u12",name:"Marcos Payan",initials:"MP",color:"purple",jefe:"Jose Luis Rentería",area:"Proyectos",puesto:"Coordinador de Implementación",correo:"marcos.payan@ximpler.app"},
+    {id:"u13",name:"Joaquin Rosas",initials:"JR",color:"teal",jefe:"Melchor Iván Angulo",area:"Atención a Clientes",puesto:"Customer Success",correo:"joaquin.rosas@ximpler.app"}
+  ],
+  chats:[
+    {id:"c_u2",userId:"u2",unread:1,lastActivityAt:"2026-05-04T09:35:00",messages:[
+      msg("m1","u2","Revisar avance del tablero antes de la reunión. Ver #206731","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
+      msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"}),
+      msgWithAttachment("m2a","u1","Te subo mi propuesta de ajustes para validar antes de implementarla.","2026-05-04T10:05:00",{u1:"2026-05-04T10:05:00",u2:"2026-05-04T10:14:00"},demoAttachment("att_m2a","propuesta_ajustes_chat_docs.pdf","application/pdf",152000,"file","Propuesta demo de ajustes para Chat y Docs.")),
+      msgWithAttachment("m3","u2","Te comparto la minuta de dirección con acuerdos y responsables. Incluye seguimiento de #206731.","2026-05-04T09:35:00",{u2:"2026-05-04T09:35:00"},demoAttachment("att_m3","minuta_direccion_04_mayo.pdf","application/pdf",184000,"file","Minuta demo de direccion - acuerdos, responsables y fechas."))
+    ]},
+    {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-03T17:50:00",messages:[
+      msg("m4","u3","Ya quedó listo el documento inicial.","2026-05-02T15:30:00",{u3:"2026-05-02T15:30:00",u1:"2026-05-02T15:50:00"}),
+      msgWithAttachment("m5","u3","Te dejo el control actualizado de pagos de mayo para revisión.","2026-05-03T17:50:00",{u3:"2026-05-03T17:50:00",u1:"2026-05-03T18:05:00"},demoAttachment("att_m5","control_pagos_mayo.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",268000,"file","Archivo demo de control de pagos mayo."))
+    ]},
+    {id:"c_u4",userId:"u4",unread:1,lastActivityAt:"2026-05-04T11:20:00",messages:[
+      msgWithAttachment("m6","u4","Te envío captura del error detectado en el buscador profundo del chat.","2026-05-04T11:20:00",{u4:"2026-05-04T11:20:00"},demoImageAttachment("att_m6","captura_error_buscador.svg","Captura Error Buscador","Referencia visual enviada por Sistemas","#0f766e"))
+    ]},
+    {id:"c_u5",userId:"u5",unread:0,lastActivityAt:"2026-05-03T10:12:00",messages:[
+      msg("m7","u5","Validé la estructura del módulo de documentos. El shortcut no debe duplicar el archivo.","2026-05-03T10:12:00",{u5:"2026-05-03T10:12:00",u1:"2026-05-03T10:16:00"})
+    ]},
+    {id:"c_u7",userId:"u7",unread:2,lastActivityAt:"2026-05-04T14:42:00",messages:[
+      msg("m8","u7","Anel, tengo nuevos prospectos para la campaña EDGE.","2026-05-04T14:10:00",{u7:"2026-05-04T14:10:00"}),
+      msgWithAttachment("m9","u7","Te comparto la base priorizada. Filtré empresas por tamaño y oportunidad de entrada.","2026-05-04T14:42:00",{u7:"2026-05-04T14:42:00"},demoAttachment("att_m9","prospectos_prioritarios_culiacan.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",412000,"file","Base demo de prospectos prioritarios Culiacan."))
+    ]},
+    {id:"c_u8",userId:"u8",unread:1,lastActivityAt:"2026-05-04T13:15:00",messages:[
+      msgWithAttachment("m10","u8","Te mando el mockup visual para la campaña Carpe Diem Empresarial.","2026-05-04T13:15:00",{u8:"2026-05-04T13:15:00"},demoImageAttachment("att_m10","mockup_carpe_diem.svg","Carpe Diem Empresarial","Diseño preliminar para campaña","#db2777"))
+    ]},
+    {id:"c_u9",userId:"u9",unread:0,lastActivityAt:"2026-05-03T19:05:00",messages:[
+      msgWithAttachment("m11","u9","Aquí va el diagnóstico preliminar del cliente demo. Marqué hallazgos de nómina muerta y coordinación.","2026-05-03T19:05:00",{u9:"2026-05-03T19:05:00",u1:"2026-05-03T19:40:00"},demoAttachment("att_m11","diagnostico_nomina_muerta_cliente_demo.pdf","application/pdf",356000,"file","Diagnostico demo de nomina muerta: hallazgos, riesgos y oportunidades."))
+    ]},
+    {id:"c_u11",userId:"u11",unread:1,lastActivityAt:"2026-05-04T08:05:00",messages:[
+      msgWithAttachment("m12","u11","Te dejo el cronograma actualizado de implementación para validarlo hoy.","2026-05-04T08:05:00",{u11:"2026-05-04T08:05:00"},demoAttachment("att_m12","cronograma_implementacion_edge.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",298000,"file","Cronograma demo de implementacion EDGE."))
+    ]},
+    {id:"c_u13",userId:"u13",unread:0,lastActivityAt:"2026-05-02T18:22:00",messages:[
+      msgWithAttachment("m13","u13","Compartí la lista de tickets abiertos con prioridad alta y media.","2026-05-02T18:22:00",{u13:"2026-05-02T18:22:00",u1:"2026-05-02T19:01:00"},demoAttachment("att_m13","tickets_customer_success.csv","text/csv",42000,"file","ticket,cliente,prioridad\n101,Cliente Demo,Alta\n102,Cliente B,Media"))
+    ]}
+  ],
+  teams:[
+    {id:"t1",name:"Administración",members:["u1","u2","u3"],unread:1,lastActivityAt:"2026-05-04T12:05:00",messages:[
+      msg("tm1","u2","Necesitamos cerrar los pendientes administrativos esta semana.","2026-05-01T11:10:00",{u2:"2026-05-01T11:10:00",u1:"2026-05-01T11:15:00",u3:"2026-05-01T11:35:00"}),
+      msgWithAttachment("tm2","u3","Subo la relación de facturas pendientes y gastos administrativos.","2026-05-04T12:05:00",{u3:"2026-05-04T12:05:00"},demoAttachment("att_tm2","facturas_pendientes_mayo.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",221000,"file","Facturas pendientes mayo - demo."))
+    ]},
+    {id:"t2",name:"Proyecto ABC",members:["u1","u4","u5"],unread:2,lastActivityAt:"2026-05-04T16:55:00",messages:[
+      msg("tm3","u4","Subí el avance del proyecto ABC para revisión.","2026-05-01T12:30:00",{u4:"2026-05-01T12:30:00"}),
+      msgWithAttachment("tm4","u5","Adjunto arquitectura propuesta del módulo ABC para validación técnica.","2026-05-04T16:10:00",{u5:"2026-05-04T16:10:00"},demoAttachment("att_tm4","arquitectura_modulo_abc.pdf","application/pdf",305000,"file","Arquitectura demo modulo ABC.")),
+      msgWithAttachment("tm5","u4","También dejo imagen del flujo de conversación con documentos.","2026-05-04T16:55:00",{u4:"2026-05-04T16:55:00"},demoImageAttachment("att_tm5","flujo_conversacion_docs.svg","Flujo Docs + Chat","Shortcut al documento original","#7c3aed"))
+    ]},
+    {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-04T15:30:00",messages:[
+      msg("tm6","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
+      msg("tm7","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"}),
+      msgWithAttachment("tm7a","u1","Dejo la imagen de referencia del comportamiento esperado en Docs.","2026-05-04T14:25:00",{u1:"2026-05-04T14:25:00",u2:"2026-05-04T14:29:00"},demoImageAttachment("att_tm7a","referencia_docs_preview.svg","Vista Previa Docs","Filtros, descarga y eliminación desde repositorio","#06192f")),
+      msgWithAttachment("tm8","u4","Les dejo el checklist técnico de pruebas para repositorio documental.","2026-05-04T15:30:00",{u4:"2026-05-04T15:30:00"},demoAttachment("att_tm8","checklist_pruebas_repositorio.pdf","application/pdf",176000,"file","Checklist demo de pruebas del repositorio documental."))
+    ]},
+    {id:"t4",name:"Comité Dirección",members:["u1","u2","u7","u9","u11"],unread:1,lastActivityAt:"2026-05-04T10:45:00",messages:[
+      msgWithAttachment("tm9","u9","Comparto resumen ejecutivo con riesgos, decisiones y próximos pasos.","2026-05-04T10:45:00",{u9:"2026-05-04T10:45:00"},demoAttachment("att_tm9","resumen_ejecutivo_comite.pdf","application/pdf",244000,"file","Resumen ejecutivo demo: riesgos, decisiones y proximos pasos."))
+    ]},
+    {id:"t5",name:"Comercial EDGE",members:["u1","u7","u8","u9"],unread:2,lastActivityAt:"2026-05-04T17:20:00",messages:[
+      msgWithAttachment("tm10","u7","Base de empresas para llamadas de esta semana. Incluye prioridad y argumento de entrada.","2026-05-04T17:05:00",{u7:"2026-05-04T17:05:00"},demoAttachment("att_tm10","pipeline_comercial_edge.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",388000,"file","Pipeline comercial EDGE demo.")),
+      msgWithAttachment("tm11","u8","Agrego el guion visual para mensajes de seguimiento en LinkedIn.","2026-05-04T17:20:00",{u8:"2026-05-04T17:20:00"},demoAttachment("att_tm11","guion_visual_linkedin.pdf","application/pdf",165000,"file","Guion visual demo para seguimiento LinkedIn."))
+    ]},
+    {id:"t6",name:"Implementación Gobierno",members:["u1","u2","u4","u11","u12","u13"],unread:3,lastActivityAt:"2026-05-04T18:05:00",messages:[
+      msgWithAttachment("tm12","u11","Aquí está la matriz de actividades para el arranque gubernamental.","2026-05-04T17:40:00",{u11:"2026-05-04T17:40:00"},demoAttachment("att_tm12","matriz_arranque_gobierno.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",275000,"file","Matriz demo de arranque gobierno.")),
+      msgWithAttachment("tm13","u12","Adjunto minuta de acuerdos con dependencias y responsables.","2026-05-04T17:55:00",{u12:"2026-05-04T17:55:00"},demoAttachment("att_tm13","minuta_acuerdos_dependencias.pdf","application/pdf",210000,"file","Minuta demo de acuerdos con dependencias.")),
+      msgWithAttachment("tm14","u13","Comparto reporte de dudas frecuentes para usuarios nuevos.","2026-05-04T18:05:00",{u13:"2026-05-04T18:05:00"},demoAttachment("att_tm14","faq_usuarios_gobierno.docx","application/vnd.openxmlformats-officedocument.wordprocessingml.document",132000,"file","FAQ demo usuarios gobierno."))
+    ]},
+    {id:"t7",name:"Soporte Clientes",members:["u1","u4","u5","u13"],unread:0,lastActivityAt:"2026-05-03T16:25:00",messages:[
+      msgWithAttachment("tm15","u13","Subí la bitácora semanal de incidencias resueltas y pendientes.","2026-05-03T16:25:00",{u13:"2026-05-03T16:25:00",u1:"2026-05-03T16:40:00"},demoAttachment("att_tm15","bitacora_soporte_semanal.csv","text/csv",58000,"file","fecha,incidencia,estatus\n2026-05-03,Login,Resuelto\n2026-05-03,Permisos,Pendiente"))
+    ]}
+  ],
+  forum:{unread:4,lastActivityAt:"2026-05-04T18:30:00",messages:[
+    msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
+    msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"}),
+    msgWithAttachment("fm2a","u1","Subo una guía rápida para explicar cómo usar el repositorio documental.","2026-05-04T08:20:00",{u1:"2026-05-04T08:20:00",u2:"2026-05-04T08:32:00"},demoAttachment("att_fm2a","guia_rapida_repositorio_docs.pdf","application/pdf",126000,"file","Guia rapida demo para repositorio documental.")),
+    msgWithAttachment("fm3","u2","Aviso general: comparto los lineamientos de uso de Ximpler.App para todo el equipo.","2026-05-04T09:00:00",{u2:"2026-05-04T09:00:00"},demoAttachment("att_fm3","lineamientos_generales_ximpler.pdf","application/pdf",195000,"file","Lineamientos demo de uso Ximpler.App.")),
+    msgWithAttachment("fm4","u8","Dejo la infografía institucional para próximos comunicados.","2026-05-04T11:30:00",{u8:"2026-05-04T11:30:00"},demoImageAttachment("att_fm4","infografia_repositorio_docs.svg","Repositorio Documental","Todos los documentos recibidos en un solo lugar","#1f8fe5")),
+    msgWithAttachment("fm5","u9","Comparto plantilla de diagnóstico exprés para uso general del equipo.","2026-05-04T14:20:00",{u9:"2026-05-04T14:20:00"},demoAttachment("att_fm5","plantilla_diagnostico_expres.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",234000,"file","Plantilla demo de diagnostico expres.")),
+    msgWithAttachment("fm6","u7","Subo el calendario comercial de mayo con fechas de seguimiento.","2026-05-04T16:50:00",{u7:"2026-05-04T16:50:00"},demoAttachment("att_fm6","calendario_comercial_mayo.pdf","application/pdf",148000,"file","Calendario comercial mayo demo.")),
+    msgWithAttachment("fm7","u13","Adjunto paquete de formatos de soporte para clientes nuevos.","2026-05-04T18:30:00",{u13:"2026-05-04T18:30:00"},demoAttachment("att_fm7","formatos_soporte_clientes.zip","application/zip",512000,"file","Paquete demo de formatos soporte clientes."))
+  ]}
+};
+
+let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null, pendingFocusMessageId=null, selectedDocTypeFilter="all";
+const $=id=>document.getElementById(id);
+
+$("launcher").onclick=()=>{registerUserActivity("abrir_panel_chat");$("panel").classList.add("open");render()};
+$("close").onclick=()=>{$("panel").classList.remove("open")};
+$("back").onclick=()=>{viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()};
+document.querySelectorAll(".rail-item").forEach(el=>el.onclick=()=>{section=el.dataset.section;viewMode="list";selectedChat=null;selectedTeam=null;replying=null;pendingFile=null;render()});
+
+function load(){
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(saved)return normalize(JSON.parse(saved));
+  }catch(e){console.warn("No se pudo leer el demo local:",e)}
+  const fresh=normalize(JSON.parse(JSON.stringify(demo)));
+  persistStateObject(fresh);
+  return fresh;
+}
+function stateForStorage(obj){
+  return JSON.parse(JSON.stringify(obj,(key,value)=>{
+    // En demo localStorage no guardamos base64 pesado. En producción, guardar aquí solo ID/URL del archivo devuelto por backend.
+    if(key==="dataUrl" && typeof value==="string" && value.length>2000)return "";
+    return value;
+  }));
+}
+function persistStateObject(obj){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(stateForStorage(obj)));
+    return true;
+  }catch(e){
+    console.error("No se pudo guardar en localStorage:",e);
+    return false;
+  }
+}
+function save(){
+  syncCurrentUserPresenceInState(state);
+  const ok=persistStateObject(state);
+  badges();
+  if(!ok)toast("No se pudo guardar el demo local. El archivo puede ser muy pesado.");
+}
+function normalize(s){
+  s.users=s.users||[];
+  s.users.forEach(u=>{
+    u.companyId=u.companyId||COMPANY_ID;
+    applyDefaultUserInfo(u);
+    if(!u.presence)u.presence=demoPresenceFor(u.id);
+  });
+  syncCurrentUserPresenceInState(s);
+  s.chats=s.chats||[];
+  s.teams=s.teams||[];
+  s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+  s.docArchive=s.docArchive||[];
+  s.teams.forEach(t=>ensureTeamOwner(t));
+  [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
+    (box.messages||[]).forEach(m=>{m.readBy=m.readBy||{[m.senderId]:m.createdAt};m.hiddenFor=m.hiddenFor||[];m.deletedForAll=!!m.deletedForAll;if(m.attachment===undefined)m.attachment=null;if(m.replyTo===undefined)m.replyTo=null});
+    box.lastActivityAt=box.lastActivityAt||lastDate(box.messages||[]); box.unread=Number(box.unread||0);
+  });
+  s.docArchive.forEach(d=>{d.archived=true;d.attachment=d.attachment||null;d.direction=d.senderId===ME?"mine":"received"});
+  return s;
+}
+function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
+function av(id,size="sm"){const u=user(id);return `<span class="avatar ${size} ${u.color||""}">${esc(u.initials)}</span>`}
+function avp(id,size="sm"){return av(id,size)}
+function defaultUserInfo(id){
+  const map={
+    u1:{jefe:"Melchor Iván Angulo",area:"Dirección / Administración",puesto:"Coordinadora de Seguimiento",correo:"anel.castro@ximpler.app"},
+    u2:{jefe:"Consejo Directivo",area:"Dirección General",puesto:"Director General",correo:"melchor.angulo@ximpler.app"},
+    u3:{jefe:"Anel Castro",area:"Administración",puesto:"Analista Administrativa",correo:"victoria.hernandez@ximpler.app"},
+    u4:{jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Desarrollador Front-End",correo:"saul.cruz@ximpler.app"},
+    u5:{jefe:"Melchor Iván Angulo",area:"Sistemas",puesto:"Arquitecto de Soluciones",correo:"salvador.ahumada@ximpler.app"},
+    u6:{jefe:"Anel Castro",area:"Operaciones",puesto:"Coordinadora Operativa",correo:"alejandra.ruiz@ximpler.app"},
+    u7:{jefe:"Melchor Iván Angulo",area:"Comercial",puesto:"Ejecutivo Comercial",correo:"carlos.medina@ximpler.app"},
+    u8:{jefe:"Anel Castro",area:"Marketing",puesto:"Diseñadora de Contenido",correo:"laura.beltran@ximpler.app"},
+    u9:{jefe:"Melchor Iván Angulo",area:"Consultoría",puesto:"Consultor Senior",correo:"luis.davalos@ximpler.app"},
+    u10:{jefe:"Luis Dávalos",area:"Consultoría",puesto:"Consultor Operativo",correo:"juan.lopez@ximpler.app"},
+    u11:{jefe:"Melchor Iván Angulo",area:"Proyectos",puesto:"Líder de Proyecto",correo:"jose.renteria@ximpler.app"},
+    u12:{jefe:"Jose Luis Rentería",area:"Proyectos",puesto:"Coordinador de Implementación",correo:"marcos.payan@ximpler.app"},
+    u13:{jefe:"Melchor Iván Angulo",area:"Atención a Clientes",puesto:"Customer Success",correo:"joaquin.rosas@ximpler.app"}
+  };
+  return map[id]||{jefe:"Sin asignar",area:"Sin área",puesto:"Sin puesto",correo:"sin.correo@ximpler.app"};
+}
+function applyDefaultUserInfo(u){
+  const d=defaultUserInfo(u.id);
+  u.jefe=u.jefe||d.jefe;
+  u.area=u.area||d.area;
+  u.puesto=u.puesto||d.puesto;
+  u.correo=u.correo||d.correo;
+}
+function mailToLink(correo){return correo?`<a class="download" href="mailto:${esc(correo)}">${esc(correo)}</a>`:"Sin correo"}
+
+function readSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||"null")}catch(e){return null}}
+function persistSession(session){localStorage.setItem(SESSION_KEY,JSON.stringify(session));currentSession=session}
+function addHours(date,hours){return new Date(date.getTime()+hours*60*60*1000)}
+function isExpired(iso){return !iso || new Date(iso).getTime()<=Date.now()}
+function isSessionActive(session){return !!(session&&session.isOnline&&!isExpired(session.expiresAt))}
+function createSession(){const t=now();return{companyId:COMPANY_ID,userId:ME,sessionId:uid("session"),isOnline:true,lastLoginAt:t,lastSeenAt:t,lastLogoutAt:null,expiresAt:addHours(new Date(),SESSION_DURATION_HOURS).toISOString(),source:"localStorage-demo"}}
+function bootSession(){let s=readSession();if(!s||s.companyId!==COMPANY_ID||s.userId!==ME){s=createSession();persistSession(s);return s}if(!isSessionActive(s)&&s.isOnline){s.isOnline=false;s.lastLogoutAt=s.lastLogoutAt||now();persistSession(s)}return s}
+function presenceFromSession(session){const active=isSessionActive(session);return{companyId:COMPANY_ID,userId:ME,sessionId:session?.sessionId||null,isOnline:active,status:active?"online":"offline",lastLoginAt:session?.lastLoginAt||null,lastSeenAt:session?.lastSeenAt||session?.lastLoginAt||null,lastLogoutAt:session?.lastLogoutAt||null,expiresAt:session?.expiresAt||null,source:"session"}}
+function demoPresenceFor(userId){
+  const onlineIds=["u1","u2","u4","u9","u10"];
+  const d=new Date();
+  const online=onlineIds.includes(userId);
+  const minutesAgo={u3:18,u5:42,u6:85,u7:130,u8:240,u11:55,u12:190,u13:12}[userId]||25;
+  const lastSeen=new Date(d.getTime()-minutesAgo*60*1000).toISOString();
+  const loginAt=new Date(d.getTime()-Math.max(minutesAgo,8)*60*1000).toISOString();
+  return{companyId:COMPANY_ID,userId,isOnline:online,status:online?"online":"offline",lastLoginAt:online?loginAt:null,lastSeenAt:online?now():lastSeen,lastLogoutAt:online?null:lastSeen,expiresAt:online?addHours(d,SESSION_DURATION_HOURS).toISOString():lastSeen,source:"demo"}
+}
+function syncCurrentUserPresenceInState(targetState){
+  if(!targetState||!targetState.users)return;
+  currentSession=bootSession();
+  const me=targetState.users.find(u=>u.id===ME);
+  if(me){me.companyId=COMPANY_ID;me.presence=presenceFromSession(currentSession)}
+}
+function registerUserActivity(source="actividad"){
+  currentSession=bootSession();
+  if(!isSessionActive(currentSession))return;
+  currentSession.lastSeenAt=now();
+  currentSession.currentModule=section||"chat";
+  currentSession.lastActivitySource=source;
+  currentSession.expiresAt=addHours(new Date(),SESSION_DURATION_HOURS).toISOString();
+  persistSession(currentSession);
+  syncCurrentUserPresenceInState(state);
+  persistStateObject(state);
+  updateSessionUI();
+  // PRODUCCIÓN: aquí NO haría polling. Solo enviaría este dato junto con una acción real ya existente del backend.
+}
+function presenceStatus(id){if(id===ME)syncCurrentUserPresenceInState(state);const u=user(id),p=u.presence||demoPresenceFor(id);if(!p.isOnline||isExpired(p.expiresAt))return"offline";return"online"}
+function presenceDot(id){const st=presenceStatus(id);return`<span class="presence-dot ${st}" title="${esc(presenceLabel(id))}"></span>`}
+function presenceChip(id){const st=presenceStatus(id);return`<span class="presence-chip ${st}">${st==="online"?"Sesión activa":"Sin sesión"}</span>`}
+function presenceLabel(id){return presenceStatus(id)==="online"?"Sesión activa":"Sin sesión"}
+function onlineCount(ids){return ids.filter(id=>presenceStatus(id)==="online").length}
+function updateSessionUI(){const el=$("sessionStatus");if(!el)return;const st=presenceStatus(ME);el.className=`session-pill ${st}`;el.textContent=st==="online"?"Sesión activa":"Sin sesión"}
+function esc(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function now(){return new Date().toISOString()}
+function uid(p="id"){return `${p}_${Date.now()}_${Math.random().toString(16).slice(2)}`}
+function fmt(iso){return new Date(iso).toLocaleString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",","")+" hrs."}
+function dateOnly(iso){return new Date(iso).toLocaleDateString("es-MX",{year:"numeric",month:"2-digit",day:"2-digit"})}
+function lastDate(messages){return messages&&messages.length?messages[messages.length-1].createdAt:"1970-01-01T00:00:00"}
+function activity(x){return x.lastActivityAt||lastDate(x.messages)}
+function activityTime(x){
+  const direct=x?.lastActivityAt;
+  const byMessages=lastDate(x?.messages||[]);
+  return new Date(direct||byMessages||"1970-01-01T00:00:00").getTime()||0;
+}
+function sortByLastMovement(list){
+  // Orden descendente: el chat individual o grupal con el último movimiento siempre queda arriba.
+  return [...list].sort((a,b)=>activityTime(b)-activityTime(a));
+}
+function visibleMessages(messages){return messages.filter(m=>!m.hiddenFor.includes(ME))}
+
+/*
+  BUSCADOR PROFUNDO XIMPLER
+  -------------------------
+  El buscador de la lista de Chat y Teams ya no se limita al título visible.
+  Ahora indexa conversación interna, nombres de usuarios, iniciales, correos,
+  áreas, puestos, nombres de archivos adjuntos, tipos de archivo y referencias #folio.
+
+  Producción Ximpler.App:
+  - Para volúmenes grandes, mover esta lógica a un índice backend o a un Web Worker.
+  - Mantener normalizeForSearch() también del lado servidor para que la búsqueda sea consistente.
+*/
+function normalizeForSearch(value){
+  return String(value||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/\s+/g," ")
+    .trim();
+}
+function userSearchText(id){
+  const u=user(id)||{};
+  return [u.name,u.initials,u.jefe,u.area,u.puesto,u.correo,presenceLabel(id)].filter(Boolean).join(" ");
+}
+function messageSearchText(m){
+  if(!m)return "";
+  const reply=m.replyTo?[m.replyTo.text,m.replyTo.senderId?userSearchText(m.replyTo.senderId):""].join(" "):"";
+  const att=m.attachment?[m.attachment.name,m.attachment.mime,m.attachment.type].join(" "):"";
+  const folios=String(m.text||"").match(/#[A-Za-z0-9_-]{2,}/g)?.join(" ")||"";
+  return normalizeForSearch([userSearchText(m.senderId),m.text,reply,att,folios,dateOnly(m.createdAt),fmt(m.createdAt)].join(" "));
+}
+function messagesSearchText(messages){
+  return (visibleMessages(messages||[])).map(messageSearchText).join(" ");
+}
+function chatSearchText(chat){
+  return normalizeForSearch([
+    "chat individual",
+    userSearchText(ME),
+    userSearchText(chat.userId),
+    preview(visibleMessages(chat.messages||[]).at(-1)),
+    messagesSearchText(chat.messages||[])
+  ].join(" "));
+}
+function teamSearchText(team){
+  return normalizeForSearch([
+    "chat grupal team grupo",
+    team.name,
+    `${team.members?.length||0} integrantes`,
+    `${onlineCount(team.members||[])} en linea`,
+    (team.members||[]).map(userSearchText).join(" "),
+    preview(visibleMessages(team.messages||[]).at(-1)),
+    messagesSearchText(team.messages||[])
+  ].join(" "));
+}
+function setBadgeVisibility(id,count){
+  const el=$(id);
+  if(!el)return;
+  if(Number(count)>0){
+    el.textContent=count;
+    el.style.display="flex";
+  }else{
+    el.textContent="";
+    el.style.display="none";
+  }
+}
+function badges(){
+  const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0);
+  const t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0);
+  const f=Number(state.forum.unread||0);
+  const total=c+t+f;
+  setBadgeVisibility("chatBadge",c);
+  setBadgeVisibility("teamsBadge",t);
+  setBadgeVisibility("forumBadge",f);
+  setBadgeVisibility("totalBadge",total);
+  updateSessionUI();
+}
+function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
+function filterRows(inputSelector,rowSelector){
+  const input=$(inputSelector); if(!input)return;
+  input.oninput=()=>{
+    const q=normalizeForSearch(input.value);
+    document.querySelectorAll(rowSelector).forEach(row=>{
+      row.style.display=(!q || (row.dataset.search||"").includes(q))?"flex":"none";
+    });
+  };
+}
+function filterMessages(inputSelector){
+  const input=$(inputSelector); if(!input)return;
+  input.oninput=()=>{
+    const q=normalizeForSearch(input.value);
+    document.querySelectorAll(".msg-row").forEach(row=>{
+      row.style.display=(!q || (row.dataset.search||"").includes(q))?"flex":"none";
+    });
+  };
+}
+
+function render(){
+  document.querySelectorAll(".rail-item").forEach(el=>el.classList.toggle("active",el.dataset.section===section)); badges();
+  if(section==="chat"){if(viewMode==="conversation")renderChatConversation();else if(viewMode==="newChat")renderNewChat();else renderChatList()}
+  if(section==="teams"){if(viewMode==="teamConversation")renderTeamConversation();else if(viewMode==="teamForm")renderTeamForm();else renderTeamsList()}
+  if(section==="forum")renderForum();
+  if(section==="docs")renderDocumentRepository();
+}
+
+/* CHAT */
+function renderChatList(){
+  $("title").textContent="Chat"; $("back").style.visibility="hidden";
+  const rows=sortByLastMovement(state.chats).map(c=>({chat:c,u:user(c.userId),last:visibleMessages(c.messages).at(-1)}));
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="toolbar"><button class="primary" id="newChatBtn">+ Nuevo Chat</button><button id="markAllBtn">Marcar todo leído</button></div>
+    <div class="body">
+      ${rows.length?rows.map(r=>`
+        <div class="item chat-open" data-id="${r.chat.id}" data-search="${esc(chatSearchText(r.chat))}">
+          ${av(r.u.id)}
+          <div class="item-main">
+            <div class="item-title">${esc(r.u.name)} ${presenceChip(r.u.id)} ${r.chat.unread?`<span class="counter">${r.chat.unread}</span>`:""}</div>
+            <div class="item-sub">${preview(r.last)}</div>
+          </div>
+        </div>`).join(""):`<div class="empty">No hay chats. Usa “Nuevo Chat” para buscar usuarios de la empresa.</div>`}
+    </div>`;
+  $("newChatBtn").onclick=()=>{registerUserActivity("nuevo_chat");viewMode="newChat";render()}; $("markAllBtn").onclick=markAllRead;
+  document.querySelectorAll(".chat-open").forEach(el=>el.onclick=()=>openChat(el.dataset.id));
+  filterRows("searchInput",".chat-open");
+}
+function renderNewChat(){
+  $("title").textContent="Nuevo Chat"; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="note"><span>Busca usuarios de la empresa para iniciar o abrir una conversación individual.</span></div>
+    <div class="body">
+      ${state.users.filter(u=>u.id!==ME).map(u=>{const exists=state.chats.find(c=>c.userId===u.id);return `
+        <div class="item start-chat" data-user="${u.id}" data-search="${esc(normalizeForSearch(userSearchText(u.id)))}">
+          ${av(u.id)}
+          <div class="item-main"><div class="item-title">${esc(u.name)} ${presenceChip(u.id)}</div><div class="item-sub">${exists?"Chat existente":"Crear nuevo chat"}</div></div>
+          <div style="display:flex;gap:6px;align-items:center"><button class="mini user-info-open" data-user-info="${u.id}">Info</button><button class="mini">${exists?"Abrir":"Iniciar"}</button></div>
+        </div>`}).join("")}
+    </div>`;
+  document.querySelectorAll(".start-chat").forEach(el=>el.onclick=()=>startChat(el.dataset.user));
+  document.querySelectorAll(".user-info-open").forEach(el=>el.onclick=e=>{e.stopPropagation();showUserInfo(el.dataset.userInfo)});
+  filterRows("searchInput",".start-chat");
+}
+function startChat(userId){if(userId===ME){toast("Este es tu propio usuario");return}let c=state.chats.find(x=>x.userId===userId); if(!c){c={id:`c_${userId}_${Date.now()}`,userId,unread:0,lastActivityAt:now(),messages:[]};state.chats.push(c);save()} openChat(c.id)}
+function openChat(id){const c=state.chats.find(x=>x.id===id);if(!c){toast("No encontré ese chat");return} registerUserActivity("abrir_chat_individual");selectedChat=id;viewMode="conversation";c.unread=0;markRead(c.messages);save();render()}
+function renderChatConversation(){
+  const c=state.chats.find(x=>x.id===selectedChat); if(!c){viewMode="list";renderChatList();return}
+  $("title").textContent=user(c.userId).name; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="note"><span>${presenceChip(c.userId)}<span style="margin-left:8px">Último movimiento: ${fmt(activity(c))}</span></span><button class="info-btn" id="userInfoBtn">Info usuario</button></div>
+    <div class="toolbar"><button id="emptyThis">Vaciar chat</button><button class="danger" id="deleteThis">Eliminar chat</button></div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(c.messages)}</div>${composerHTML()}</div>`;
+  $("userInfoBtn").onclick=()=>showUserInfo(c.userId);
+  $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+function emptyChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c||!confirm("¿Vaciar este chat solo para ti? Los documentos compartidos se conservarán en DOCS."))return;
+  archiveChatDocuments(c);
+  c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});
+  c.unread=0;c.lastActivityAt=now();save();render();toast("Chat vaciado. Sus documentos siguen en DOCS")
+}
+function deleteChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c)return;
+  if(!confirm("¿Eliminar este chat de tu lista? Los documentos compartidos se conservarán en DOCS."))return;
+  archiveChatDocuments(c);
+  state.chats=state.chats.filter(x=>x.id!==id);
+  selectedChat=null;viewMode="list";save();render();toast("Chat eliminado. Sus documentos siguen en DOCS")
+}
+
+/* TEAMS */
+function renderTeamsList(){
+  $("title").textContent="Teams"; $("back").style.visibility="hidden";
+  const teams=sortByLastMovement(state.teams.filter(t=>t.members.includes(ME)));
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="toolbar"><button class="primary" id="addTeamTop">+ Nuevo Chat</button><button id="markAllTeams">Marcar todo leído</button></div>
+    <div class="body">
+      ${teams.length?teams.map(t=>`
+        <div class="item team-open" data-id="${t.id}" data-search="${esc(teamSearchText(t))}">
+          <div class="team-avatars">${t.members.slice(0,3).map(id=>av(id,"xs")).join("")}</div>
+          <div class="item-main">
+            <div class="item-title">${esc(t.name)} ${t.unread?`<span class="counter">${t.unread}</span>`:""}</div>
+            <div class="item-sub">${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>
+          </div>
+        </div>`).join(""):`<div class="empty">No perteneces a ningún Team activo.</div>`}
+    </div>`;
+  $("addTeamTop").onclick=()=>{viewMode="teamForm";render()}; $("markAllTeams").onclick=markAllRead;
+  document.querySelectorAll(".team-open").forEach(el=>el.onclick=()=>openTeam(el.dataset.id));
+  filterRows("searchInput",".team-open");
+}
+function openTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}registerUserActivity("abrir_chat_grupal");selectedTeam=id;viewMode="teamConversation";t.unread=0;markRead(t.messages);save();render()}
+function renderTeamConversation(){
+  const t=state.teams.find(x=>x.id===selectedTeam); if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
+  ensureTeamOwner(t);
+  const ownerText=`Creador: ${user(t.ownerId).name}`;
+  const deleteButton=isTeamOwner(t)?`<button class="danger" id="deleteTeam">Eliminar chat</button>`:`<button class="danger" id="deleteTeam" disabled title="Solo el creador puede eliminar este grupo">Eliminar chat</button>`;
+  $("title").textContent=t.name; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes · ${onlineCount(t.members)} en línea <span class="creator-note">${esc(ownerText)}</span></span><button class="info-btn" id="groupInfo">Info</button></div>
+    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button>${deleteButton}</div>
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
+  $("groupInfo").onclick=()=>showGroupInfo(t.id); $("leaveTeam").onclick=()=>leaveTeam(t.id); $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+function renderTeamForm(){
+  $("title").textContent="Agregar Chat Grupal"; $("back").style.visibility="visible";
+  $("view").innerHTML=`
+    <div class="body"><div class="form">
+      <label class="lbl">Nombre del chat grupal:</label><input type="text" id="teamName" placeholder="Ej. Dirección Comercial">
+      <label class="lbl">INVITADOS:</label><input type="text" id="memberSearch" placeholder="Buscar internos...">
+      <div class="picker" id="memberPicker">${pickerRows()}</div>
+      <button class="primary-btn" id="createTeam">Crear Chat Grupal</button><button class="secondary-btn" id="cancelTeam">Cancelar</button>
+    </div></div>`;
+  $("memberSearch").oninput=()=>{const q=$("memberSearch").value.toLowerCase();document.querySelectorAll(".pick").forEach(r=>r.style.display=(r.dataset.search||"").includes(q)?"flex":"none")};
+  $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
+}
+function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(normalizeForSearch(userSearchText(u.id)))}">${av(u.id)}<span>${esc(u.name)}<br>${presenceChip(u.id)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
+function createTeam(){
+  const name=$("teamName").value.trim();
+  const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);
+  if(!name){toast("Escribe el nombre del chat grupal");return}
+  const t={id:uid("team"),name,members:[...new Set([ME,...selected])],ownerId:ME,createdBy:ME,unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};
+  state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")
+}
+function leaveTeam(id){
+  const t=state.teams.find(x=>x.id===id);
+  if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? Los documentos que compartiste o recibiste se conservarán en DOCS.`))return;
+  ensureTeamOwner(t);
+  archiveTeamDocuments(t);
+  t.members=t.members.filter(x=>x!==ME);
+  let transferText="";
+  if(t.ownerId===ME){
+    const next=chooseNewTeamOwner(t);
+    transferText=next?` Nuevo creador asignado automáticamente: ${user(next).name}.`:"";
+  }
+  if(!t.members.length){
+    state.teams=state.teams.filter(x=>x.id!==id);
+  }else{
+    const m=newMessage(`${user(ME).name} salió del chat grupal.${transferText}`);
+    t.messages.push(m);t.lastActivityAt=m.createdAt;
+  }
+  selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal. Sus documentos siguen en DOCS")
+}
+function deleteTeamChat(id){
+  const t=state.teams.find(x=>x.id===id);if(!t)return;
+  ensureTeamOwner(t);
+  if(!isTeamOwner(t)){toast("Solo el creador del grupo puede eliminar este chat grupal");return}
+  if(!confirm(`¿Eliminar el chat grupal "${t.name}"? Los documentos compartidos se conservarán en DOCS.`))return;
+  archiveTeamDocuments(t);
+  state.teams=state.teams.filter(x=>x.id!==id);
+  selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado. Sus documentos siguen en DOCS")
+}
+function showGroupInfo(id){
+  const t=state.teams.find(x=>x.id===id);if(!t)return;
+  ensureTeamOwner(t);
+  showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea<br><span class="creator-note">Creador actual: <strong>${esc(user(t.ownerId).name)}</strong></span></div>${t.members.map(uid=>`<div class="receipt">${av(uid)}<div class="receipt-main"><div class="receipt-name">${esc(user(uid).name)} ${uid===t.ownerId?'<span class="owner-pill">Creador</span>':''}</div><div class="receipt-status">${uid===ME?"Tú":"Integrante"}</div></div>${presenceChip(uid)}<button class="mini user-info-open" data-user-info="${uid}">Info</button></div>`).join("")}`);
+  setTimeout(()=>document.querySelectorAll(".user-info-open").forEach(el=>el.onclick=e=>{e.stopPropagation();showUserInfo(el.dataset.userInfo)}),0);
+}
+function showUserInfo(id){
+  const u=user(id); if(!u)return;
+  applyDefaultUserInfo(u);
+  const status=presenceChip(id);
+  const lastSeen=u.presence?.lastSeenAt?fmt(u.presence.lastSeenAt):"Sin registro";
+  showModal("Info de Usuario",`
+    <div class="user-info-head">
+      ${av(id)}
+      <div>
+        <div class="user-info-name">${esc(u.name)}</div>
+        ${status}
+      </div>
+    </div>
+    <div class="user-info-grid">
+      <div class="label">Jefe:</div><div class="value">${esc(u.jefe)}</div>
+      <div class="label">Área:</div><div class="value">${esc(u.area)}</div>
+      <div class="label">Puesto:</div><div class="value">${esc(u.puesto)}</div>
+      <div class="label">Correo:</div><div class="value">${mailToLink(u.correo)}</div>
+      <div class="label">Última sesión:</div><div class="value">${lastSeen}</div>
+    </div>
+    <div class="user-info-actions">
+      <button onclick="startChat('${esc(id)}');closeModal();">Abrir chat</button>
+    </div>
+  `);
+}
+
+/* FORUM */
+function renderForum(){
+  registerUserActivity("abrir_forum");
+  $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
+  $("view").innerHTML=`
+    ${searchHTML()}
+    <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
+  filterMessages("searchInput");
+  bindComposer(); bindMessageButtons(); scrollBottom();
+}
+
+
+
+/* PERMISOS Y ARCHIVO DOCUMENTAL */
+function ensureTeamOwner(t){
+  if(!t)return null;
+  t.members=[...new Set(t.members||[])];
+  if(!t.ownerId || !t.members.includes(t.ownerId))t.ownerId=t.createdBy||t.creatorId||t.members[0]||ME;
+  t.createdBy=t.createdBy||t.ownerId;
+  return t.ownerId;
+}
+function isTeamOwner(t){return !!t && ensureTeamOwner(t)===ME}
+function chooseNewTeamOwner(t){
+  if(!t||!t.members||!t.members.length)return null;
+  const pool=t.members.filter(id=>id!==ME);
+  if(!pool.length)return null;
+  const next=pool[Math.floor(Math.random()*pool.length)];
+  t.ownerId=next;
+  t.createdBy=t.createdBy||next;
+  return next;
+}
+function archiveRepoId(context,message,attachment){return `${context.type}:${context.id||"forum"}:${message.id}:${attachment?.id||attachment?.name||"archivo"}`}
+function cloneAttachmentForArchive(a){return a?JSON.parse(JSON.stringify(a)):null}
+function archiveDocumentsFromMessages(messages,context){
+  state.docArchive=state.docArchive||[];
+  (messages||[]).forEach(m=>{
+    if(!m||m.deletedForAll||!m.attachment)return;
+    const repoId=archiveRepoId(context,m,m.attachment);
+    if(state.docArchive.some(x=>x.repoId===repoId))return;
+    state.docArchive.push({
+      repoId,
+      sourceType:context.type,
+      sourceId:context.id||"forum",
+      sourceTitle:context.title,
+      messageId:m.id,
+      messageText:m.text||"",
+      senderId:m.senderId,
+      createdAt:m.createdAt,
+      direction:m.senderId===ME?"mine":"received",
+      attachment:cloneAttachmentForArchive(m.attachment),
+      archived:true,
+      archivedAt:now(),
+      originalWasRemoved:true
+    });
+  });
+}
+function archiveChatDocuments(chat){
+  if(!chat)return;
+  archiveDocumentsFromMessages(chat.messages,{type:"chat",id:chat.id,title:`Chat con ${user(chat.userId).name}`});
+}
+function archiveTeamDocuments(team){
+  if(!team)return;
+  archiveDocumentsFromMessages(team.messages,{type:"teams",id:team.id,title:team.name});
+}
+
+/* REPOSITORIO DOCUMENTAL */
+function documentKind(a){return (a?.type==="image" || String(a?.mime||"").startsWith("image/"))?"image":"document"}
+function documentKindLabel(a){return documentKind(a)==="image"?"Imagen":"Documento"}
+function collectSharedDocuments(){
+  const docs=[];
+  const addFromMessages=(messages,context)=>{
+    visibleMessages(messages||[]).forEach(m=>{
+      if(!m||m.deletedForAll||!m.attachment)return;
+      const a=m.attachment;
+      docs.push({
+        repoId:archiveRepoId(context,m,a),
+        sourceType:context.type,
+        sourceId:context.id||"forum",
+        sourceTitle:context.title,
+        messageId:m.id,
+        messageRef:m,
+        messageText:m.text||"",
+        senderId:m.senderId,
+        createdAt:m.createdAt,
+        direction:m.senderId===ME?"mine":"received",
+        attachment:a,
+        archived:false
+      });
+    });
+  };
+  state.chats.forEach(c=>addFromMessages(c.messages,{type:"chat",id:c.id,title:`Chat con ${user(c.userId).name}`}));
+  state.teams.filter(t=>t.members.includes(ME)).forEach(t=>addFromMessages(t.messages,{type:"teams",id:t.id,title:t.name}));
+  addFromMessages(state.forum.messages,{type:"forum",id:"forum",title:"Forum"});
+  (state.docArchive||[]).forEach(d=>{if(d&&d.attachment)docs.push({...d,archived:true})});
+  const seen=new Set();
+  return docs
+    .filter(d=>{if(seen.has(d.repoId))return false; seen.add(d.repoId); return true})
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+}
+function findSharedDocument(repoId){return collectSharedDocuments().find(d=>d.repoId===repoId)}
+function docSearchText(d){
+  return normalizeForSearch([
+    d.attachment?.name,d.attachment?.mime,d.attachment?.type,documentKindLabel(d.attachment),fileSize(d.attachment?.size),
+    userSearchText(d.senderId),d.senderId===ME?"subido por mi enviado por mi":"compartido conmigo recibido hacia mi",d.sourceTitle,d.sourceType,d.messageText,
+    dateOnly(d.createdAt),fmt(d.createdAt)
+  ].join(" "));
+}
+function docIcon(a){return documentKind(a)==="image"?"🖼️":"📎"}
+function docsSearchHTML(docs){
+  const users=[...new Map(docs.map(d=>[d.senderId,user(d.senderId)])).values()].sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="docs-search-panel" id="docsSearchPanel">
+    <div class="docs-search-main" id="docsSearchMain">
+      <span>⌕</span>
+      <input id="docsTextSearch" placeholder="Buscar por archivo, mensaje, chat, tipo..." autocomplete="off">
+    </div>
+    <div class="docs-filter-strip" id="docsFilterStrip">
+      <div class="docs-filter-field">
+        <label>Usuario</label>
+        <select id="docsUserFilter">
+          <option value="">Todos</option>
+          ${users.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="docs-filter-field">
+        <label>Desde</label>
+        <input type="date" id="docsFromDate">
+      </div>
+      <div class="docs-filter-field">
+        <label>Hasta</label>
+        <input type="date" id="docsToDate">
+      </div>
+    </div>
+  </div>`;
+}
+function renderDocumentRepository(){
+  registerUserActivity("abrir_repositorio_documental");
+  const docs=collectSharedDocuments();
+  const imageCount=docs.filter(d=>documentKind(d.attachment)==="image").length;
+  const documentCount=docs.filter(d=>documentKind(d.attachment)==="document").length;
+  $("title").textContent="Docs";
+  $("back").style.visibility="hidden";
+  $("view").innerHTML=`
+    ${docsSearchHTML(docs)}
+    <div class="docs-toolbar doc-actions">
+      <div class="doc-filter-group">
+        <button class="doc-filter ${selectedDocTypeFilter==="all"?"active":""}" data-doc-filter="all">Todos (${docs.length})</button>
+        <button class="doc-filter ${selectedDocTypeFilter==="image"?"active":""}" data-doc-filter="image">Imágenes (${imageCount})</button>
+        <button class="doc-filter ${selectedDocTypeFilter==="document"?"active":""}" data-doc-filter="document">Docs (${documentCount})</button>
+      </div>
+      <div class="doc-bulk-actions">
+        <span class="doc-selected-count" id="docSelectedCount">0 seleccionados</span>
+        <button id="selectAllDocs">Todos</button>
+        <button id="clearSelectedDocs">Limpiar</button>
+        <button class="primary" id="downloadSelectedDocs">Descargar</button>
+        <button class="danger" id="deleteSelectedDocs">Eliminar</button>
+      </div>
+    </div>
+    <div class="body" id="docsBody">
+      ${docs.length?docs.map(documentRowHTML).join(""):`<div class="empty">Aún no hay documentos compartidos en chats individuales, Teams o Forum.</div>`}
+    </div>`;
+  bindDocumentRepository();
+  applyDocFilters();
+}
+function documentRowHTML(d){
+  const a=d.attachment||{},url=attachmentURL(a),canPreview=!!url;
+  const sender=user(d.senderId);
+  const kind=documentKind(a);
+  const sourceControl=d.archived
+    ? `<span class="doc-source-disabled" title="El chat o grupo original ya fue eliminado o abandonado">Origen eliminado</span>`
+    : `<button class="mini" data-doc-action="source" data-doc-id="${esc(d.repoId)}">Ir al mensaje</button>`;
+  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-doc-kind="${kind}" data-doc-sender="${esc(d.senderId)}" data-doc-date="${esc(dateOnlyInput(d.createdAt))}" data-search="${esc(docSearchText(d))}" data-has-preview="${canPreview?"true":"false"}">
+    <label class="doc-check" title="Seleccionar"><input type="checkbox" class="doc-select" value="${esc(d.repoId)}"></label>
+    <div class="doc-icon">${docIcon(a)}</div>
+    <div class="doc-main" data-doc-action="preview" data-doc-id="${esc(d.repoId)}">
+      <div class="doc-name">${esc(a.name||"Archivo sin nombre")}</div>
+      <div class="doc-meta"><strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · <strong>${esc(d.sourceTitle)}</strong>${d.archived?" · Origen eliminado":""}</div>
+      <div class="doc-meta">${esc(a.mime||a.type||"archivo")} · ${fileSize(a.size)}</div>
+      ${d.messageText?`<div class="doc-snippet">${esc(d.messageText)}</div>`:""}
+      <div class="doc-origin-row">
+        ${sourceControl}
+      </div>
+    </div>
+  </div>`;
+}
+function dateOnlyInput(iso){
+  const d=new Date(iso);
+  if(Number.isNaN(d.getTime()))return"";
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function bindDocumentRepository(){
+  const panel=$("docsSearchPanel"),main=$("docsSearchMain"),text=$("docsTextSearch"),userFilter=$("docsUserFilter"),fromDate=$("docsFromDate"),toDate=$("docsToDate");
+  const selectAll=$("selectAllDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),deleteSelected=$("deleteSelectedDocs");
+  if(main)main.onclick=()=>{panel?.classList.add("open");setTimeout(()=>text?.focus(),0)};
+  [text,userFilter,fromDate,toDate].forEach(el=>{if(el)el.oninput=applyDocFilters;if(el)el.onchange=applyDocFilters});
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.onclick=()=>{selectedDocTypeFilter=btn.dataset.docFilter||"all";applyDocFilters()});
+  if(selectAll)selectAll.onclick=()=>{document.querySelectorAll(".doc-row").forEach(row=>{if(row.style.display!=="none"){const cb=row.querySelector(".doc-select");if(cb)cb.checked=true}});updateDocSelectionUI()};
+  if(clearBtn)clearBtn.onclick=()=>{document.querySelectorAll(".doc-select").forEach(cb=>cb.checked=false);updateDocSelectionUI()};
+  if(downloadSelected)downloadSelected.onclick=()=>downloadDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
+  if(deleteSelected)deleteSelected.onclick=()=>deleteDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
+  document.querySelectorAll(".doc-select").forEach(cb=>cb.onchange=e=>{e.stopPropagation();updateDocSelectionUI()});
+  document.querySelectorAll("[data-doc-action]").forEach(btn=>btn.onclick=e=>{
+    e.stopPropagation();
+    const id=btn.dataset.docId,action=btn.dataset.docAction;
+    if(action==="source")goToDocumentMessage(id);
+    if(action==="preview")previewSharedDocument(id);
+  });
+}
+function applyDocFilters(){
+  const q=normalizeForSearch($("docsTextSearch")?.value||"");
+  const sender=$("docsUserFilter")?.value||"";
+  const from=$("docsFromDate")?.value||"";
+  const to=$("docsToDate")?.value||"";
+  let visible=0;
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.classList.toggle("active",(btn.dataset.docFilter||"all")===selectedDocTypeFilter));
+  document.querySelectorAll(".doc-row").forEach(row=>{
+    const docDate=row.dataset.docDate||"";
+    const matchesSearch=!q || (row.dataset.search||"").includes(q);
+    const matchesKind=selectedDocTypeFilter==="all" || row.dataset.docKind===selectedDocTypeFilter;
+    const matchesSender=!sender || row.dataset.docSender===sender;
+    const matchesFrom=!from || (docDate && docDate>=from);
+    const matchesTo=!to || (docDate && docDate<=to);
+    const show=matchesSearch&&matchesKind&&matchesSender&&matchesFrom&&matchesTo;
+    row.style.display=show?"flex":"none";
+    if(show)visible++;
+  });
+  updateDocSelectionUI(visible);
+}
+function updateDocSelectionUI(visibleCount){
+  const selected=[...document.querySelectorAll(".doc-select:checked")].length;
+  const label=$("docSelectedCount");
+  const visible=visibleCount ?? [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").length;
+  if(label)label.textContent=`${selected} sel. · ${visible} visibles`;
+}
+function visibleDocIds(){return [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").map(row=>row.dataset.docId)}
+function canInlinePreview(a){
+  const mime=String(a?.mime||"").toLowerCase();
+  return documentKind(a)==="image" || mime==="application/pdf" || mime.startsWith("text/") || mime.includes("json") || mime.includes("xml") || mime.includes("svg");
+}
+function previewSharedDocument(repoId){
+  const d=findSharedDocument(repoId); if(!d)return;
+  const a=d.attachment||{},url=attachmentURL(a);
+  if(!url){toast("Documento no disponible en este demo local");return}
+  const sender=user(d.senderId);
+  const meta=`<div class="doc-meta" style="margin-bottom:12px">Usuario: <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>`;
+  const actions=`<div class="doc-preview-actions"><a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a><button class="mini danger" onclick="deleteDocumentSet(['${esc(d.repoId)}']);closeModal();">Eliminar archivo</button></div>`;
+  if(documentKind(a)==="image"){
+    showModal(`Vista previa: ${a.name||"Imagen"}`,`${meta}<img class="modal-img" src="${esc(url)}" alt="${esc(a.name||"imagen")}">${actions}`);
+    return;
+  }
+  if(canInlinePreview(a)){
+    showModal(`Vista previa: ${a.name||"Archivo"}`,`${meta}<iframe class="doc-preview-frame" src="${esc(url)}" title="${esc(a.name||"documento")}"></iframe>${actions}`,{wide:true});
+    return;
+  }
+  showModal(`Vista previa: ${a.name||"Archivo"}`,`${meta}<div class="doc-preview-card"><h3>${esc(a.name||"Archivo")}</h3><div><strong>Tipo:</strong> ${esc(a.mime||a.type||"archivo")}</div><div><strong>Tamaño:</strong> ${fileSize(a.size)}</div><div><strong>Origen:</strong> ${esc(d.sourceTitle)}</div><p>Este tipo de archivo no tiene vista previa directa en el navegador dentro del demo. El acceso sigue apuntando al adjunto original del chat y puedes descargarlo o ir al mensaje donde fue compartido.</p></div>${actions}`);
+}
+function openSharedDocument(repoId){previewSharedDocument(repoId)}
+function downloadDocumentSet(repoIds){
+  const unique=[...new Set(repoIds||[])];
+  if(!unique.length){toast("Selecciona al menos un documento");return}
+  let count=0,missing=0;
+  unique.forEach((id,idx)=>{
+    const d=findSharedDocument(id),url=d?attachmentURL(d.attachment):"";
+    if(!d||!url){missing++;return}
+    setTimeout(()=>{
+      const link=document.createElement("a");
+      link.href=url;
+      link.download=d.attachment?.name||"archivo";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    },idx*250);
+    count++;
+  });
+  toast(`${count} descarga${count===1?"":"s"} iniciada${count===1?"":"s"}${missing?` · ${missing} no disponible${missing===1?"":"s"}`:""}`);
+}
+function deleteDocumentSet(repoIds){
+  const unique=[...new Set(repoIds||[])];
+  if(!unique.length){toast("Selecciona al menos un documento");return}
+  const label=unique.length===1?"este archivo":"estos archivos";
+  if(!confirm(`¿Eliminar ${label}? Si el origen aún existe, también se quitará del chat, grupo o Forum donde está compartido.`))return;
+  let count=0;
+  unique.forEach(id=>{
+    const d=findSharedDocument(id);
+    if(!d)return;
+    if(d.archived){
+      state.docArchive=(state.docArchive||[]).filter(x=>x.repoId!==id);
+      count++;
+      return;
+    }
+    if(d.messageRef&&d.messageRef.attachment){
+      d.messageRef.attachment=null;
+      count++;
+    }
+  });
+  save();
+  renderDocumentRepository();
+  toast(`${count} archivo${count===1?"":"s"} eliminado${count===1?"":"s"}`);
+}
+function goToDocumentMessage(repoId){
+  const d=findSharedDocument(repoId); if(!d)return;
+  if(d.archived){toast("El chat o grupo original ya no está disponible");return}
+  pendingFocusMessageId=d.messageId;
+  if(d.sourceType==="chat"){
+    section="chat";viewMode="conversation";selectedChat=d.sourceId;selectedTeam=null;
+  }else if(d.sourceType==="teams"){
+    section="teams";viewMode="teamConversation";selectedTeam=d.sourceId;selectedChat=null;
+  }else{
+    section="forum";viewMode="list";selectedChat=null;selectedTeam=null;
+  }
+  render();
+}
+
+/* MENSAJES */
+function taskUrl(folio){return `${TASK_URL_BASE}${encodeURIComponent(folio)}`}
+function renderTextWithTaskLinks(text){
+  return String(text||"").split(/(#[A-Za-z0-9_-]{2,})/g).map(part=>{
+    const m=part.match(/^#([A-Za-z0-9_-]{2,})$/);
+    if(m){
+      const folio=m[1];
+      return `<button class="task-link" data-action="task" data-task-id="${esc(folio)}" title="Abrir tarjeta #${esc(folio)}">#${esc(folio)}</button>`;
+    }
+    return esc(part).replaceAll("\n","<br>");
+  }).join("");
+}
+function openTaskModal(folio){
+  const clean=String(folio||"").replace(/[^A-Za-z0-9_-]/g,"");
+  if(!clean){toast("Folio no válido");return}
+  const url=taskUrl(clean);
+  showModal(`Tarjeta #${esc(clean)}`,`
+    <div class="task-toolbar">
+      <span>Referencia detectada automáticamente desde el chat.</span>
+      <a href="${esc(url)}" target="_blank" rel="noopener">Abrir en Ximpler.App</a>
+    </div>
+    <iframe class="task-frame" src="${esc(url)}" title="Tarjeta #${esc(clean)}"></iframe>
+    <div class="task-help">Si el navegador no permite cargar la tarjeta dentro del modal por políticas de seguridad, usa “Abrir en Ximpler.App”. En producción, al estar dentro del mismo dominio/app, este modal puede conectarse directo al componente interno de tarjetas.</div>
+  `,{wide:true});
+}
+function preview(m){if(!m)return"Sin mensajes";if(m.deletedForAll)return"Mensaje eliminado";if(m.attachment)return`${m.text?esc(m.text)+" · ":""}${m.attachment.type==="image"?"🖼️":"📎"} ${esc(m.attachment.name)}`;return esc(m.text)}
+function renderMessages(messages){
+  const msgs=visibleMessages(messages); if(!msgs.length)return`<div class="empty">No hay mensajes todavía.</div>`; let d="";
+  return msgs.map(m=>{const mine=m.senderId===ME,day=dateOnly(m.createdAt),showDate=day!==d;d=day;const deleted=m.deletedForAll;
+    const reply=!deleted&&m.replyTo?`<div class="reply">↪ ${esc(m.replyTo.text)}</div>`:"";
+    const content=deleted?`<div class="deleted">Mensaje eliminado para todos</div>`:`${reply}${m.text?`<div>${renderTextWithTaskLinks(m.text)}</div>`:""}${m.attachment?attachmentHTML(m):""}`;
+    const actions=deleted?`<button data-action="reads" data-id="${m.id}">Lecturas</button>`:`<button data-action="reply" data-id="${m.id}">Responder</button><button data-action="copy" data-id="${m.id}">Copiar</button><button data-action="reads" data-id="${m.id}">Lecturas</button>${mine?`<button class="danger" data-action="deleteMe" data-id="${m.id}">Eliminar para mí</button><button class="danger" data-action="deleteAll" data-id="${m.id}">Eliminar para todos</button>`:""}`;
+    return `${showDate?`<div class="date">${day}</div>`:""}<div class="msg-row ${mine?"me":""}" data-message-id="${esc(m.id)}" data-search="${esc(messageSearchText(m))}">${mine?"":av(m.senderId,"xs")}<div class="bubble"><div class="msg-actions">${actions}</div>${mine?"":`<div class="sender">${esc(user(m.senderId).name)}</div>`}${content}<div class="meta"><span>${fmt(m.createdAt)}</span><span class="read" data-action="reads" data-id="${m.id}">${mine?readStatus(m):""}</span></div></div></div>`;
+  }).join("");
+}
+function attachmentURL(a){return a?.objectUrl||a?.dataUrl||""}
+function attachmentHTML(m){
+  const a=m.attachment,name=esc(a.name),rawHref=attachmentURL(a),href=esc(rawHref);
+  const localNote=a.localOnly?`<div class="attachment-note">Demo local: disponible mientras esta pestaña siga abierta. En producción se guardaría como URL/ID del backend.</div>`:"";
+  if(!rawHref){
+    return `<div class="attachment missing"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div><div class="attachment-note">Adjunto no disponible en este demo local después de recargar.</div></div></div>`;
+  }
+  if(a.type==="image")return`<img class="chat-img" src="${href}" alt="${name}" data-action="image" data-id="${m.id}"><div style="margin-top:5px"><a class="download" href="${href}" download="${name}">Descargar imagen</a>${localNote}</div>`;
+  return`<div class="attachment"><div>📎</div><div class="att-info"><div class="att-name">${name}</div><div class="att-size">${fileSize(a.size)}</div>${localNote}</div><a class="download" href="${href}" download="${name}">Descargar</a></div>`
+}
+function composerHTML(){return`<div class="composer-wrap"><div class="replying" id="replyingBox"><span id="replyText"></span><button class="icon-btn" id="clearReply">x</button></div><div class="pending" id="pendingBox"><span id="pendingText"></span><button class="icon-btn" id="clearFile">x</button></div><div class="composer"><button class="attach" id="attachBtn">+</button><div class="attach-menu" id="attachMenu"><div data-file="image">🖼️ Imagen / Foto</div><div data-file="file">📄 Archivo</div><div data-file="camera">📸 Cámara</div></div><input type="file" id="fileInput" style="display:none"><textarea id="messageInput" placeholder="Escribe un mensaje..."></textarea><button class="expand-write" id="expandWrite" title="Ampliar redacción">⤢</button><button class="send" id="sendBtn">➤</button></div></div>`}
+function bindComposer(){
+  updateReply();updatePending();
+  $("attachBtn").onclick=()=>$("attachMenu").classList.toggle("show");
+  $("attachMenu").querySelectorAll("[data-file]").forEach(x=>x.onclick=()=>chooseFile(x.dataset.file));
+  $("fileInput").onchange=handleFile;
+  $("clearReply").onclick=()=>{replying=null;updateReply()};
+  $("clearFile").onclick=()=>{pendingFile=null;updatePending();toast("Adjunto removido")};
+  $("sendBtn").onclick=sendCurrent;
+  $("expandWrite").onclick=openExpandedComposer;
+
+  const ta=$("messageInput");
+  ta.oninput=autoGrowTextarea;
+  ta.onkeydown=e=>{
+    if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      sendCurrent();
+    }
+  };
+  autoGrowTextarea.call(ta);
+}
+function autoGrowTextarea(){
+  this.style.height="36px";
+  this.style.height=Math.min(this.scrollHeight,96)+"px";
+}
+function openExpandedComposer(){
+  const current=$("messageInput") ? $("messageInput").value : "";
+  showModal("Redacción ampliada",`
+    <textarea class="expanded-compose" id="expandedText" placeholder="Escribe aquí tu mensaje completo...">${esc(current)}</textarea>
+    <div style="font-size:11px;color:#64748b;margin-top:8px;">Enter agrega salto de línea. Ctrl/Cmd + Enter envía.</div>
+    <div class="expanded-actions">
+      <button onclick="applyExpandedText()">Aplicar texto</button>
+      <button class="primary" onclick="sendExpandedText()">Enviar mensaje</button>
+    </div>
+  `);
+  setTimeout(()=>$("expandedText")?.focus(),0);
+  setTimeout(()=>{
+    const ex=$("expandedText");
+    if(ex){
+      ex.onkeydown=e=>{
+        if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){
+          e.preventDefault();
+          sendExpandedText();
+        }
+      };
+    }
+  },0);
+}
+function applyExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    autoGrowTextarea.call(ta);
+    closeModal();
+    setTimeout(()=>ta.focus(),0);
+  }
+}
+function sendExpandedText(){
+  const ex=$("expandedText");
+  const ta=$("messageInput");
+  if(ex&&ta){
+    ta.value=ex.value;
+    closeModal();
+    sendCurrent();
+  }
+}
+function bindMessageButtons(){
+  document.querySelectorAll("[data-action]").forEach(el=>{
+    el.onclick=e=>{
+      e.stopPropagation();
+      const a=el.dataset.action,id=el.dataset.id;
+      if(a==="reply")replyMsg(id);
+      if(a==="copy")copyMsg(id);
+      if(a==="reads")showReads(id);
+      if(a==="deleteMe")deleteMsgForMe(id);
+      if(a==="deleteAll")deleteMsgForAll(id);
+      if(a==="image")openImage(id);
+      if(a==="task")openTaskModal(el.dataset.taskId);
+    };
+  });
+}
+function currentMessages(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?c.messages:[]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.messages:[]}return state.forum.messages}
+function currentParticipants(){if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);return c?[ME,c.userId]:[ME]}if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);return t?t.members:[ME]}return state.users.map(u=>u.id)}
+function findMsg(id){return currentMessages().find(m=>m.id===id)}
+function newMessage(text){const createdAt=now();return{id:uid("msg"),senderId:ME,text:text||"",createdAt,readBy:{[ME]:createdAt},replyTo:replying?{...replying}:null,attachment:pendingFile?{...pendingFile}:null,deletedForAll:false,hiddenFor:[]}}
+function sendCurrent(){
+  const input=$("messageInput"),text=input.value.trim();
+  if(!text&&!pendingFile)return;
+  registerUserActivity("enviar_mensaje");
+  const m=newMessage(input.value.trim());
+  if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(!c)return;c.messages.push(m);c.lastActivityAt=m.createdAt}
+  else if(section==="teams"){const t=state.teams.find(x=>x.id===selectedTeam);if(!t)return;t.messages.push(m);t.lastActivityAt=m.createdAt}
+  else{state.forum.messages.push(m);state.forum.lastActivityAt=m.createdAt}
+  input.value="";replying=null;pendingFile=null;save();render();
+  setTimeout(()=>{const ta=$("messageInput"); if(ta){ta.focus(); autoGrowTextarea.call(ta)}},0);
+}
+function replyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;replying={id:m.id,text:m.text||m.attachment?.name||"Archivo adjunto",senderId:m.senderId};updateReply();$("messageInput").focus()}
+function copyMsg(id){const m=findMsg(id);if(!m||m.deletedForAll)return;navigator.clipboard?.writeText(m.text||m.attachment?.name||"").then(()=>toast("Mensaje copiado"))}
+function deleteMsgForMe(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje solo para ti?"))return;if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME);touch();save();render();toast("Eliminado solo para ti")}
+function deleteMsgForAll(id){const m=findMsg(id);if(!m||m.senderId!==ME)return;if(!confirm("¿Eliminar este mensaje para todos?"))return;m.deletedForAll=true;m.text="";m.attachment=null;m.replyTo=null;touch();save();render();toast("Eliminado para todos")}
+function chooseFile(mode){const input=$("fileInput");input.value="";input.removeAttribute("capture");if(mode==="image"){input.accept="image/*"}else if(mode==="camera"){input.accept="image/*";input.setAttribute("capture","environment")}else{input.accept="*/*"}$("attachMenu").classList.remove("show");input.click()}
+function handleFile(e){
+  try{
+    const f=e.target.files&&e.target.files[0];
+    if(!f)return;
+    if(f.size>DEMO_MAX_FILE_BYTES){toast(`Máximo ${fileSize(DEMO_MAX_FILE_BYTES)} en este demo`);return}
+    if(pendingFile?.objectUrl)URL.revokeObjectURL(pendingFile.objectUrl);
+
+    // Demo localStorage: usamos objectURL para no convertir a base64 y no saturar localStorage.
+    // Producción Ximpler.App: reemplazar esto por uploadAttachmentToXimpler(f) y guardar fileId/url segura.
+    const objectUrl=URL.createObjectURL(f);
+    pendingFile={
+      id:uid("att"),
+      name:f.name||"archivo",
+      mime:f.type||"application/octet-stream",
+      size:f.size,
+      type:f.type.startsWith("image/")?"image":"file",
+      objectUrl,
+      dataUrl:"",
+      localOnly:true,
+      storageMode:"objectURL-demo",
+      createdAt:now()
+    };
+    updatePending();
+    toast(pendingFile.type==="image"?"Imagen lista":"Archivo listo");
+  }catch(err){
+    console.error("Error preparando archivo:",err);
+    toast("No se pudo preparar el archivo");
+  }finally{
+    if(e&&e.target)e.target.value="";
+  }
+}
+function updateReply(){const box=$("replyingBox"),text=$("replyText");if(!box||!text)return;if(replying){box.classList.add("show");text.textContent=`Respondiendo a: ${replying.text}`}else{box.classList.remove("show");text.textContent=""}}
+function updatePending(){const box=$("pendingBox"),text=$("pendingText");if(!box||!text)return;if(pendingFile){box.classList.add("show");text.textContent=`${pendingFile.type==="image"?"Imagen":"Archivo"} listo: ${pendingFile.name} (${fileSize(pendingFile.size)})`}else{box.classList.remove("show");text.textContent=""}}
+function fileSize(bytes){const n=Number(bytes||0);if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toFixed(1)} KB`;return`${(n/(1024*1024)).toFixed(1)} MB`}
+function markRead(messages){const t=now();messages.forEach(m=>{if(!m.readBy)m.readBy={};if(!m.readBy[ME])m.readBy[ME]=t})}
+function markAllRead(){state.chats.forEach(c=>{c.unread=0;markRead(c.messages)});state.teams.forEach(t=>{if(t.members.includes(ME)){t.unread=0;markRead(t.messages)}});state.forum.unread=0;markRead(state.forum.messages);save();render();toast("Todo marcado como leído")}
+function readStatus(m){const p=currentParticipants(),others=p.filter(id=>id!==m.senderId),seen=others.filter(id=>m.readBy&&m.readBy[id]);if(!others.length)return"✓";if(seen.length===others.length)return"✓✓";if(seen.length)return`✓ ${seen.length}/${others.length}`;return"✓"}
+function showReads(id){const m=findMsg(id);if(!m)return;const rows=currentParticipants().map(id=>{const u=user(id),seen=m.readBy&&m.readBy[id];return`<div class="receipt">${av(id)}<div class="receipt-main"><div class="receipt-name">${esc(u.name)} ${id===m.senderId?"(envió)":""}</div><div class="receipt-status">${seen?`Visto: ${fmt(seen)}`:"Pendiente de lectura"}</div></div><div class="${seen?"seen":"pending-read"}">${seen?"Visto":"Pendiente"}</div></div>`}).join("");showModal("Confirmación de lectura",`<div style="margin-bottom:10px;color:#475569;font-size:12px">Enviado el ${fmt(m.createdAt)}.</div>${rows}`)}
+function openImage(id){
+  const m=findMsg(id);
+  if(!m||!m.attachment||m.attachment.type!=="image")return;
+  const a=m.attachment,rawHref=attachmentURL(a);
+  if(!rawHref){toast("Imagen no disponible en este demo local");return}
+  showModal(a.name,`<img class="modal-img" src="${esc(rawHref)}" alt="${esc(a.name)}"><div style="margin-top:12px"><a class="download" href="${esc(rawHref)}" download="${esc(a.name)}">Descargar imagen</a></div>`);
+}
+function touch(){registerUserActivity("actualizar_conversacion");const t=now();if(section==="chat"){const c=state.chats.find(x=>x.id===selectedChat);if(c)c.lastActivityAt=t}else if(section==="teams"){const tm=state.teams.find(x=>x.id===selectedTeam);if(tm)tm.lastActivityAt=t}else{state.forum.lastActivityAt=t}}
+function showModal(title,body,options={}){
+  $("modalTitle").textContent=title;
+  $("modalBody").innerHTML=body;
+  const box=$("modalBox");
+  if(box)box.className=`modal${options.wide?" wide":""}`;
+  $("modal").classList.add("show");
+}
+function closeModal(){
+  $("modal").classList.remove("show");
+  $("modalBody").innerHTML="";
+  const box=$("modalBox");
+  if(box)box.className="modal";
+}
+$("modal").onclick=e=>{if(e.target===$("modal"))closeModal()};
+function scrollBottom(){setTimeout(()=>{const m=$("messages");if(!m)return;if(pendingFocusMessageId){const target=[...document.querySelectorAll(".msg-row")].find(row=>row.dataset.messageId===pendingFocusMessageId);if(target){target.scrollIntoView({block:"center",behavior:"smooth"});target.classList.add("highlight-message");setTimeout(()=>target.classList.remove("highlight-message"),2600);pendingFocusMessageId=null;return}}m.scrollTop=m.scrollHeight},0)}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
+badges();render();
+</script>
+</body>
+</html>
