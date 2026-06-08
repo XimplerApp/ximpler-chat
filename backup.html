@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ximpler.App | Team Chat V1.6.7 Demo Extendida Chats y Docs</title>
+<title>Ximpler.App | Team Chat V1.6.11 Docs Limpieza UI</title>
 
 <style>
 :root{
@@ -520,6 +520,242 @@ label.lbl{font-size:18px;margin:18px 0 9px}
   font-size:16px;
   font-weight:800;
 }
+.doc-filter{border:1px solid var(--border);background:white;color:#334155;padding:11px 14px;border-radius:11px;cursor:pointer;font-size:16px;font-weight:800}
+.doc-filter.active{background:#0f172a;color:white;border-color:#0f172a}
+.doc-direction{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+.doc-direction.mine{background:#dcfce7;color:#15803d;border-color:#bbf7d0}
+.doc-kind-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:12px;font-weight:800;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.doc-preview-frame{width:100%;height:68vh;border:1px solid var(--border);border-radius:12px;background:white}
+.doc-preview-card{border:1px solid var(--border);border-radius:14px;background:#f8fafc;padding:18px;line-height:1.45;color:#334155}
+.doc-preview-card h3{margin:0 0 8px;font-size:20px;color:#0f172a}
+
+/* =========================================================
+   AJUSTES V1.6.9 — DOCS UX COMPACTA + PERMISOS DE GRUPO
+   - Se elimina texto explicativo largo del repositorio.
+   - Acciones y filtros compactos para muchos archivos.
+   - Solo creador puede eliminar un chat grupal.
+   ========================================================= */
+.docs-head{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 12px;
+  border-bottom:1px solid var(--border);
+  background:white;
+  flex:0 0 auto;
+}
+.docs-title{font-size:16px;font-weight:900;color:#0f172a;white-space:nowrap}
+.docs-counter{font-size:12px;color:#64748b;font-weight:800;white-space:nowrap}
+.docs-toolbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:#f8fafc;
+  flex:0 0 auto;
+}
+.doc-filter-group,.doc-bulk-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.doc-filter{
+  padding:7px 9px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
+.doc-bulk-actions button{
+  padding:7px 9px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1;
+}
+.doc-bulk-actions .primary{background:var(--navy);color:white;border-color:var(--navy)}
+.doc-selected-count{font-size:12px;color:#64748b;font-weight:800;white-space:nowrap;padding:0 4px}
+.doc-row{
+  min-height:86px;
+  gap:10px;
+  padding:10px 12px;
+}
+.doc-check input{width:18px;height:18px}
+.doc-icon{width:36px;height:36px;border-radius:10px;font-size:18px}
+.doc-name{font-size:14px;line-height:1.25}
+.doc-meta{font-size:11px;margin-top:3px;line-height:1.25}
+.doc-snippet{font-size:11px;margin-top:3px}
+.doc-direction,.doc-kind-pill{font-size:10px;padding:2px 6px;margin-left:4px;vertical-align:middle}
+.doc-buttons{
+  flex-direction:row;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:158px;
+}
+.doc-buttons .mini{
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  line-height:1;
+}
+.doc-buttons .download{
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  line-height:1;
+}
+.doc-source-disabled{
+  border:1px solid var(--border);
+  background:#f1f5f9;
+  color:#64748b;
+  padding:6px 7px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.doc-preview-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.doc-preview-actions .download{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+  background:white;
+  color:#1d4ed8;
+  font-size:13px;
+  font-weight:800;
+  text-decoration:none;
+}
+.owner-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;margin-left:6px;font-size:11px;font-weight:900;background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.creator-note{font-size:11px;color:#64748b;margin-left:6px}
+@media(max-width:760px){
+  .docs-toolbar{align-items:flex-start}
+  .doc-bulk-actions{width:100%}
+  .doc-buttons{max-width:none;width:100%;justify-content:flex-start;margin-top:6px}
+  .doc-row{align-items:flex-start;flex-wrap:wrap}
+}
+
+
+/* =========================================================
+   AJUSTES V1.6.10 — DOCS BÚSQUEDA COMBINADA + UX LISTA
+   ========================================================= */
+.rail-badge{display:none}
+.docs-head{display:none}
+.docs-search-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:white;
+  flex:0 0 auto;
+}
+.docs-search-main{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px 9px;
+  background:#f8fafc;
+}
+.docs-search-main span{color:#475569;font-size:16px}
+.docs-search-main input{
+  border:0;
+  outline:0;
+  background:transparent;
+  flex:1;
+  min-width:80px;
+  height:28px;
+  font-size:13px;
+  color:#0f172a;
+}
+.docs-filter-strip{
+  display:none;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+}
+.docs-search-panel.open .docs-filter-strip{display:grid}
+.docs-filter-field{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+.docs-filter-field label{
+  font-size:10px;
+  color:#64748b;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.docs-filter-field select,.docs-filter-field input{
+  height:30px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  padding:0 8px;
+  font-size:12px;
+  color:#334155;
+  min-width:0;
+}
+.docs-toolbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:7px;
+  padding:7px 10px;
+  background:#f8fafc;
+}
+.doc-filter-group,.doc-bulk-actions{justify-content:space-between;width:100%}
+.doc-filter-group{gap:5px}
+.doc-filter{flex:1;text-align:center;padding:7px 8px;font-size:11px}
+.doc-bulk-actions{gap:5px;flex-wrap:nowrap}
+.doc-bulk-actions button{padding:7px 8px;font-size:11px;white-space:nowrap}
+.doc-selected-count{flex:1;min-width:76px;font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.doc-bulk-actions #selectAllDocs{max-width:78px}
+.doc-bulk-actions #clearSelectedDocs{max-width:64px}
+.doc-row{
+  min-height:74px;
+  align-items:flex-start;
+  gap:9px;
+  padding:9px 10px;
+  cursor:default;
+}
+.doc-row:hover{background:#f8fafc}
+.doc-row[data-has-preview="true"] .doc-main{cursor:pointer}
+.doc-main{padding-right:2px}
+.doc-name{font-size:13px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-meta{font-size:10.5px;line-height:1.25}
+.doc-snippet{font-size:10.5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+.doc-buttons{display:none!important}
+.doc-origin-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.doc-origin-row .mini,.doc-origin-row .doc-source-disabled{
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1;
+}
+.doc-origin-row .mini{border:1px solid var(--border);background:white;color:#334155;cursor:pointer;font-weight:800}
+.doc-origin-row .mini:hover{background:#eef2ff}
+.doc-preview-hint{font-size:10px;color:#64748b;font-weight:800}
+.doc-preview-hint.available{color:#0369a1}
+@media(max-width:760px){
+  .docs-filter-strip{grid-template-columns:1fr}
+  .doc-bulk-actions{flex-wrap:wrap;justify-content:flex-start}
+  .doc-selected-count{width:100%}
+  .doc-filter{flex:1 1 30%}
+}
+
+.doc-preview-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.doc-preview-actions .download{border:1px solid var(--border);border-radius:11px;padding:11px 14px;background:white;color:#1d4ed8;font-size:16px;font-weight:800;text-decoration:none}
 .msg-row.highlight-message .bubble{
   outline:3px solid #f59e0b;
   box-shadow:0 0 0 6px rgba(245,158,11,.16);
@@ -583,7 +819,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
     <div class="rail-item active" data-section="chat"><span class="rail-badge" id="chatBadge">0</span><span>💬</span><span>Chat</span></div>
     <div class="rail-item" data-section="teams"><span class="rail-badge" id="teamsBadge">0</span><span>👥</span><span>Teams</span></div>
     <div class="rail-item" data-section="forum"><span class="rail-badge" id="forumBadge">0</span><span>⚙</span><span>Forum</span></div>
-    <div class="rail-item" data-section="docs"><span class="rail-badge docs-count" id="docsBadge">0</span><span>📎</span><span>Docs</span></div>
+    <div class="rail-item" data-section="docs"><span>📎</span><span>Docs</span></div>
   </aside>
 
   <div class="chat-main">
@@ -605,7 +841,7 @@ label.lbl{font-size:18px;margin:18px 0 9px}
 </div>
 
 <script>
-const KEY="ximpler_team_chat_v1_6_7_demo_extendida_chats_docs";
+const KEY="ximpler_team_chat_v1_6_11_docs_limpieza_ui";
 const SESSION_KEY="ximpler_demo_active_session_v1";
 const COMPANY_ID="company_demo_ximpler_001";
 const ME="u1";
@@ -691,6 +927,7 @@ const demo={
     {id:"c_u2",userId:"u2",unread:1,lastActivityAt:"2026-05-04T09:35:00",messages:[
       msg("m1","u2","Revisar avance del tablero antes de la reunión. Ver #206731","2026-05-02T14:00:00",{u2:"2026-05-02T14:00:00",u1:"2026-05-02T14:06:00"}),
       msg("m2","u1","Ok, lo reviso y te comparto comentarios.","2026-05-02T15:25:00",{u1:"2026-05-02T15:25:00",u2:"2026-05-02T15:28:00"}),
+      msgWithAttachment("m2a","u1","Te subo mi propuesta de ajustes para validar antes de implementarla.","2026-05-04T10:05:00",{u1:"2026-05-04T10:05:00",u2:"2026-05-04T10:14:00"},demoAttachment("att_m2a","propuesta_ajustes_chat_docs.pdf","application/pdf",152000,"file","Propuesta demo de ajustes para Chat y Docs.")),
       msgWithAttachment("m3","u2","Te comparto la minuta de dirección con acuerdos y responsables. Incluye seguimiento de #206731.","2026-05-04T09:35:00",{u2:"2026-05-04T09:35:00"},demoAttachment("att_m3","minuta_direccion_04_mayo.pdf","application/pdf",184000,"file","Minuta demo de direccion - acuerdos, responsables y fechas."))
     ]},
     {id:"c_u3",userId:"u3",unread:0,lastActivityAt:"2026-05-03T17:50:00",messages:[
@@ -733,6 +970,7 @@ const demo={
     {id:"t3",name:"Sistemas",members:["u1","u2","u4","u5"],unread:1,lastActivityAt:"2026-05-04T15:30:00",messages:[
       msg("tm6","u5","Hay que validar permisos del nuevo módulo. Relacionado con #202523","2026-05-01T12:40:00",{u5:"2026-05-01T12:40:00",u2:"2026-05-01T12:48:00"}),
       msg("tm7","u1","Estoy revisando la lógica del Team Chat.","2026-05-01T13:10:00",{u1:"2026-05-01T13:10:00",u2:"2026-05-01T13:14:00"}),
+      msgWithAttachment("tm7a","u1","Dejo la imagen de referencia del comportamiento esperado en Docs.","2026-05-04T14:25:00",{u1:"2026-05-04T14:25:00",u2:"2026-05-04T14:29:00"},demoImageAttachment("att_tm7a","referencia_docs_preview.svg","Vista Previa Docs","Filtros, descarga y eliminación desde repositorio","#06192f")),
       msgWithAttachment("tm8","u4","Les dejo el checklist técnico de pruebas para repositorio documental.","2026-05-04T15:30:00",{u4:"2026-05-04T15:30:00"},demoAttachment("att_tm8","checklist_pruebas_repositorio.pdf","application/pdf",176000,"file","Checklist demo de pruebas del repositorio documental."))
     ]},
     {id:"t4",name:"Comité Dirección",members:["u1","u2","u7","u9","u11"],unread:1,lastActivityAt:"2026-05-04T10:45:00",messages:[
@@ -754,6 +992,7 @@ const demo={
   forum:{unread:4,lastActivityAt:"2026-05-04T18:30:00",messages:[
     msg("fm1","u2","Este espacio puede usarse para avisos generales, documentos y comunicación abierta.","2026-05-01T10:10:00",{u2:"2026-05-01T10:10:00",u1:"2026-05-01T10:22:00"}),
     msg("fm2","u1","Correcto. El Forum debe servir como tablero general de discusión.","2026-05-01T11:05:00",{u1:"2026-05-01T11:05:00",u2:"2026-05-01T11:12:00"}),
+    msgWithAttachment("fm2a","u1","Subo una guía rápida para explicar cómo usar el repositorio documental.","2026-05-04T08:20:00",{u1:"2026-05-04T08:20:00",u2:"2026-05-04T08:32:00"},demoAttachment("att_fm2a","guia_rapida_repositorio_docs.pdf","application/pdf",126000,"file","Guia rapida demo para repositorio documental.")),
     msgWithAttachment("fm3","u2","Aviso general: comparto los lineamientos de uso de Ximpler.App para todo el equipo.","2026-05-04T09:00:00",{u2:"2026-05-04T09:00:00"},demoAttachment("att_fm3","lineamientos_generales_ximpler.pdf","application/pdf",195000,"file","Lineamientos demo de uso Ximpler.App.")),
     msgWithAttachment("fm4","u8","Dejo la infografía institucional para próximos comunicados.","2026-05-04T11:30:00",{u8:"2026-05-04T11:30:00"},demoImageAttachment("att_fm4","infografia_repositorio_docs.svg","Repositorio Documental","Todos los documentos recibidos en un solo lugar","#1f8fe5")),
     msgWithAttachment("fm5","u9","Comparto plantilla de diagnóstico exprés para uso general del equipo.","2026-05-04T14:20:00",{u9:"2026-05-04T14:20:00"},demoAttachment("att_fm5","plantilla_diagnostico_expres.xlsx","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",234000,"file","Plantilla demo de diagnostico expres.")),
@@ -762,7 +1001,7 @@ const demo={
   ]}
 };
 
-let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null, pendingFocusMessageId=null;
+let currentSession=bootSession(), state=load(), section="chat", viewMode="list", selectedChat=null, selectedTeam=null, replying=null, pendingFile=null, pendingFocusMessageId=null, selectedDocTypeFilter="all";
 const $=id=>document.getElementById(id);
 
 $("launcher").onclick=()=>{registerUserActivity("abrir_panel_chat");$("panel").classList.add("open");render()};
@@ -809,11 +1048,16 @@ function normalize(s){
     if(!u.presence)u.presence=demoPresenceFor(u.id);
   });
   syncCurrentUserPresenceInState(s);
-  s.chats=s.chats||[]; s.teams=s.teams||[]; s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+  s.chats=s.chats||[];
+  s.teams=s.teams||[];
+  s.forum=s.forum||{unread:0,lastActivityAt:now(),messages:[]};
+  s.docArchive=s.docArchive||[];
+  s.teams.forEach(t=>ensureTeamOwner(t));
   [...s.chats,...s.teams,{messages:s.forum.messages}].forEach(box=>{
     (box.messages||[]).forEach(m=>{m.readBy=m.readBy||{[m.senderId]:m.createdAt};m.hiddenFor=m.hiddenFor||[];m.deletedForAll=!!m.deletedForAll;if(m.attachment===undefined)m.attachment=null;if(m.replyTo===undefined)m.replyTo=null});
     box.lastActivityAt=box.lastActivityAt||lastDate(box.messages||[]); box.unread=Number(box.unread||0);
   });
+  s.docArchive.forEach(d=>{d.archived=true;d.attachment=d.attachment||null;d.direction=d.senderId===ME?"mine":"received"});
   return s;
 }
 function user(id){return state.users.find(u=>u.id===id)||state.users[0]}
@@ -959,7 +1203,28 @@ function teamSearchText(team){
     messagesSearchText(team.messages||[])
   ].join(" "));
 }
-function badges(){const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0),t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0),f=Number(state.forum.unread||0),d=collectSharedDocuments().length;$("chatBadge").textContent=c;$("teamsBadge").textContent=t;$("forumBadge").textContent=f;if($("docsBadge"))$("docsBadge").textContent=d;$("totalBadge").textContent=c+t+f;updateSessionUI()}
+function setBadgeVisibility(id,count){
+  const el=$(id);
+  if(!el)return;
+  if(Number(count)>0){
+    el.textContent=count;
+    el.style.display="flex";
+  }else{
+    el.textContent="";
+    el.style.display="none";
+  }
+}
+function badges(){
+  const c=state.chats.reduce((a,x)=>a+Number(x.unread||0),0);
+  const t=state.teams.filter(x=>x.members.includes(ME)).reduce((a,x)=>a+Number(x.unread||0),0);
+  const f=Number(state.forum.unread||0);
+  const total=c+t+f;
+  setBadgeVisibility("chatBadge",c);
+  setBadgeVisibility("teamsBadge",t);
+  setBadgeVisibility("forumBadge",f);
+  setBadgeVisibility("totalBadge",total);
+  updateSessionUI();
+}
 function searchHTML(){return `<div class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar:"></div>`}
 function filterRows(inputSelector,rowSelector){
   const input=$(inputSelector); if(!input)return;
@@ -1039,8 +1304,21 @@ function renderChatConversation(){
   $("emptyThis").onclick=()=>emptyChat(c.id); $("deleteThis").onclick=()=>deleteChat(c.id);
   bindComposer(); bindMessageButtons(); scrollBottom();
 }
-function emptyChat(id){const c=state.chats.find(x=>x.id===id); if(!c||!confirm("¿Vaciar este chat solo para ti?"))return; c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});c.unread=0;c.lastActivityAt=now();save();render();toast("Chat vaciado para ti")}
-function deleteChat(id){if(!confirm("¿Eliminar este chat de tu lista? Esta acción quitará el historial de tu vista."))return;state.chats=state.chats.filter(c=>c.id!==id);selectedChat=null;viewMode="list";save();render();toast("Chat eliminado")}
+function emptyChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c||!confirm("¿Vaciar este chat solo para ti? Los documentos compartidos se conservarán en DOCS."))return;
+  archiveChatDocuments(c);
+  c.messages.forEach(m=>{if(!m.hiddenFor.includes(ME))m.hiddenFor.push(ME)});
+  c.unread=0;c.lastActivityAt=now();save();render();toast("Chat vaciado. Sus documentos siguen en DOCS")
+}
+function deleteChat(id){
+  const c=state.chats.find(x=>x.id===id);
+  if(!c)return;
+  if(!confirm("¿Eliminar este chat de tu lista? Los documentos compartidos se conservarán en DOCS."))return;
+  archiveChatDocuments(c);
+  state.chats=state.chats.filter(x=>x.id!==id);
+  selectedChat=null;viewMode="list";save();render();toast("Chat eliminado. Sus documentos siguen en DOCS")
+}
 
 /* TEAMS */
 function renderTeamsList(){
@@ -1066,10 +1344,13 @@ function renderTeamsList(){
 function openTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!t.members.includes(ME)){toast("Ya no perteneces a este Team");return}registerUserActivity("abrir_chat_grupal");selectedTeam=id;viewMode="teamConversation";t.unread=0;markRead(t.messages);save();render()}
 function renderTeamConversation(){
   const t=state.teams.find(x=>x.id===selectedTeam); if(!t||!t.members.includes(ME)){viewMode="list";renderTeamsList();return}
+  ensureTeamOwner(t);
+  const ownerText=`Creador: ${user(t.ownerId).name}`;
+  const deleteButton=isTeamOwner(t)?`<button class="danger" id="deleteTeam">Eliminar chat</button>`:`<button class="danger" id="deleteTeam" disabled title="Solo el creador puede eliminar este grupo">Eliminar chat</button>`;
   $("title").textContent=t.name; $("back").style.visibility="visible";
   $("view").innerHTML=`
-    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes · ${onlineCount(t.members)} en línea</span><button class="info-btn" id="groupInfo">Info</button></div>
-    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button><button class="danger" id="deleteTeam">Eliminar chat</button></div>
+    <div class="note"><span><strong>${esc(t.name)}</strong> · ${t.members.length} integrantes · ${onlineCount(t.members)} en línea <span class="creator-note">${esc(ownerText)}</span></span><button class="info-btn" id="groupInfo">Info</button></div>
+    <div class="toolbar"><button class="danger" id="leaveTeam">Salir del chat grupal</button>${deleteButton}</div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(t.messages)}</div>${composerHTML()}</div>`;
   $("groupInfo").onclick=()=>showGroupInfo(t.id); $("leaveTeam").onclick=()=>leaveTeam(t.id); $("deleteTeam").onclick=()=>deleteTeamChat(t.id);
   bindComposer(); bindMessageButtons(); scrollBottom();
@@ -1087,12 +1368,45 @@ function renderTeamForm(){
   $("createTeam").onclick=createTeam; $("cancelTeam").onclick=()=>{viewMode="list";render()};
 }
 function pickerRows(){return state.users.filter(u=>u.id!==ME).map(u=>`<label class="pick" data-search="${esc(normalizeForSearch(userSearchText(u.id)))}">${av(u.id)}<span>${esc(u.name)}<br>${presenceChip(u.id)}</span><input type="checkbox" class="memberCheck" value="${u.id}"></label>`).join("")}
-function createTeam(){const name=$("teamName").value.trim();const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);if(!name){toast("Escribe el nombre del chat grupal");return}const t={id:uid("team"),name,members:[...new Set([ME,...selected])],unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")}
-function leaveTeam(id){const t=state.teams.find(x=>x.id===id);if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? El historial se conservará para los demás integrantes.`))return;t.members=t.members.filter(x=>x!==ME);const m=newMessage(`${user(ME).name} salió del chat grupal.`);t.messages.push(m);t.lastActivityAt=m.createdAt;selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal")}
-function deleteTeamChat(id){const t=state.teams.find(x=>x.id===id);if(!t)return;if(!confirm(`¿Eliminar el chat grupal "${t.name}" de tu vista? Esto borrará su historial en este prototipo.`))return;state.teams=state.teams.filter(x=>x.id!==id);selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado")}
+function createTeam(){
+  const name=$("teamName").value.trim();
+  const selected=[...document.querySelectorAll(".memberCheck:checked")].map(x=>x.value);
+  if(!name){toast("Escribe el nombre del chat grupal");return}
+  const t={id:uid("team"),name,members:[...new Set([ME,...selected])],ownerId:ME,createdBy:ME,unread:0,lastActivityAt:now(),messages:[newMessage(`Chat grupal creado: ${name}`)]};
+  state.teams.push(t);save();selectedTeam=t.id;viewMode="teamConversation";render();toast("Chat grupal creado")
+}
+function leaveTeam(id){
+  const t=state.teams.find(x=>x.id===id);
+  if(!t||!confirm(`¿Salir del chat grupal "${t.name}"? Los documentos que compartiste o recibiste se conservarán en DOCS.`))return;
+  ensureTeamOwner(t);
+  archiveTeamDocuments(t);
+  t.members=t.members.filter(x=>x!==ME);
+  let transferText="";
+  if(t.ownerId===ME){
+    const next=chooseNewTeamOwner(t);
+    transferText=next?` Nuevo creador asignado automáticamente: ${user(next).name}.`:"";
+  }
+  if(!t.members.length){
+    state.teams=state.teams.filter(x=>x.id!==id);
+  }else{
+    const m=newMessage(`${user(ME).name} salió del chat grupal.${transferText}`);
+    t.messages.push(m);t.lastActivityAt=m.createdAt;
+  }
+  selectedTeam=null;viewMode="list";save();render();toast("Saliste del chat grupal. Sus documentos siguen en DOCS")
+}
+function deleteTeamChat(id){
+  const t=state.teams.find(x=>x.id===id);if(!t)return;
+  ensureTeamOwner(t);
+  if(!isTeamOwner(t)){toast("Solo el creador del grupo puede eliminar este chat grupal");return}
+  if(!confirm(`¿Eliminar el chat grupal "${t.name}"? Los documentos compartidos se conservarán en DOCS.`))return;
+  archiveTeamDocuments(t);
+  state.teams=state.teams.filter(x=>x.id!==id);
+  selectedTeam=null;viewMode="list";save();render();toast("Chat grupal eliminado. Sus documentos siguen en DOCS")
+}
 function showGroupInfo(id){
   const t=state.teams.find(x=>x.id===id);if(!t)return;
-  showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea</div>${t.members.map(uid=>`<div class="receipt">${av(uid)}<div class="receipt-main"><div class="receipt-name">${esc(user(uid).name)}</div><div class="receipt-status">${uid===ME?"Tú":"Integrante"}</div></div>${presenceChip(uid)}<button class="mini user-info-open" data-user-info="${uid}">Info</button></div>`).join("")}`);
+  ensureTeamOwner(t);
+  showModal("Info de Grupo",`<div style="margin-bottom:10px"><strong>${esc(t.name)}</strong><br>${t.members.length} integrantes · ${onlineCount(t.members)} en línea<br><span class="creator-note">Creador actual: <strong>${esc(user(t.ownerId).name)}</strong></span></div>${t.members.map(uid=>`<div class="receipt">${av(uid)}<div class="receipt-main"><div class="receipt-name">${esc(user(uid).name)} ${uid===t.ownerId?'<span class="owner-pill">Creador</span>':''}</div><div class="receipt-status">${uid===ME?"Tú":"Integrante"}</div></div>${presenceChip(uid)}<button class="mini user-info-open" data-user-info="${uid}">Info</button></div>`).join("")}`);
   setTimeout(()=>document.querySelectorAll(".user-info-open").forEach(el=>el.onclick=e=>{e.stopPropagation();showUserInfo(el.dataset.userInfo)}),0);
 }
 function showUserInfo(id){
@@ -1127,113 +1441,259 @@ function renderForum(){
   $("title").textContent="Forum"; $("back").style.visibility="hidden"; state.forum.unread=0; markRead(state.forum.messages); save();
   $("view").innerHTML=`
     ${searchHTML()}
-    <div class="note"><span>Foro general para anuncios, documentos, fotos y acuerdos compartidos. · ${onlineCount(state.users.map(u=>u.id))} usuarios en línea</span></div>
     <div class="conversation"><div class="messages" id="messages">${renderMessages(state.forum.messages)}</div>${composerHTML()}</div>`;
   filterMessages("searchInput");
   bindComposer(); bindMessageButtons(); scrollBottom();
 }
 
 
+
+/* PERMISOS Y ARCHIVO DOCUMENTAL */
+function ensureTeamOwner(t){
+  if(!t)return null;
+  t.members=[...new Set(t.members||[])];
+  if(!t.ownerId || !t.members.includes(t.ownerId))t.ownerId=t.createdBy||t.creatorId||t.members[0]||ME;
+  t.createdBy=t.createdBy||t.ownerId;
+  return t.ownerId;
+}
+function isTeamOwner(t){return !!t && ensureTeamOwner(t)===ME}
+function chooseNewTeamOwner(t){
+  if(!t||!t.members||!t.members.length)return null;
+  const pool=t.members.filter(id=>id!==ME);
+  if(!pool.length)return null;
+  const next=pool[Math.floor(Math.random()*pool.length)];
+  t.ownerId=next;
+  t.createdBy=t.createdBy||next;
+  return next;
+}
+function archiveRepoId(context,message,attachment){return `${context.type}:${context.id||"forum"}:${message.id}:${attachment?.id||attachment?.name||"archivo"}`}
+function cloneAttachmentForArchive(a){return a?JSON.parse(JSON.stringify(a)):null}
+function archiveDocumentsFromMessages(messages,context){
+  state.docArchive=state.docArchive||[];
+  (messages||[]).forEach(m=>{
+    if(!m||m.deletedForAll||!m.attachment)return;
+    const repoId=archiveRepoId(context,m,m.attachment);
+    if(state.docArchive.some(x=>x.repoId===repoId))return;
+    state.docArchive.push({
+      repoId,
+      sourceType:context.type,
+      sourceId:context.id||"forum",
+      sourceTitle:context.title,
+      messageId:m.id,
+      messageText:m.text||"",
+      senderId:m.senderId,
+      createdAt:m.createdAt,
+      direction:m.senderId===ME?"mine":"received",
+      attachment:cloneAttachmentForArchive(m.attachment),
+      archived:true,
+      archivedAt:now(),
+      originalWasRemoved:true
+    });
+  });
+}
+function archiveChatDocuments(chat){
+  if(!chat)return;
+  archiveDocumentsFromMessages(chat.messages,{type:"chat",id:chat.id,title:`Chat con ${user(chat.userId).name}`});
+}
+function archiveTeamDocuments(team){
+  if(!team)return;
+  archiveDocumentsFromMessages(team.messages,{type:"teams",id:team.id,title:team.name});
+}
+
 /* REPOSITORIO DOCUMENTAL */
+function documentKind(a){return (a?.type==="image" || String(a?.mime||"").startsWith("image/"))?"image":"document"}
+function documentKindLabel(a){return documentKind(a)==="image"?"Imagen":"Documento"}
 function collectSharedDocuments(){
   const docs=[];
   const addFromMessages=(messages,context)=>{
     visibleMessages(messages||[]).forEach(m=>{
-      if(!m||m.deletedForAll||!m.attachment||m.senderId===ME)return;
+      if(!m||m.deletedForAll||!m.attachment)return;
       const a=m.attachment;
       docs.push({
-        repoId:`${context.type}:${context.id||"forum"}:${m.id}:${a.id||a.name||"archivo"}`,
+        repoId:archiveRepoId(context,m,a),
         sourceType:context.type,
         sourceId:context.id||"forum",
         sourceTitle:context.title,
         messageId:m.id,
+        messageRef:m,
         messageText:m.text||"",
         senderId:m.senderId,
         createdAt:m.createdAt,
-        attachment:a
+        direction:m.senderId===ME?"mine":"received",
+        attachment:a,
+        archived:false
       });
     });
   };
   state.chats.forEach(c=>addFromMessages(c.messages,{type:"chat",id:c.id,title:`Chat con ${user(c.userId).name}`}));
   state.teams.filter(t=>t.members.includes(ME)).forEach(t=>addFromMessages(t.messages,{type:"teams",id:t.id,title:t.name}));
   addFromMessages(state.forum.messages,{type:"forum",id:"forum",title:"Forum"});
-  return docs.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  (state.docArchive||[]).forEach(d=>{if(d&&d.attachment)docs.push({...d,archived:true})});
+  const seen=new Set();
+  return docs
+    .filter(d=>{if(seen.has(d.repoId))return false; seen.add(d.repoId); return true})
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
 }
 function findSharedDocument(repoId){return collectSharedDocuments().find(d=>d.repoId===repoId)}
 function docSearchText(d){
   return normalizeForSearch([
-    d.attachment?.name,d.attachment?.mime,d.attachment?.type,fileSize(d.attachment?.size),
-    userSearchText(d.senderId),d.sourceTitle,d.sourceType,d.messageText,
+    d.attachment?.name,d.attachment?.mime,d.attachment?.type,documentKindLabel(d.attachment),fileSize(d.attachment?.size),
+    userSearchText(d.senderId),d.senderId===ME?"subido por mi enviado por mi":"compartido conmigo recibido hacia mi",d.sourceTitle,d.sourceType,d.messageText,
     dateOnly(d.createdAt),fmt(d.createdAt)
   ].join(" "));
 }
-function docIcon(a){return a?.type==="image"?"🖼️":"📎"}
-function renderDocumentRepository(){
-  registerUserActivity("abrir_repositorio_documental");
-  const docs=collectSharedDocuments();
-  $("title").textContent="Repositorio";
-  $("back").style.visibility="hidden";
-  $("view").innerHTML=`
-    ${searchHTML()}
-    <div class="note">
-      <span><strong>Documentos compartidos hacia mí</strong><br><span class="doc-summary">Shortcuts a archivos recibidos en chats individuales, Teams y Forum. No se duplica el documento: cada registro apunta al adjunto original.</span></span>
+function docIcon(a){return documentKind(a)==="image"?"🖼️":"📎"}
+function docsSearchHTML(docs){
+  const users=[...new Map(docs.map(d=>[d.senderId,user(d.senderId)])).values()].sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="docs-search-panel" id="docsSearchPanel">
+    <div class="docs-search-main" id="docsSearchMain">
+      <span>⌕</span>
+      <input id="docsTextSearch" placeholder="Buscar por archivo, mensaje, chat, tipo..." autocomplete="off">
     </div>
-    <div class="toolbar doc-actions">
-      <button id="selectVisibleDocs">Seleccionar todos</button>
-      <button id="clearSelectedDocs">Limpiar selección</button>
-      <button class="primary" id="downloadSelectedDocs">Descargar seleccionados</button>
-      <button id="downloadVisibleDocs">Descargar todos</button>
-    </div>
-    <div class="body" id="docsBody">
-      ${docs.length?docs.map(documentRowHTML).join(""):`<div class="empty">Aún no hay documentos compartidos hacia ti en chats individuales, Teams o Forum.</div>`}
-    </div>`;
-  bindDocumentRepository();
-  filterRows("searchInput",".doc-row");
-}
-function documentRowHTML(d){
-  const a=d.attachment||{},url=attachmentURL(a),canOpen=!!url;
-  const sender=user(d.senderId);
-  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-search="${esc(docSearchText(d))}">
-    <label class="doc-check" title="Seleccionar"><input type="checkbox" class="doc-select" value="${esc(d.repoId)}"></label>
-    <div class="doc-icon">${docIcon(a)}</div>
-    <div class="doc-main">
-      <div class="doc-name">${esc(a.name||"Archivo sin nombre")}</div>
-      <div class="doc-meta">Compartido por <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>
-      <div class="doc-meta">${esc(a.mime||a.type||"archivo")} · ${fileSize(a.size)}</div>
-      ${d.messageText?`<div class="doc-snippet">Mensaje: ${esc(d.messageText)}</div>`:""}
-      ${a.localOnly?`<div class="attachment-note">Demo local: este shortcut usa el adjunto original de la conversación. En producción apuntaría al fileId/URL segura del backend.</div>`:""}
-    </div>
-    <div class="doc-buttons">
-      <button class="mini" data-doc-action="source" data-doc-id="${esc(d.repoId)}">Ir al mensaje</button>
-      <button class="mini" data-doc-action="open" data-doc-id="${esc(d.repoId)}" ${canOpen?"":"disabled"}>Abrir</button>
-      ${canOpen?`<a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a>`:`<span class="download" style="opacity:.55;cursor:not-allowed">No disponible</span>`}
+    <div class="docs-filter-strip" id="docsFilterStrip">
+      <div class="docs-filter-field">
+        <label>Usuario</label>
+        <select id="docsUserFilter">
+          <option value="">Todos</option>
+          ${users.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="docs-filter-field">
+        <label>Desde</label>
+        <input type="date" id="docsFromDate">
+      </div>
+      <div class="docs-filter-field">
+        <label>Hasta</label>
+        <input type="date" id="docsToDate">
+      </div>
     </div>
   </div>`;
 }
+function renderDocumentRepository(){
+  registerUserActivity("abrir_repositorio_documental");
+  const docs=collectSharedDocuments();
+  const imageCount=docs.filter(d=>documentKind(d.attachment)==="image").length;
+  const documentCount=docs.filter(d=>documentKind(d.attachment)==="document").length;
+  $("title").textContent="Docs";
+  $("back").style.visibility="hidden";
+  $("view").innerHTML=`
+    ${docsSearchHTML(docs)}
+    <div class="docs-toolbar doc-actions">
+      <div class="doc-filter-group">
+        <button class="doc-filter ${selectedDocTypeFilter==="all"?"active":""}" data-doc-filter="all">Todos (${docs.length})</button>
+        <button class="doc-filter ${selectedDocTypeFilter==="image"?"active":""}" data-doc-filter="image">Imágenes (${imageCount})</button>
+        <button class="doc-filter ${selectedDocTypeFilter==="document"?"active":""}" data-doc-filter="document">Docs (${documentCount})</button>
+      </div>
+      <div class="doc-bulk-actions">
+        <span class="doc-selected-count" id="docSelectedCount">0 seleccionados</span>
+        <button id="selectAllDocs">Todos</button>
+        <button id="clearSelectedDocs">Limpiar</button>
+        <button class="primary" id="downloadSelectedDocs">Descargar</button>
+        <button class="danger" id="deleteSelectedDocs">Eliminar</button>
+      </div>
+    </div>
+    <div class="body" id="docsBody">
+      ${docs.length?docs.map(documentRowHTML).join(""):`<div class="empty">Aún no hay documentos compartidos en chats individuales, Teams o Forum.</div>`}
+    </div>`;
+  bindDocumentRepository();
+  applyDocFilters();
+}
+function documentRowHTML(d){
+  const a=d.attachment||{},url=attachmentURL(a),canPreview=!!url;
+  const sender=user(d.senderId);
+  const kind=documentKind(a);
+  const sourceControl=d.archived
+    ? `<span class="doc-source-disabled" title="El chat o grupo original ya fue eliminado o abandonado">Origen eliminado</span>`
+    : `<button class="mini" data-doc-action="source" data-doc-id="${esc(d.repoId)}">Ir al mensaje</button>`;
+  return `<div class="doc-row" data-doc-id="${esc(d.repoId)}" data-doc-kind="${kind}" data-doc-sender="${esc(d.senderId)}" data-doc-date="${esc(dateOnlyInput(d.createdAt))}" data-search="${esc(docSearchText(d))}" data-has-preview="${canPreview?"true":"false"}">
+    <label class="doc-check" title="Seleccionar"><input type="checkbox" class="doc-select" value="${esc(d.repoId)}"></label>
+    <div class="doc-icon">${docIcon(a)}</div>
+    <div class="doc-main" data-doc-action="preview" data-doc-id="${esc(d.repoId)}">
+      <div class="doc-name">${esc(a.name||"Archivo sin nombre")}</div>
+      <div class="doc-meta"><strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · <strong>${esc(d.sourceTitle)}</strong>${d.archived?" · Origen eliminado":""}</div>
+      <div class="doc-meta">${esc(a.mime||a.type||"archivo")} · ${fileSize(a.size)}</div>
+      ${d.messageText?`<div class="doc-snippet">${esc(d.messageText)}</div>`:""}
+      <div class="doc-origin-row">
+        ${sourceControl}
+      </div>
+    </div>
+  </div>`;
+}
+function dateOnlyInput(iso){
+  const d=new Date(iso);
+  if(Number.isNaN(d.getTime()))return"";
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
 function bindDocumentRepository(){
-  const selectBtn=$("selectVisibleDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),downloadAll=$("downloadVisibleDocs");
-  if(selectBtn)selectBtn.onclick=()=>document.querySelectorAll(".doc-row").forEach(row=>{if(row.style.display!=="none"){const cb=row.querySelector(".doc-select");if(cb)cb.checked=true}});
-  if(clearBtn)clearBtn.onclick=()=>document.querySelectorAll(".doc-select").forEach(cb=>cb.checked=false);
+  const panel=$("docsSearchPanel"),main=$("docsSearchMain"),text=$("docsTextSearch"),userFilter=$("docsUserFilter"),fromDate=$("docsFromDate"),toDate=$("docsToDate");
+  const selectAll=$("selectAllDocs"),clearBtn=$("clearSelectedDocs"),downloadSelected=$("downloadSelectedDocs"),deleteSelected=$("deleteSelectedDocs");
+  if(main)main.onclick=()=>{panel?.classList.add("open");setTimeout(()=>text?.focus(),0)};
+  [text,userFilter,fromDate,toDate].forEach(el=>{if(el)el.oninput=applyDocFilters;if(el)el.onchange=applyDocFilters});
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.onclick=()=>{selectedDocTypeFilter=btn.dataset.docFilter||"all";applyDocFilters()});
+  if(selectAll)selectAll.onclick=()=>{document.querySelectorAll(".doc-row").forEach(row=>{if(row.style.display!=="none"){const cb=row.querySelector(".doc-select");if(cb)cb.checked=true}});updateDocSelectionUI()};
+  if(clearBtn)clearBtn.onclick=()=>{document.querySelectorAll(".doc-select").forEach(cb=>cb.checked=false);updateDocSelectionUI()};
   if(downloadSelected)downloadSelected.onclick=()=>downloadDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
-  if(downloadAll)downloadAll.onclick=()=>downloadDocumentSet(visibleDocIds());
+  if(deleteSelected)deleteSelected.onclick=()=>deleteDocumentSet([...document.querySelectorAll(".doc-select:checked")].map(cb=>cb.value));
+  document.querySelectorAll(".doc-select").forEach(cb=>cb.onchange=e=>{e.stopPropagation();updateDocSelectionUI()});
   document.querySelectorAll("[data-doc-action]").forEach(btn=>btn.onclick=e=>{
     e.stopPropagation();
     const id=btn.dataset.docId,action=btn.dataset.docAction;
     if(action==="source")goToDocumentMessage(id);
-    if(action==="open")openSharedDocument(id);
+    if(action==="preview")previewSharedDocument(id);
   });
 }
+function applyDocFilters(){
+  const q=normalizeForSearch($("docsTextSearch")?.value||"");
+  const sender=$("docsUserFilter")?.value||"";
+  const from=$("docsFromDate")?.value||"";
+  const to=$("docsToDate")?.value||"";
+  let visible=0;
+  document.querySelectorAll(".doc-filter").forEach(btn=>btn.classList.toggle("active",(btn.dataset.docFilter||"all")===selectedDocTypeFilter));
+  document.querySelectorAll(".doc-row").forEach(row=>{
+    const docDate=row.dataset.docDate||"";
+    const matchesSearch=!q || (row.dataset.search||"").includes(q);
+    const matchesKind=selectedDocTypeFilter==="all" || row.dataset.docKind===selectedDocTypeFilter;
+    const matchesSender=!sender || row.dataset.docSender===sender;
+    const matchesFrom=!from || (docDate && docDate>=from);
+    const matchesTo=!to || (docDate && docDate<=to);
+    const show=matchesSearch&&matchesKind&&matchesSender&&matchesFrom&&matchesTo;
+    row.style.display=show?"flex":"none";
+    if(show)visible++;
+  });
+  updateDocSelectionUI(visible);
+}
+function updateDocSelectionUI(visibleCount){
+  const selected=[...document.querySelectorAll(".doc-select:checked")].length;
+  const label=$("docSelectedCount");
+  const visible=visibleCount ?? [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").length;
+  if(label)label.textContent=`${selected} sel. · ${visible} visibles`;
+}
 function visibleDocIds(){return [...document.querySelectorAll(".doc-row")].filter(row=>row.style.display!=="none").map(row=>row.dataset.docId)}
-function openSharedDocument(repoId){
+function canInlinePreview(a){
+  const mime=String(a?.mime||"").toLowerCase();
+  return documentKind(a)==="image" || mime==="application/pdf" || mime.startsWith("text/") || mime.includes("json") || mime.includes("xml") || mime.includes("svg");
+}
+function previewSharedDocument(repoId){
   const d=findSharedDocument(repoId); if(!d)return;
-  const url=attachmentURL(d.attachment);
+  const a=d.attachment||{},url=attachmentURL(a);
   if(!url){toast("Documento no disponible en este demo local");return}
-  if(d.attachment?.type==="image"){
-    showModal(d.attachment.name||"Imagen",`<img class="modal-img" src="${esc(url)}" alt="${esc(d.attachment.name||"imagen")}"><div style="margin-top:12px"><a class="download" href="${esc(url)}" download="${esc(d.attachment.name||"imagen")}">Descargar imagen</a></div>`);
+  const sender=user(d.senderId);
+  const meta=`<div class="doc-meta" style="margin-bottom:12px">Usuario: <strong>${esc(sender.name)}</strong> · ${fmt(d.createdAt)} · En: <strong>${esc(d.sourceTitle)}</strong></div>`;
+  const actions=`<div class="doc-preview-actions"><a class="download" href="${esc(url)}" download="${esc(a.name||"archivo")}">Descargar</a><button class="mini danger" onclick="deleteDocumentSet(['${esc(d.repoId)}']);closeModal();">Eliminar archivo</button></div>`;
+  if(documentKind(a)==="image"){
+    showModal(`Vista previa: ${a.name||"Imagen"}`,`${meta}<img class="modal-img" src="${esc(url)}" alt="${esc(a.name||"imagen")}">${actions}`);
     return;
   }
-  window.open(url,"_blank","noopener");
+  if(canInlinePreview(a)){
+    showModal(`Vista previa: ${a.name||"Archivo"}`,`${meta}<iframe class="doc-preview-frame" src="${esc(url)}" title="${esc(a.name||"documento")}"></iframe>${actions}`,{wide:true});
+    return;
+  }
+  showModal(`Vista previa: ${a.name||"Archivo"}`,`${meta}<div class="doc-preview-card"><h3>${esc(a.name||"Archivo")}</h3><div><strong>Tipo:</strong> ${esc(a.mime||a.type||"archivo")}</div><div><strong>Tamaño:</strong> ${fileSize(a.size)}</div><div><strong>Origen:</strong> ${esc(d.sourceTitle)}</div><p>Este tipo de archivo no tiene vista previa directa en el navegador dentro del demo. El acceso sigue apuntando al adjunto original del chat y puedes descargarlo o ir al mensaje donde fue compartido.</p></div>${actions}`);
 }
+function openSharedDocument(repoId){previewSharedDocument(repoId)}
 function downloadDocumentSet(repoIds){
   const unique=[...new Set(repoIds||[])];
   if(!unique.length){toast("Selecciona al menos un documento");return}
@@ -1253,8 +1713,32 @@ function downloadDocumentSet(repoIds){
   });
   toast(`${count} descarga${count===1?"":"s"} iniciada${count===1?"":"s"}${missing?` · ${missing} no disponible${missing===1?"":"s"}`:""}`);
 }
+function deleteDocumentSet(repoIds){
+  const unique=[...new Set(repoIds||[])];
+  if(!unique.length){toast("Selecciona al menos un documento");return}
+  const label=unique.length===1?"este archivo":"estos archivos";
+  if(!confirm(`¿Eliminar ${label}? Si el origen aún existe, también se quitará del chat, grupo o Forum donde está compartido.`))return;
+  let count=0;
+  unique.forEach(id=>{
+    const d=findSharedDocument(id);
+    if(!d)return;
+    if(d.archived){
+      state.docArchive=(state.docArchive||[]).filter(x=>x.repoId!==id);
+      count++;
+      return;
+    }
+    if(d.messageRef&&d.messageRef.attachment){
+      d.messageRef.attachment=null;
+      count++;
+    }
+  });
+  save();
+  renderDocumentRepository();
+  toast(`${count} archivo${count===1?"":"s"} eliminado${count===1?"":"s"}`);
+}
 function goToDocumentMessage(repoId){
   const d=findSharedDocument(repoId); if(!d)return;
+  if(d.archived){toast("El chat o grupo original ya no está disponible");return}
   pendingFocusMessageId=d.messageId;
   if(d.sourceType==="chat"){
     section="chat";viewMode="conversation";selectedChat=d.sourceId;selectedTeam=null;
